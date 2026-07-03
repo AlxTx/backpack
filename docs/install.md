@@ -49,8 +49,7 @@ Run it after cloning or after structural changes:
 
 ### `bootstrap/install.sh`
 
-Phase 1 is non-destructive. The script only prints the future symlink plan.
-It does **not** modify `~/.config` yet.
+By default, the script is non-destructive: it prints the symlink plan and does **not** modify `~/.config`.
 
 It is for wiring local machine config after clone, not for GitHub authentication.
 
@@ -58,4 +57,16 @@ It is for wiring local machine config after clone, not for GitHub authentication
 ~/perso/backpack/bootstrap/install.sh
 ```
 
-Future phase: `bootstrap/install.sh` will create safe symlinks from `~/.config/*` to this repo after validation.
+To apply the wiring, run:
+
+```sh
+~/perso/backpack/bootstrap/install.sh --apply
+```
+
+Apply mode:
+
+- backs up existing `~/.config` entries into `~/.config.backup.<timestamp>/`;
+- creates symlinks from `~/.config/*` to `~/perso/backpack/*`;
+- is idempotent when a link already points to the right source.
+
+After `--apply`, restart shells/apps that load config at startup: Fish, OpenCode, Nvim, Karabiner, Ghostty.

@@ -38,4 +38,5 @@ If the machine has multiple GitHub SSH identities, or if `git@github.com` is not
 git clone git@github-perso:AlxTx/backpack.git ~/perso/backpack
 ```
 
-`bootstrap/install.sh` is currently non-destructive: it only prints the future symlink plan and does not modify `~/.config`.
+`bootstrap/install.sh` is non-destructive by default: it only prints the symlink plan.
+Run `bootstrap/install.sh --apply` to backup existing `~/.config` entries and wire this backpack through symlinks.
