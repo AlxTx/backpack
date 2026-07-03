@@ -24,10 +24,10 @@ ok "memory index exists"
 test -x "$BACKPACK_ROOT/tools/wakey/wakey" || fail "missing executable tools/wakey/wakey"
 ok "wakey executable exists"
 
-if test -f "$BACKPACK_ROOT/dotfiles/fish/fish_variables"; then
+if git -C "$BACKPACK_ROOT" ls-files --error-unmatch dotfiles/fish/fish_variables >/dev/null 2>&1; then
   fail "dotfiles/fish/fish_variables should not be versioned"
 fi
-ok "fish_variables absent"
+ok "fish_variables is not tracked"
 
 if git -C "$BACKPACK_ROOT" remote -v | grep -q 'AlxTx/backpack'; then
   ok "git remote targets AlxTx/backpack"
