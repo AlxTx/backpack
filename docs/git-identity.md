@@ -48,6 +48,9 @@ Recommended global `~/.gitconfig` shape:
 ```ini
 [includeIf "gitdir:~/perso/"]
   path = ~/.gitconfig-perso
+
+[includeIf "gitdir:~/Dev/perso/"]
+  path = ~/.gitconfig-perso
 ```
 
 Personal `~/.gitconfig-perso` shape:
@@ -64,6 +67,7 @@ Recommended local boundary:
 
 ```txt
 ~/perso/   personal repos and backpack
+~/Dev/perso/   personal app repos if using the existing Dev workspace
 ~/client/  client repos and mission context
 ```
 
