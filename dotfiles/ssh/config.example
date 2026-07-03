@@ -1,0 +1,11 @@
+# Copy/adapt entries into ~/.ssh/config.
+# SSH controls authentication keys/remotes. Git config controls commit identity.
+
+Host github-perso
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519_alxtx
+  IdentitiesOnly yes
+
+# Client SSH hosts are intentionally not managed by backpack.
+# Keep the client-provided SSH configuration separate.

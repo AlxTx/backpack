@@ -1,0 +1,7 @@
+# Copy to ~/.config/fish/local.fish. Do not commit local.fish.
+
+# Client/company-specific certificates or proxies.
+# set -gx NODE_EXTRA_CA_CERTS "$HOME/.certs/company-root-ca.crt"
+
+# Override default workspace for this machine.
+# set -gx WORKSPACE "$HOME/Dev"

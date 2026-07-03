@@ -1,0 +1,10 @@
+# Copy/adapt to ~/.gitconfig.
+# This file routes Git identity by local folder.
+
+[includeIf "gitdir:~/perso/"]
+  path = ~/.gitconfig-perso
+
+# Client/work Git configuration is intentionally not managed by backpack.
+# Add a client include only if the client allows it, for example:
+# [includeIf "gitdir:~/client/"]
+#   path = ~/.gitconfig-client

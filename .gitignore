@@ -1,0 +1,26 @@
+# macOS local metadata
+.DS_Store
+**/.DS_Store
+
+# Dependencies and generated package-manager state
+**/node_modules/
+**/.npm/
+**/.pnpm-store/
+
+# Logs, caches, temp files
+**/*.log
+**/.cache/
+**/cache/
+**/tmp/
+**/temp/
+
+# Local Fish state / machine-specific overrides
+dotfiles/fish/fish_variables
+dotfiles/fish/local.fish
+
+# Karabiner runtime backups
+dotfiles/karabiner/automatic_backups/
+
+# Obsidian local state if memory is opened as a vault
+memory/**/.obsidian/workspace*.json
+memory/**/.obsidian/cache/

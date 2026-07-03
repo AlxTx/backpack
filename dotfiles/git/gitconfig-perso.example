@@ -1,0 +1,6 @@
+# Copy/adapt to ~/.gitconfig-perso.
+# Personal Git author identity.
+
+[user]
+  name = Alexis Estrade
+  email = YOUR_PERSONAL_EMAIL@example.com
