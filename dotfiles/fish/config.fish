@@ -3,7 +3,12 @@
 set -gx EDITOR nvim
 set -gx VISUAL nvim
 
-set -gx BACKPACK_ROOT "$HOME/perso/backpack"
+if not set -q BACKPACK_ROOT
+    set -l config_file (command realpath (status filename) 2>/dev/null)
+    if test -n "$config_file"
+        set -gx BACKPACK_ROOT (dirname (dirname (dirname "$config_file")))
+    end
+end
 set -gx WORKSPACE "$HOME/Dev"
 
 alias @backpack='cd "$BACKPACK_ROOT" && nvim'

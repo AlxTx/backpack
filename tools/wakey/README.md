@@ -26,7 +26,7 @@ La fonction portable est dans :
 dotfiles/fish/functions/wakey.fish
 ```
 
-Elle utilise `BACKPACK_ROOT` si défini, sinon `~/perso/backpack`.
+Elle utilise `BACKPACK_ROOT`.
 
 ## Usage
 

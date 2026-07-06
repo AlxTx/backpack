@@ -24,19 +24,41 @@ System wiring via symlinks comes later.
 
 ## Quick start
 
-Before cloning on a new machine, GitHub SSH authentication must already work.
-`install.sh` cannot fix clone/auth problems because it runs after the repo exists locally.
+Clone the repo wherever you keep your projects:
 
 ```sh
-git clone git@github.com:AlxTx/backpack.git ~/perso/backpack
-~/perso/backpack/bootstrap/doctor.sh
+git clone git@github.com:AlxTx/backpack.git
+cd backpack
 ```
 
-If the machine has multiple GitHub SSH identities, or if `git@github.com` is not configured, clone with the explicit personal host instead:
+Then run the installer:
 
 ```sh
-git clone git@github-perso:AlxTx/backpack.git ~/perso/backpack
+bootstrap/install.sh
 ```
 
-`bootstrap/install.sh` is non-destructive by default: it only prints the symlink plan.
-Run `bootstrap/install.sh --apply` to backup existing `~/.config` entries and wire this backpack through symlinks.
+It guides you through three steps:
+
+1. runs `bootstrap/doctor.sh` to check that the repo is healthy;
+2. shows the install plan in dry-run mode, without changing anything;
+3. asks for confirmation before backing up existing `~/.config` entries and creating symlinks.
+
+### When to use each command
+
+Use `doctor.sh` after cloning, or after changing the repo structure. It only validates that expected files exist and that the repo looks healthy.
+
+```sh
+bootstrap/doctor.sh
+```
+
+Use `install.sh` for normal setup. It checks, previews, then prompts before applying.
+
+```sh
+bootstrap/install.sh
+```
+
+Use `install.sh --apply` only when you want to skip the prompt, for example in a scripted setup.
+
+```sh
+bootstrap/install.sh --apply
+```

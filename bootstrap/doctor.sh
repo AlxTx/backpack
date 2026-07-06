@@ -1,7 +1,9 @@
 #!/usr/bin/env sh
 set -eu
 
-BACKPACK_ROOT=${BACKPACK_ROOT:-"$HOME/perso/backpack"}
+SCRIPT_DIR=$(CDPATH= cd "$(dirname "$0")" && pwd -P)
+DEFAULT_BACKPACK_ROOT=$(CDPATH= cd "$SCRIPT_DIR/.." && pwd -P)
+BACKPACK_ROOT=${BACKPACK_ROOT:-"$DEFAULT_BACKPACK_ROOT"}
 
 fail() {
   printf '✗ %s\n' "$1" >&2
