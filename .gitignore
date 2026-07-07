@@ -18,6 +18,11 @@
 dotfiles/fish/fish_variables
 dotfiles/fish/local.fish
 
+# Local opencode profiles / client overlays
+**/opencode-profiles/
+**/*.local.json
+**/*.local.jsonc
+
 # Karabiner runtime backups
 dotfiles/karabiner/automatic_backups/
 

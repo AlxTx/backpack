@@ -46,12 +46,20 @@ Use Git `includeIf` to select identity by local folder.
 Recommended global `~/.gitconfig` shape:
 
 ```ini
-[includeIf "gitdir:~/perso/"]
+[includeIf "gitdir:~/dev/perso/"]
   path = ~/.gitconfig-perso
 
 [includeIf "gitdir:~/Dev/perso/"]
   path = ~/.gitconfig-perso
+
+[includeIf "gitdir:~/perso/"]
+  path = ~/.gitconfig-perso
 ```
+
+`~/dev/perso/` is the canonical personal workspace. `~/Dev/perso/` is included
+because some macOS machines already have an uppercase `Dev` directory, and Git
+`includeIf` path matching should not depend on casing. `~/perso/` is kept only
+as a legacy fallback while migrating old clones.
 
 Personal `~/.gitconfig-perso` shape:
 
@@ -66,8 +74,9 @@ Client/work Git identity is intentionally not managed by backpack. Use the clien
 Recommended local boundary:
 
 ```txt
-~/perso/   personal repos and backpack
-~/Dev/perso/   personal app repos if using the existing Dev workspace
+~/dev/perso/   personal repos and backpack
+~/Dev/perso/   same workspace if macOS preserved uppercase folder casing
+~/perso/       legacy personal repos during migration
 ~/client/  client repos and mission context
 ```
 

@@ -9,7 +9,15 @@ if not set -q BACKPACK_ROOT
         set -gx BACKPACK_ROOT (dirname (dirname (dirname "$config_file")))
     end
 end
-set -gx WORKSPACE "$HOME/Dev"
+set -l detected_workspace (command realpath "$HOME/dev" 2>/dev/null)
+if test -z "$detected_workspace"; and test -d "$HOME/Dev"
+    set detected_workspace (command realpath "$HOME/Dev" 2>/dev/null)
+end
+if test -n "$detected_workspace"
+    set -gx WORKSPACE "$detected_workspace"
+else
+    set -gx WORKSPACE "$HOME/dev"
+end
 
 alias @backpack='cd "$BACKPACK_ROOT" && nvim'
 alias @opencodeconfig='cd "$BACKPACK_ROOT/cockpit/opencode" && nvim'

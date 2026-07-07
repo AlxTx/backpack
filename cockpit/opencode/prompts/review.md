@@ -79,11 +79,11 @@ Validation:
 
 Risk: [low | medium | high] — [short reason]
 
-Next agent: brainstorm | plan | build | review
+Next agent: interactive | plan | autopilot | review
 ```
 
 ## Routing
 
-`build` if fixes can continue safely. `plan` if the fix needs a safer plan or
-hidden complexity appeared. `brainstorm` if the product decision is unclear.
+`autopilot` if fixes can continue safely. `plan` if the fix needs a safer plan or
+hidden complexity appeared. `interactive` if the product decision is unclear.
 Stay in `review` if another diff needs reviewing.

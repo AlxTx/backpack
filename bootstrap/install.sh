@@ -4,17 +4,34 @@ set -eu
 SCRIPT_DIR=$(CDPATH= cd "$(dirname "$0")" && pwd -P)
 DEFAULT_BACKPACK_ROOT=$(CDPATH= cd "$SCRIPT_DIR/.." && pwd -P)
 BACKPACK_ROOT=${BACKPACK_ROOT:-"$DEFAULT_BACKPACK_ROOT"}
+if [ ! -d "$BACKPACK_ROOT" ]; then
+  printf 'i ignoring stale BACKPACK_ROOT: %s\n' "$BACKPACK_ROOT"
+  BACKPACK_ROOT=$DEFAULT_BACKPACK_ROOT
+fi
 CONFIG_DIR=${CONFIG_DIR:-"$HOME/.config"}
 APPLY=0
 DIRECT_APPLY=0
+PROFILE_MODE=personal
 
-if [ "${1:-}" = "--apply" ]; then
-  APPLY=1
-  DIRECT_APPLY=1
-elif [ "${1:-}" != "" ]; then
-  printf 'Usage: %s [--apply]\n' "$0" >&2
-  exit 2
-fi
+while [ "${1:-}" != "" ]; do
+  case "$1" in
+    --apply)
+      APPLY=1
+      DIRECT_APPLY=1
+      ;;
+    --personal)
+      PROFILE_MODE=personal
+      ;;
+    --client)
+      PROFILE_MODE=client
+      ;;
+    *)
+      printf 'Usage: %s [--personal|--client] [--apply]\n' "$0" >&2
+      exit 2
+      ;;
+  esac
+  shift
+done
 
 backup_dir="$HOME/.config.backup.$(date +%Y%m%d-%H%M%S)"
 
@@ -53,6 +70,27 @@ link_entry() {
   printf 'linked: %s -> %s\n' "$target_path" "$source_path"
 }
 
+ensure_profile_dir() {
+  if [ "$APPLY" -eq 0 ]; then
+    printf 'would ensure local profile dir: %s\n' "$CONFIG_DIR/opencode-profiles"
+  else
+    mkdir -p "$CONFIG_DIR/opencode-profiles"
+    printf '✓ local profile dir exists: %s\n' "$CONFIG_DIR/opencode-profiles"
+  fi
+}
+
+print_client_reminder() {
+  if [ "$PROFILE_MODE" = "client" ]; then
+    cat <<EOF
+
+Client mode reminder:
+- Backpack installs only the portable opencode core.
+- Create the real client profile locally in $CONFIG_DIR/opencode-profiles/.
+- Do not commit client providers, tokens, endpoints, or policies to Backpack.
+EOF
+  fi
+}
+
 run_doctor() {
   BACKPACK_ROOT=$BACKPACK_ROOT "$SCRIPT_DIR/doctor.sh"
 }
@@ -63,6 +101,7 @@ Backpack install
 
 Backpack root: $BACKPACK_ROOT
 Config dir:     $CONFIG_DIR
+Profile mode:   $PROFILE_MODE
 Mode:           $(if [ "$APPLY" -eq 1 ]; then printf 'apply'; else printf 'dry-run'; fi)
 
 EOF
@@ -76,6 +115,8 @@ EOF
   link_entry "$BACKPACK_ROOT/dotfiles/starship/starship-catppuccin.toml" "$CONFIG_DIR/starship-catppuccin.toml"
   link_entry "$BACKPACK_ROOT/dotfiles/starship/starship-dragon.toml" "$CONFIG_DIR/starship-dragon.toml"
   link_entry "$BACKPACK_ROOT/dotfiles/starship/starship-tokyo.toml" "$CONFIG_DIR/starship-tokyo.toml"
+  ensure_profile_dir
+  print_client_reminder
 }
 
 if [ "$DIRECT_APPLY" -eq 1 ]; then

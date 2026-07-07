@@ -1,10 +1,13 @@
 # Copy/adapt to ~/.gitconfig.
 # This file routes Git identity by local folder.
 
-[includeIf "gitdir:~/perso/"]
+[includeIf "gitdir:~/dev/perso/"]
   path = ~/.gitconfig-perso
 
 [includeIf "gitdir:~/Dev/perso/"]
+  path = ~/.gitconfig-perso
+
+[includeIf "gitdir:~/perso/"]
   path = ~/.gitconfig-perso
 
 # Client/work Git configuration is intentionally not managed by backpack.

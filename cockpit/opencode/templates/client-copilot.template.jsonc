@@ -1,0 +1,25 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  // Copy to ~/.config/opencode-profiles/<client>.jsonc.
+  // Replace the model IDs with the exact Copilot provider/model IDs available
+  // in the client environment. Do not commit the copied file.
+  "enabled_providers": ["copilot"],
+  "disabled_providers": ["openai", "anthropic", "google"],
+  "agent": {
+    "interactive": {
+      "model": "copilot/REPLACE_WITH_FAST_OR_AUTO_MODEL"
+    },
+    "plan": {
+      "model": "copilot/REPLACE_WITH_BEST_REASONING_MODEL"
+    },
+    "autopilot": {
+      "model": "copilot/REPLACE_WITH_BEST_CODING_MODEL"
+    },
+    "review": {
+      "model": "copilot/REPLACE_WITH_BEST_REVIEW_MODEL"
+    },
+    "pattern-scan": {
+      "model": "copilot/REPLACE_WITH_FAST_OR_CHEAP_MODEL"
+    }
+  }
+}

@@ -2,7 +2,7 @@
 
 Mental model:
 
-- `Tab` changes the current primary mode: brainstorm, plan, build, review.
+- `Tab` changes the current primary mode: interactive, plan, autopilot.
 - `/command` runs a prepared action.
 - A pinned command uses its declared agent and does not depend on the current mode.
 - A subagent is an isolated specialist used for one task.
@@ -11,9 +11,12 @@ Mental model:
 Current cockpit:
 
 ```txt
-Think   -> brainstorm
-Inspect -> plan
-Change  -> build
-Check   -> review
-Learn   -> /pattern-scan, /capture
+Interactive -> clarify, challenge, decide next step
+Plan        -> inspect read-only and prepare execution
+Autopilot   -> execute scoped changes end-to-end
+Review      -> /review existing changes in read-only mode
+Learn       -> /pattern-scan, /capture
 ```
+
+Backpack provides the portable cockpit core. Provider/model choices are injected
+by local profiles (personal, pro, client) outside this repo.

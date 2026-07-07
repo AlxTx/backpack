@@ -50,7 +50,7 @@ is enough.
 Skills are separated by **role**, which removes overlap:
 
 ### Learn + produce (conceptual — these teach the pattern)
-Use during plan and build for React work — component design, props API,
+Use during plan and autopilot for React work — component design, props API,
 composition, hooks, state placement, data fetching, render behavior, React
 anti-patterns:
 - `react-2026`, `react-composition-2026`, `react-data-fetching`,
@@ -72,13 +72,13 @@ UI / design system:
 
 ### Review only (checklists / gating — not implementation guides)
 - `vercel-react-best-practices` — final performance checklist for
-  performance-sensitive or Next.js changes. **Never** use it in plan or build.
+  performance-sensitive or Next.js changes. **Never** use it in plan or autopilot.
 - `web-design-guidelines` — UI/accessibility/UX/responsiveness audit at review.
 
 ## Capture exception (overrides read-only rules)
 
 Running `~/.config/opencode/bin/capture.sh` is ALWAYS permitted, in every agent,
-including the strict read-only ones (brainstorm, plan, review). It appends to a
+including the strict read-only ones (interactive, plan, review). It appends to a
 personal learning log **outside the project** — it is NOT a project mutation, and
 does NOT count as "running commands" or as breaking read-only. So when `/capture`
 is invoked and there are patterns in the conversation to save, run it without
@@ -98,7 +98,7 @@ C) <one line>   (or: autre chose)
 
 One line per option. Stop and let the user choose. Reserve long explanations for
 when the user explicitly asks "why" or "compare". This applies most to
-brainstorm, but holds for any agent facing a fork.
+interactive, but holds for any agent facing a fork.
 
 ## Style
 

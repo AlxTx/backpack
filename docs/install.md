@@ -1,15 +1,21 @@
 # Install
 
-Phase 1 keeps this backpack separate from the active system config.
+Backpack targets macOS only. Phase 1 keeps this backpack separate from the active
+system config until `--apply` is used.
 
 ## Clone
 
 Clone the repo wherever you keep your projects:
 
 ```sh
-git clone git@github.com:AlxTx/backpack.git
-cd backpack
+mkdir -p ~/dev/perso
+git clone git@github.com:AlxTx/backpack.git ~/dev/perso/backpack
+cd ~/dev/perso/backpack
 ```
+
+On macOS, an existing `~/Dev` directory may preserve uppercase casing even when
+you type `~/dev`. That is OK; Backpack scripts resolve their real path, and Git
+identity examples include both `~/dev/perso` and `~/Dev/perso`.
 
 If cloning fails, fix GitHub access first, then rerun the clone command. The install scripts live inside this repo, so they only run after the repo exists locally.
 
@@ -67,10 +73,46 @@ To skip the prompt and apply directly, run:
 bootstrap/install.sh --apply
 ```
 
+Personal Mac:
+
+```sh
+~/dev/perso/backpack/bootstrap/install.sh --personal --apply
+```
+
+Client Mac:
+
+```sh
+~/dev/perso/backpack/bootstrap/install.sh --client --apply
+```
+
 Apply mode:
 
 - backs up existing `~/.config` entries into `~/.config.backup.<timestamp>/`;
 - creates symlinks from `~/.config/*` to this repo;
+- ensures `~/.config/opencode-profiles/` exists for local provider/model overlays;
 - is idempotent when a link already points to the right source.
 
 After applying, restart shells/apps that load config at startup: Fish, OpenCode, Nvim, Karabiner, Ghostty.
+
+## opencode profiles
+
+Backpack contains the portable opencode core only: modes, prompts, commands,
+theme, and generic guardrails. Real providers and model choices belong in local
+profiles outside the repo:
+
+```txt
+~/.config/opencode-profiles/
+  perso.jsonc
+  chanel.jsonc
+```
+
+Templates live in `cockpit/opencode/templates/`.
+
+Rule:
+
+```txt
+Backpack decides how to work.
+Local profiles decide which providers/models to use.
+```
+
+Example launch aliases can be copied from `dotfiles/fish/local.fish.example`.

@@ -5,6 +5,11 @@ SCRIPT_DIR=$(CDPATH= cd "$(dirname "$0")" && pwd -P)
 DEFAULT_BACKPACK_ROOT=$(CDPATH= cd "$SCRIPT_DIR/.." && pwd -P)
 BACKPACK_ROOT=${BACKPACK_ROOT:-"$DEFAULT_BACKPACK_ROOT"}
 
+if [ ! -d "$BACKPACK_ROOT" ]; then
+  printf 'i ignoring stale BACKPACK_ROOT: %s\n' "$BACKPACK_ROOT"
+  BACKPACK_ROOT=$DEFAULT_BACKPACK_ROOT
+fi
+
 fail() {
   printf '✗ %s\n' "$1" >&2
   exit 1
@@ -17,8 +22,24 @@ ok() {
 test -d "$BACKPACK_ROOT" || fail "missing backpack root: $BACKPACK_ROOT"
 ok "backpack root exists"
 
+case "$BACKPACK_ROOT" in
+  */Dev/perso/backpack)
+    printf 'i path casing: repo is under ~/Dev/perso/backpack; docs use ~/dev/perso/backpack as canonical, both are tolerated on macOS\n'
+    ;;
+esac
+
+if [ "$(uname -s)" = "Darwin" ]; then
+  ok "macOS detected"
+else
+  fail "backpack currently targets macOS only"
+fi
+
 test -f "$BACKPACK_ROOT/cockpit/opencode/opencode.json" || fail "missing cockpit/opencode/opencode.json"
 ok "opencode config exists"
+
+test -f "$BACKPACK_ROOT/cockpit/opencode/templates/perso.template.jsonc" || fail "missing personal opencode profile template"
+test -f "$BACKPACK_ROOT/cockpit/opencode/templates/client-copilot.template.jsonc" || fail "missing client Copilot opencode profile template"
+ok "opencode profile templates exist"
 
 test -f "$BACKPACK_ROOT/memory/index.md" || fail "missing memory/index.md"
 ok "memory index exists"
