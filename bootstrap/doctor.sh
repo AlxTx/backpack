@@ -4,9 +4,12 @@ set -eu
 SCRIPT_DIR=$(CDPATH= cd "$(dirname "$0")" && pwd -P)
 DEFAULT_BACKPACK_ROOT=$(CDPATH= cd "$SCRIPT_DIR/.." && pwd -P)
 BACKPACK_ROOT=${BACKPACK_ROOT:-"$DEFAULT_BACKPACK_ROOT"}
+QUIET=${BACKPACK_DOCTOR_QUIET:-0}
 
 if [ ! -d "$BACKPACK_ROOT" ]; then
-  printf 'i ignoring stale BACKPACK_ROOT: %s\n' "$BACKPACK_ROOT"
+  if [ "$QUIET" -eq 0 ]; then
+    printf 'i ignoring stale BACKPACK_ROOT: %s\n' "$BACKPACK_ROOT"
+  fi
   BACKPACK_ROOT=$DEFAULT_BACKPACK_ROOT
 fi
 
@@ -16,7 +19,9 @@ fail() {
 }
 
 ok() {
-  printf '✓ %s\n' "$1"
+  if [ "$QUIET" -eq 0 ]; then
+    printf '✓ %s\n' "$1"
+  fi
 }
 
 test -d "$BACKPACK_ROOT" || fail "missing backpack root: $BACKPACK_ROOT"
@@ -24,7 +29,9 @@ ok "backpack root exists"
 
 case "$BACKPACK_ROOT" in
   */Dev/perso/backpack)
-    printf 'i path casing: repo is under ~/Dev/perso/backpack; docs use ~/dev/perso/backpack as canonical, both are tolerated on macOS\n'
+    if [ "$QUIET" -eq 0 ]; then
+      printf 'i path casing: repo is under ~/Dev/perso/backpack; docs use ~/dev/perso/backpack as canonical, both are tolerated on macOS\n'
+    fi
     ;;
 esac
 
@@ -37,9 +44,9 @@ fi
 test -f "$BACKPACK_ROOT/cockpit/opencode/opencode.json" || fail "missing cockpit/opencode/opencode.json"
 ok "opencode config exists"
 
-test -f "$BACKPACK_ROOT/cockpit/opencode/templates/perso.template.jsonc" || fail "missing personal opencode profile template"
-test -f "$BACKPACK_ROOT/cockpit/opencode/templates/client-copilot.template.jsonc" || fail "missing client Copilot opencode profile template"
-ok "opencode profile templates exist"
+test -f "$BACKPACK_ROOT/cockpit/opencode/templates/perso.template.jsonc" || fail "missing personal opencode template"
+test -f "$BACKPACK_ROOT/cockpit/opencode/templates/client-copilot.template.jsonc" || fail "missing client Copilot opencode template"
+ok "opencode templates exist"
 
 test -f "$BACKPACK_ROOT/memory/index.md" || fail "missing memory/index.md"
 ok "memory index exists"

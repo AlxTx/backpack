@@ -14,7 +14,6 @@
     "interactive": {
       "description": "Clarify, challenge, scope, compare options, and decide the next agent without modifying files.",
       "mode": "primary",
-      "temperature": 0.5,
       "prompt": "{file:./prompts/interactive.md}",
       "permission": {
         "edit": "deny",
@@ -32,7 +31,6 @@
     "plan": {
       "description": "Inspect the codebase in read-only mode and produce an execution-ready plan.",
       "mode": "primary",
-      "temperature": 0.1,
       "prompt": "{file:./prompts/plan.md}\n\n{file:./prompts/pattern-radar.md}",
       "permission": {
         "edit": "deny",
@@ -47,11 +45,10 @@
         }
       }
     },
-    "autopilot": {
+    "build": {
       "description": "Implement the approved plan with minimal diffs and targeted validation.",
       "mode": "primary",
-      "temperature": 0,
-      "prompt": "{file:./prompts/autopilot.md}",
+      "prompt": "{file:./prompts/build.md}",
       "permission": {
         "edit": "allow",
         "bash": {
@@ -68,7 +65,7 @@
     "review": {
       "description": "Review changes in strict read-only mode for correctness, regressions, maintainability, and client constraints.",
       "mode": "subagent",
-      "temperature": 0,
+      "hidden": true,
       "prompt": "{file:./prompts/review.md}\n\n{file:./prompts/pattern-radar.md}",
       "permission": {
         "edit": "deny",
@@ -83,17 +80,14 @@
         }
       }
     },
-    "build": {
-      "disable": true
-    },
     "pattern-scan": {
       "description": "On-demand read-only scanner. Invoke when onboarding on an unfamiliar codebase to map its architectural, JavaScript, and framework patterns/anti-patterns. No plan, no changes.",
       "mode": "subagent",
-      "temperature": 0.1,
+      "hidden": true,
       "prompt": "{file:./prompts/pattern-scan.md}\n\n{file:./prompts/pattern-radar.md}",
       "permission": {
         "edit": "deny",
-        "bash": "ask",
+        "bash": "deny",
         "question": "allow",
         "todowrite": "allow",
         "skill": {

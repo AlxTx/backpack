@@ -50,7 +50,7 @@ is enough.
 Skills are separated by **role**, which removes overlap:
 
 ### Learn + produce (conceptual — these teach the pattern)
-Use during plan and autopilot for React work — component design, props API,
+Use during plan and build for React work — component design, props API,
 composition, hooks, state placement, data fetching, render behavior, React
 anti-patterns:
 - `react-2026`, `react-composition-2026`, `react-data-fetching`,
@@ -72,7 +72,7 @@ UI / design system:
 
 ### Review only (checklists / gating — not implementation guides)
 - `vercel-react-best-practices` — final performance checklist for
-  performance-sensitive or Next.js changes. **Never** use it in plan or autopilot.
+  performance-sensitive or Next.js changes. **Never** use it in plan or build.
 - `web-design-guidelines` — UI/accessibility/UX/responsiveness audit at review.
 
 ## Capture exception (overrides read-only rules)

@@ -18,5 +18,10 @@ Review      -> /review existing changes in read-only mode
 Learn       -> /pattern-scan, /capture
 ```
 
-Backpack provides the portable cockpit core. Provider/model choices are injected
-by local profiles (personal, pro, client) outside this repo.
+Backpack provides the portable cockpit core. Provider/model choices are edited
+locally in `~/.config/opencode/opencode.json` on each machine and stay outside
+this repo.
+
+Future guardrail idea: show active agent permission badges in OpenCode UI, e.g.
+`NO-IO`, `READ · SH?`, or `WRITE · SH?`. See
+[`opencode-permission-badges.md`](opencode-permission-badges.md).

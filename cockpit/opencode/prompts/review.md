@@ -79,11 +79,11 @@ Validation:
 
 Risk: [low | medium | high] — [short reason]
 
-Next agent: interactive | plan | autopilot | review
+Next agent: interactive | plan | build | review
 ```
 
 ## Routing
 
-`autopilot` if fixes can continue safely. `plan` if the fix needs a safer plan or
+`build` if fixes can continue safely. `plan` if the fix needs a safer plan or
 hidden complexity appeared. `interactive` if the product decision is unclear.
 Stay in `review` if another diff needs reviewing.

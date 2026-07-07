@@ -7,9 +7,7 @@
 # macOS machines that already have uppercase folder casing.
 # set -gx WORKSPACE "$HOME/dev"
 
-# opencode local profiles. Keep real client profiles outside Backpack.
-# mkdir -p ~/.config/opencode-profiles
-# cp ~/dev/perso/backpack/cockpit/opencode/templates/perso.template.jsonc ~/.config/opencode-profiles/perso.jsonc
-# cp ~/dev/perso/backpack/cockpit/opencode/templates/client-copilot.template.jsonc ~/.config/opencode-profiles/chanel.jsonc
-# alias ocode-perso='env OPENCODE_CONFIG=$HOME/.config/opencode-profiles/perso.jsonc opencode'
-# alias ocode-chanel='env OPENCODE_CONFIG=$HOME/.config/opencode-profiles/chanel.jsonc opencode'
+# OpenCode local client setup:
+# Backpack copies its portable core once to ~/.config/opencode.
+# Edit ~/.config/opencode/opencode.json directly for machine/client providers.
+# Then launch opencode normally.

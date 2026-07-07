@@ -17,7 +17,7 @@ memory/      durable personal learning: craft, AI, concepts, books, playbooks
 - Client mission notes live outside this repo.
 - Project truth lives in each project repo (`README.md`, `AGENTS.md`, `docs/`).
 - Secrets, SSH keys, tokens, client-specific certs, and local state are not committed.
-- Client-specific opencode profiles are local overlays and are not committed.
+- Client-specific opencode providers/models are local machine config and are not committed.
 
 ## Status
 
@@ -37,15 +37,18 @@ creating symlinks.
 ~/dev/perso/backpack/bootstrap/install.sh --client --apply
 ```
 
-OpenCode uses Backpack as the portable core. Real providers/models stay local:
+OpenCode uses Backpack as a one-shot portable core. On a new machine, the
+installer copies `cockpit/opencode/` to `~/.config/opencode/` if it does not
+exist yet. Real providers/models then stay local in the effective OpenCode
+config:
 
 ```txt
-~/.config/opencode-profiles/perso.jsonc
-~/.config/opencode-profiles/<client>.jsonc
+~/.config/opencode/opencode.json
 ```
 
-Launch aliases live in `~/.config/fish/local.fish`, for example `ocode-perso`
-or `ocode-chanel`.
+For example, on a client Mac, run the installer once, edit
+`~/.config/opencode/opencode.json` to select the client LLM provider/models,
+then launch `opencode` normally.
 
 ## Quick start
 
@@ -67,11 +70,29 @@ Then run the installer:
 bootstrap/install.sh
 ```
 
+The default mode is interactive: choose OpenCode, shell, editor, terminal/UI, or
+everything. If `gum` is installed, Backpack uses a modern selectable prompt. On
+a fresh Mac with Homebrew but without `gum`, Backpack offers to install it; if
+that is skipped or unavailable, it falls back to a plain numbered menu. If an
+OpenCode config already exists locally, Backpack asks whether to keep it or back
+it up before installing a fresh copy.
+
 It guides you through three steps:
 
 1. runs `bootstrap/doctor.sh` to check that the repo is healthy;
-2. shows the install plan in dry-run mode, without changing anything;
-3. asks for confirmation before backing up existing `~/.config` entries and creating symlinks.
+2. asks what you want to install when no target is provided;
+3. shows the install plan in dry-run mode, without changing anything;
+4. asks for confirmation before creating local config entries and symlinks.
+
+OpenCode is copied once rather than symlinked, so editing
+`~/.config/opencode/opencode.json` on a client machine does not modify
+Backpack.
+
+To refresh the local OpenCode core later without touching local models/providers:
+
+```sh
+bootstrap/install.sh --only opencode --update --apply
+```
 
 ### When to use each command
 

@@ -65,10 +65,10 @@ Do not change:
 Open questions:
 - [only if truly blocking]
 
-Next agent: autopilot
+Next agent: build
 ```
 
 ## Routing
 
-Usually `autopilot`. Use `interactive` if scope/business goal is unstable or the
+Usually `build`. Use `interactive` if scope/business goal is unstable or the
 tradeoff is strategic. Use `review` if changes already exist.
