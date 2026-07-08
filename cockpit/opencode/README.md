@@ -17,6 +17,7 @@ Le système : collaborer → planifier → exécuter → reviewer, avec en fil r
 | Ma situation | J'utilise | Comment |
 |---|---|---|
 | Une idée floue, un arbitrage, choisir une archi (perso ou client), décider quoi faire | **interactive** | `Tab` → interactive |
+| Une idée produit sans maquette, je veux un contrat UX/UI prêt à coder | **product-design** | `Tab` → product-design ou `/design ...` |
 | Je débarque sur un codebase inconnu, je veux la carte des patterns existants | **/pattern-scan** | tape `/pattern-scan` (ou `/pattern-scan src/`) |
 | Préparer un changement sûr : inspecter, comparer, plan d'exécution | **plan** | `Tab` → plan |
 | Implémenter le changement validé | **build** | `Tab` → build |
@@ -53,13 +54,15 @@ contexte courant = command**. **Tâche lourde/isolée occasionnelle = subagent.*
 | Agent | Rôle | Modèle | Écrit ? |
 |---|---|---|---|
 | **interactive** | Cadrer, challenger, comparer, décider. Ne lit **pas** le code (c'est volontaire : altitude décision). | Profil local | ❌ read-only |
+| **product-design** | Transformer un besoin métier sans maquette en contrat UX/UI code-first prêt pour `build`. | Profil local | ❌ read-only |
 | **plan** | Inspecter en read-only, produire un plan d'exécution. Pattern Radar obligatoire. | Profil local | ❌ read-only |
 | **build** | Implémenter le plan, diffs minimaux, validation ciblée. | Profil local | ✅ edit autorisé |
 
-Flux par défaut : **interactive → plan → build → /review** (chaque agent recommande
-le suivant). Greenfield *et* brownfield sont gérés ; pour un projet perso où je
-veux **apprendre** une archi, je l'annonce explicitement pour débrayer le réflexe
-« fais simple ».
+Flux par défaut : **interactive → plan → build → /review**. Pour une UI sans
+maquette : **interactive → product-design → build → /review**. Chaque agent
+recommande le suivant. Greenfield *et* brownfield sont gérés ; pour un projet
+perso où je veux **apprendre** une archi, je l'annonce explicitement pour
+débrayer le réflexe « fais simple ».
 
 Note : `build` peut éditer les fichiers, mais les commandes shell restent en
 validation `ask` par défaut. C'est volontaire : moins de friction sur les diffs,
@@ -86,6 +89,7 @@ Lancé via `/pattern-scan`. Le mode courant n'a aucune importance : la command e
 
 | Command | Fait quoi | Dépend du mode ? |
 |---|---|---|
+| **/design** `[besoin]` | Produit un contrat UX/UI code-first prêt à implémenter. | Non (épinglé) |
 | **/pattern-scan** `[scope]` | Lance le subagent pattern-scan sur un dossier (défaut : tout le projet). | Non (épinglé) |
 | **/review** `[scope]` | Lance l'agent review sur le diff courant ou un scope donné. | Non (épinglé) |
 | **/capture** `[texte]` | Append les patterns discutés (ou le texte donné) au journal perso. Sortie 1 ligne. | Non (autorisé partout) |
@@ -120,12 +124,19 @@ Deux niveaux, séparés exprès :
 | `react-2026`, `react-composition-2026`, `react-data-fetching`, `react-render-optimization` | **apprendre + produire** (plan, build) |
 | rendering : `*-side-rendering`, `static-*`, `incremental-*`, `react-server-components`, `react-selective-hydration`, `islands-architecture` | idem, **uniquement** si le projet utilise vraiment Next/SSR/SSG/ISR/RSC/hydration |
 | `js-performance-patterns` | perf JS, **seulement** avec preuve/risque réel |
-| `frontend-design` | **produire** de l'UI visuelle |
+| `code-first-product-design` | **cadrer** une UI sans maquette : besoin métier → contrat UX/UI prêt pour `build` |
+| `design-quality-standards` | **qualité design** : hiérarchie, typo, spacing, couleur, a11y, responsive, anti-slop |
+| `frontend-design` | **produire** de l'UI visuelle distinctive (skill Anthropic) |
+| `style-refined-product`, `style-editorial-saas`, `style-bento-dashboard`, `style-developer-minimal`, `style-friendly-consumer` | **directions visuelles optionnelles** — une seule à la fois, jamais par défaut en brownfield |
 | `vercel-react-best-practices` (76 règles) | **review uniquement** — checklist perf finale. Jamais en build/plan. |
 | `web-design-guidelines` | **review** UI / a11y / UX |
 
 Ordre d'autorité : **conventions du projet → comportement officiel du framework →
 skills installés**. Jamais forcer un skill si une simple inspection suffit.
+
+Dans le menu `/`, utilise **`/design`** comme entrée utilisateur. Les skills
+design peuvent apparaître dans la liste, mais ce sont des outils internes du
+workflow `product-design`, pas des commandes à lancer directement.
 
 ---
 
@@ -133,17 +144,20 @@ skills installés**. Jamais forcer un skill si une simple inspection suffit.
 
 ```
 opencode.json            # agents, permissions, composition des prompts
+agents/
+  product-design.md      # agent primaire portable installé via update
 prompts/
   _core.md               # doctrine partagée (chargée pour tous via `instructions`)
   pattern-radar.md       # bloc Pattern Radar partagé (plan / review / pattern-scan)
   interactive.md plan.md build.md review.md pattern-scan.md   # rôle de chaque agent
 commands/
+  design.md              # /design
   capture.md             # /capture
   pattern-scan.md        # /pattern-scan (épinglé au subagent pattern-scan)
   review.md              # /review (épinglé au subagent review)
 bin/
   capture.sh             # écriture du journal (résolution dossier + projet + date)
-.agents/skills/          # skills installés (PatternsDev, Vercel, design)
+skills/                  # skills locales portables
 ```
 
 ---
@@ -166,8 +180,10 @@ modifiée localement pour la machine courante :
 ```txt
 ~/.config/opencode/
   opencode.json
+  agents/
   prompts/
   commands/
+  skills/
 ```
 
 Sur un PC client, ajoute les providers/modèles client directement dans

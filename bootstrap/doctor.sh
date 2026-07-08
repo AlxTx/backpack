@@ -44,6 +44,26 @@ fi
 test -f "$BACKPACK_ROOT/cockpit/opencode/opencode.json" || fail "missing cockpit/opencode/opencode.json"
 ok "opencode config exists"
 
+test -f "$BACKPACK_ROOT/cockpit/opencode/agents/product-design.md" || fail "missing cockpit/opencode/agents/product-design.md"
+ok "product-design agent exists"
+
+test -f "$BACKPACK_ROOT/cockpit/opencode/commands/design.md" || fail "missing cockpit/opencode/commands/design.md"
+ok "design command exists"
+
+test -f "$BACKPACK_ROOT/cockpit/opencode/skills/code-first-product-design/SKILL.md" || fail "missing cockpit/opencode/skills/code-first-product-design/SKILL.md"
+ok "code-first product design skill exists"
+
+test -f "$BACKPACK_ROOT/cockpit/opencode/skills/frontend-design/SKILL.md" || fail "missing cockpit/opencode/skills/frontend-design/SKILL.md"
+ok "frontend design skill exists"
+
+test -f "$BACKPACK_ROOT/cockpit/opencode/skills/design-quality-standards/SKILL.md" || fail "missing cockpit/opencode/skills/design-quality-standards/SKILL.md"
+ok "design quality standards skill exists"
+
+for skill in style-refined-product style-editorial-saas style-bento-dashboard style-developer-minimal style-friendly-consumer; do
+  test -f "$BACKPACK_ROOT/cockpit/opencode/skills/$skill/SKILL.md" || fail "missing cockpit/opencode/skills/$skill/SKILL.md"
+done
+ok "design style pack skills exist"
+
 test -f "$BACKPACK_ROOT/memory/index.md" || fail "missing memory/index.md"
 ok "memory index exists"
 

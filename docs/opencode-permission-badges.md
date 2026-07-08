@@ -9,8 +9,8 @@ not visible enough. In this Backpack workflow, switching agent changes what the
 assistant can do:
 
 - `interactive` should not touch project files or shell;
-- `plan` and `review` should inspect only;
-- `autopilot` can edit files.
+- `product-design`, `plan`, and `review` should inspect only;
+- `build` can edit files.
 
 The UI should make that difference visible at a glance.
 
@@ -23,8 +23,9 @@ Examples:
 
 ```txt
 interactive | gpt-5.5-fast | NO-IO
+product-design | gpt-5.5 | READ · SH?
 plan        | gpt-5.5      | READ · SH?
-autopilot   | gpt-5.5      | WRITE · SH?
+build       | gpt-5.5      | WRITE · SH?
 review      | gpt-5.5      | READ · SH?
 ```
 
@@ -92,8 +93,9 @@ Expected badges for the current Backpack agents:
 | Agent | Expected badge |
 |---|---|
 | `interactive` | `NO-IO` |
+| `product-design` | `READ · SH?` |
 | `plan` | `READ · SH?` |
-| `autopilot` | `WRITE · SH?` |
+| `build` | `WRITE · SH?` |
 | `review` | `READ · SH?` |
 | `pattern-scan` | `READ · SH?` |
 
@@ -143,8 +145,9 @@ Reduction rules:
 
 Examples:
 - `interactive | model | NO-IO`
+- `product-design | model | READ · SH?`
 - `plan | model | READ · SH?`
-- `autopilot | model | WRITE · SH?`
+- `build | model | WRITE · SH?`
 
 The feature should expose semantic data so each surface can render appropriately:
 GUI chips, TUI text fallback, optional icons/Nerd Font where supported.

@@ -163,7 +163,7 @@ gum_choose_target() {
     --cursor '→ ' \
     --selected-prefix '✓ ' \
     --unselected-prefix '  ' \
-    'OpenCode     Agents, prompts, commands → ~/.config/opencode' \
+    'OpenCode     Agents, prompts, commands, skills → ~/.config/opencode' \
     'Shell        Fish + Starship' \
     'Editor       Neovim' \
     'Terminal UI  Ghostty + Karabiner' \
@@ -250,7 +250,7 @@ Portable setup for a fresh machine.
 
 What do you want to unpack?
 
-  1  OpenCode     Agents, prompts, commands → ~/.config/opencode
+  1  OpenCode     Agents, prompts, commands, skills → ~/.config/opencode
   2  Shell        Fish + Starship
   3  Editor       Neovim
   4  Terminal UI  Ghostty + Karabiner
@@ -342,7 +342,7 @@ update_opencode_core() {
     success "kept $target_root/opencode.json"
   fi
 
-  for entry in prompts commands themes bin README.md tui.json .gitignore; do
+  for entry in agents prompts commands skills themes bin README.md tui.json .gitignore; do
     if [ -e "$source_root/$entry" ]; then
       copy_path_replace "$source_root/$entry" "$target_root/$entry"
     fi

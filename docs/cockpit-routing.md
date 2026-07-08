@@ -2,7 +2,8 @@
 
 Mental model:
 
-- `Tab` changes the current primary mode: interactive, plan, autopilot.
+- `Tab` changes the current primary mode: interactive, product-design, plan,
+  build.
 - `/command` runs a prepared action.
 - A pinned command uses its declared agent and does not depend on the current mode.
 - A subagent is an isolated specialist used for one task.
@@ -12,8 +13,9 @@ Current cockpit:
 
 ```txt
 Interactive -> clarify, challenge, decide next step
+Product Design -> turn business need / no mockup into UX/UI build contract
 Plan        -> inspect read-only and prepare execution
-Autopilot   -> execute scoped changes end-to-end
+Build       -> execute scoped changes end-to-end
 Review      -> /review existing changes in read-only mode
 Learn       -> /pattern-scan, /capture
 ```

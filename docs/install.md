@@ -104,7 +104,7 @@ bootstrap/install.sh --only opencode --update --apply
 ```
 
 This backs up `~/.config/opencode`, then refreshes core files such as
-`prompts/`, `commands/`, `themes/`, `bin/`, `README.md`, and
+`agents/`, `prompts/`, `commands/`, `skills/`, `themes/`, `bin/`, `README.md`, and
 `tui.json`. It intentionally keeps `~/.config/opencode/opencode.json` untouched,
 because that file may contain machine/client LLM settings.
 
@@ -127,17 +127,23 @@ Apply mode:
 - copies `cockpit/opencode/` once to `~/.config/opencode/` when it is missing;
 - is idempotent when a link already points to the right source.
 
-After applying, restart shells/apps that load config at startup: Fish, OpenCode, Nvim, Karabiner, Ghostty.
+After applying, restart shells/apps that load config at startup: Fish, OpenCode,
+Nvim, Karabiner, Ghostty. OpenCode must be restarted after updating agents,
+commands, prompts, or skills; it loads those files at startup.
 
 ## opencode local config
 
-Backpack contains the portable opencode core only: modes, prompts, commands,
-theme, and generic guardrails. The installer copies that core once to the real
-OpenCode config directory:
+Backpack contains the portable opencode core only: modes, agents, prompts,
+commands, skills, theme, and generic guardrails. The installer copies that core
+once to the real OpenCode config directory:
 
 ```txt
 ~/.config/opencode/
   opencode.json
+  agents/
+  prompts/
+  commands/
+  skills/
 ```
 
 Real providers and model choices belong in that local machine file. On a client

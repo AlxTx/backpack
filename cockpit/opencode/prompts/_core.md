@@ -68,7 +68,16 @@ computations, event handlers, scroll/resize, allocations:
 - `js-performance-patterns`
 
 UI / design system:
-- `frontend-design` — build visual UI, components, layouts, design-system screens
+- `code-first-product-design` — turn a business need or missing mockup into a
+  frontend-ready UX/UI implementation contract
+- `design-quality-standards` — UX/UI quality bar: hierarchy, typography, color,
+  spacing, accessibility, responsiveness, anti-slop checks
+- `frontend-design` — use ONLY when a distinctive visual direction is explicitly
+  requested or selected; not for routine components/pages or existing
+  design-system implementation
+- Optional visual lenses (never default in BROWNFIELD):
+  `style-refined-product`, `style-editorial-saas`, `style-bento-dashboard`,
+  `style-developer-minimal`, `style-friendly-consumer`
 
 ### Review only (checklists / gating — not implementation guides)
 - `vercel-react-best-practices` — final performance checklist for
