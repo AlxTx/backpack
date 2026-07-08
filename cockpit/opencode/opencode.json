@@ -2,6 +2,9 @@
   "$schema": "https://opencode.ai/config.json",
   "default_agent": "interactive",
   "instructions": ["./prompts/_core.md"],
+  "enabled_providers": ["openai"],
+  "model": "openai/gpt-5.5",
+  "small_model": "openai/gpt-5.4-mini",
   "experimental": {
     "disable_paste_summary": true
   },
@@ -14,6 +17,8 @@
     "interactive": {
       "description": "Clarify, challenge, scope, compare options, and decide the next agent without modifying files.",
       "mode": "primary",
+      "model": "openai/gpt-5.5",
+      "variant": "medium",
       "prompt": "{file:./prompts/interactive.md}",
       "permission": {
         "edit": "deny",
@@ -31,6 +36,8 @@
     "plan": {
       "description": "Inspect the codebase in read-only mode and produce an execution-ready plan.",
       "mode": "primary",
+      "model": "openai/gpt-5.5",
+      "variant": "high",
       "prompt": "{file:./prompts/plan.md}\n\n{file:./prompts/pattern-radar.md}",
       "permission": {
         "edit": "deny",
@@ -48,6 +55,8 @@
     "build": {
       "description": "Implement the approved plan with minimal diffs and targeted validation.",
       "mode": "primary",
+      "model": "openai/gpt-5.5",
+      "variant": "high",
       "prompt": "{file:./prompts/build.md}",
       "permission": {
         "edit": "allow",
@@ -66,6 +75,8 @@
       "description": "Review changes in strict read-only mode for correctness, regressions, maintainability, and client constraints.",
       "mode": "subagent",
       "hidden": true,
+      "model": "openai/gpt-5.5",
+      "variant": "high",
       "prompt": "{file:./prompts/review.md}\n\n{file:./prompts/pattern-radar.md}",
       "permission": {
         "edit": "deny",
@@ -84,6 +95,8 @@
       "description": "On-demand read-only scanner. Invoke when onboarding on an unfamiliar codebase to map its architectural, JavaScript, and framework patterns/anti-patterns. No plan, no changes.",
       "mode": "subagent",
       "hidden": true,
+      "model": "openai/gpt-5.5",
+      "variant": "medium",
       "prompt": "{file:./prompts/pattern-scan.md}\n\n{file:./prompts/pattern-radar.md}",
       "permission": {
         "edit": "deny",

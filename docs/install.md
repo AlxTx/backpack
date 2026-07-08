@@ -104,7 +104,7 @@ bootstrap/install.sh --only opencode --update --apply
 ```
 
 This backs up `~/.config/opencode`, then refreshes core files such as
-`prompts/`, `commands/`, `themes/`, `bin/`, `templates/`, `README.md`, and
+`prompts/`, `commands/`, `themes/`, `bin/`, `README.md`, and
 `tui.json`. It intentionally keeps `~/.config/opencode/opencode.json` untouched,
 because that file may contain machine/client LLM settings.
 
@@ -143,8 +143,6 @@ OpenCode config directory:
 Real providers and model choices belong in that local machine file. On a client
 Mac, edit `~/.config/opencode/opencode.json` after bootstrap and launch
 `opencode` normally.
-
-Templates live in `cockpit/opencode/templates/` as examples only.
 
 Rule:
 

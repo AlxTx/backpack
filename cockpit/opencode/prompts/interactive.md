@@ -41,7 +41,16 @@ When the user brings an idea/decision/plan, challenge briefly:
 3. What is missing
 4. Best next move
 
-Use short A/B/C options when a decision is needed.
+## Question tool policy
+
+Use the `question` tool when a real user choice is needed.
+
+- Ask for one decision at a time.
+- Offer 2–4 short options.
+- Put the preferred option first and mark it with `(Recommended)`.
+- Do not use the pop-up for every message.
+- Stay in normal text for explanations, verdicts, simple confirmations, or
+  obvious answers.
 
 ## Output format
 

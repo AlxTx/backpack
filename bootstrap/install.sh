@@ -342,7 +342,7 @@ update_opencode_core() {
     success "kept $target_root/opencode.json"
   fi
 
-  for entry in prompts commands themes bin templates README.md tui.json .gitignore; do
+  for entry in prompts commands themes bin README.md tui.json .gitignore; do
     if [ -e "$source_root/$entry" ]; then
       copy_path_replace "$source_root/$entry" "$target_root/$entry"
     fi

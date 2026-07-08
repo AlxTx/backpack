@@ -44,10 +44,6 @@ fi
 test -f "$BACKPACK_ROOT/cockpit/opencode/opencode.json" || fail "missing cockpit/opencode/opencode.json"
 ok "opencode config exists"
 
-test -f "$BACKPACK_ROOT/cockpit/opencode/templates/perso.template.jsonc" || fail "missing personal opencode template"
-test -f "$BACKPACK_ROOT/cockpit/opencode/templates/client-copilot.template.jsonc" || fail "missing client Copilot opencode template"
-ok "opencode templates exist"
-
 test -f "$BACKPACK_ROOT/memory/index.md" || fail "missing memory/index.md"
 ok "memory index exists"
 
