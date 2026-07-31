@@ -89,9 +89,20 @@ bootstrap/install.sh --only editor
 bootstrap/install.sh --only terminal
 ```
 
-`--only ai` links the canonical `AGENTS.md` into Codex and OpenCode and links
-the shared standard skills into `~/.agents/skills`. Use `--only opencode` when
-you also want the OpenCode-specific modes, commands, permissions, and defaults.
+`--only ai` installs the shared workflow for Codex, OpenCode, and Claude Code,
+including Claude subagents, shared skills, and RTK integrations. Use `--only
+opencode` when you only want the OpenCode-specific modes, commands, permissions,
+and defaults.
+
+RTK is installed by default for AI targets. The explicit equivalent is:
+
+```sh
+bootstrap/install.sh --only ai --apply
+```
+
+This installs the [`rtk`](https://github.com/rtk-ai/rtk) binary through Homebrew
+when necessary, then activates the Codex, OpenCode, and Claude integrations.
+Use `--without-rtk` to opt out. A shell-only install does not install RTK.
 
 If `~/.config/opencode` already exists, interactive mode asks whether to keep it
 or back it up and install a fresh copy. Non-interactive apply mode keeps it by
@@ -109,7 +120,8 @@ bootstrap/install.sh --only opencode --update --apply
 ```
 
 This backs up `~/.config/opencode`, then refreshes adapter files such as
-`agents/`, `prompts/`, `commands/`, `themes/`, `README.md`, and `tui.json`. It
+`agents/`, `prompts/`, `commands/`, `plugins/`, `themes/`, `README.md`, and
+`tui.json`. It
 intentionally keeps `~/.config/opencode/opencode.json` untouched because that
 file may contain machine/client LLM settings. Machine-local extensions and
 dependencies (`package.json`, its lockfile, `node_modules`, and `.claude`) are

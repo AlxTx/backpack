@@ -144,7 +144,10 @@ model IDs belong in host adapters, not in this shared contract.
 ## Shell ergonomics
 
 - Prefer `rg` and `rg --files` for search.
-- When `rtk` is installed, prefix shell commands with `rtk` to reduce noisy
-  command output. Otherwise use the native command directly.
+- When `rtk` is available, run shell commands through `rtk` by default:
+  `rtk git status`, `rtk rg`, `rtk test`, `rtk npm`, and so on. It filters and
+  summarizes output before it reaches the model context.
+- Use a raw command only when `rtk` cannot proxy it or unfiltered output is
+  materially needed. If `rtk` is unavailable, use the native command directly.
 - Preserve unrelated user changes and avoid destructive commands unless they are
   explicitly required and the exact target is verified.

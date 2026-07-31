@@ -25,10 +25,17 @@ Install is non-destructive by default. `--apply` backs up existing config before
 creating symlinks.
 
 The canonical AI workflow lives in `cockpit/portable/`: one global `AGENTS.md`
-and standard agent skills. Codex and OpenCode consume the same files; OpenCode
-keeps a thin adapter for its modes, commands, permissions, and local models.
+and standard agent skills. Codex, OpenCode, and Claude Code consume the same
+rules; OpenCode and Claude Code keep thin adapters for their agents, commands,
+permissions, and local models.
 See [the host-agnostic workflow](docs/ai-workflow.md) for routing and host
 boundaries.
+
+When available, AI hosts run shell work through [`rtk`](https://github.com/rtk-ai/rtk)
+to compact command output before it enters the model context. The OpenCode
+adapter installs its rewrite plugin automatically; Codex and other compatible
+hosts inherit the same rule from the shared `AGENTS.md`. `rtk` itself remains a
+machine-local prerequisite and Backpack falls back safely when it is absent.
 
 ## Usage
 
@@ -85,7 +92,8 @@ Then run the installer:
 bootstrap/install.sh
 ```
 
-The default mode is interactive: choose the shared AI core, OpenCode, shell,
+The default mode is interactive: choose the AI stack (Codex, OpenCode, Claude,
+and RTK), shell,
 editor, terminal/UI, or everything. If `gum` is installed, Backpack uses a
 modern selectable prompt. On
 a fresh Mac with Homebrew but without `gum`, Backpack offers to install it; if
@@ -116,6 +124,15 @@ compatible tools:
 ```sh
 bootstrap/install.sh --only ai --apply
 ```
+
+To install RTK and activate its Codex/OpenCode/Claude integrations in the same pass:
+
+```sh
+bootstrap/install.sh --only ai --apply
+```
+
+On macOS, AI installs use Homebrew only when `rtk` is not already on `PATH`.
+Pass `--without-rtk` only when you intentionally do not want it.
 
 ### When to use each command
 

@@ -11,6 +11,7 @@ fi
 CONFIG_DIR=${CONFIG_DIR:-"$HOME/.config"}
 BACKPACK_AGENTS_DIR=${BACKPACK_AGENTS_DIR:-"$HOME/.agents"}
 BACKPACK_CODEX_DIR=${CODEX_HOME:-"$HOME/.codex"}
+BACKPACK_CLAUDE_DIR=${CLAUDE_CONFIG_DIR:-"$HOME/.claude"}
 APPLY=0
 DIRECT_APPLY=0
 PROFILE_MODE=personal
@@ -18,6 +19,7 @@ INSTALL_TARGET=all
 TARGET_SET=0
 REPLACE_EXISTING=0
 UPDATE_EXISTING=0
+WITH_RTK=1
 
 while [ "${1:-}" != "" ]; do
   case "$1" in
@@ -39,7 +41,7 @@ while [ "${1:-}" != "" ]; do
           TARGET_SET=1
           ;;
         *)
-          printf 'Usage: %s [--personal|--client] [--only ai|opencode|shell|editor|terminal|all] [--replace] [--update] [--apply]\n' "$0" >&2
+          printf 'Usage: %s [--personal|--client] [--only ai|opencode|shell|editor|terminal|all] [--with-rtk|--without-rtk] [--replace] [--update] [--apply]\n' "$0" >&2
           exit 2
           ;;
       esac
@@ -50,8 +52,14 @@ while [ "${1:-}" != "" ]; do
     --update)
       UPDATE_EXISTING=1
       ;;
+    --with-rtk)
+      WITH_RTK=1
+      ;;
+    --without-rtk)
+      WITH_RTK=0
+      ;;
     *)
-      printf 'Usage: %s [--personal|--client] [--only ai|opencode|shell|editor|terminal|all] [--replace] [--update] [--apply]\n' "$0" >&2
+      printf 'Usage: %s [--personal|--client] [--only ai|opencode|shell|editor|terminal|all] [--with-rtk|--without-rtk] [--replace] [--update] [--apply]\n' "$0" >&2
       exit 2
       ;;
   esac
@@ -147,6 +155,34 @@ EOF
   printf '\n'
 }
 
+install_rtk() {
+  if command -v rtk >/dev/null 2>&1; then
+    success 'rtk already installed'
+    return
+  fi
+
+  if ! command -v brew >/dev/null 2>&1; then
+    printf '✗ rtk is enabled by default but Homebrew is unavailable; install Homebrew or rtk manually, or rerun with --without-rtk\n' >&2
+    exit 1
+  fi
+
+  if [ "$APPLY" -eq 0 ]; then
+    info 'install rtk via Homebrew'
+    return
+  fi
+
+  if brew install rtk; then
+    command -v rtk >/dev/null 2>&1 || {
+      printf '✗ rtk installation completed but rtk is not on PATH\n' >&2
+      exit 1
+    }
+    success 'rtk installed'
+  else
+    printf '✗ could not install rtk via Homebrew\n' >&2
+    exit 1
+  fi
+}
+
 gum_header() {
   gum style \
     --foreground 39 \
@@ -165,7 +201,7 @@ gum_choose_target() {
     --cursor '→ ' \
     --selected-prefix '✓ ' \
     --unselected-prefix '  ' \
-    'AI core      Shared AGENTS.md + skills → Codex, OpenCode, compatible tools' \
+    'AI stack     Shared workflow → Codex, OpenCode, Claude, RTK' \
     'OpenCode     Host adapter + shared AI core' \
     'Shell        Fish + Starship' \
     'Editor       Neovim' \
@@ -254,7 +290,7 @@ Portable setup for a fresh machine.
 
 What do you want to unpack?
 
-  1  AI core      Shared AGENTS.md + skills → Codex, OpenCode, compatible tools
+  1  AI stack     Shared workflow → Codex, OpenCode, Claude, RTK
   2  OpenCode     Host adapter + shared AI core
   3  Shell        Fish + Starship
   4  Editor       Neovim
@@ -264,10 +300,10 @@ What do you want to unpack?
 
 EOF
 
-  choice_prompt 'Select an option: '
+  choice_prompt 'Select an option (default: 1 AI stack): '
   read choice
 
-  case $choice in
+  case "${choice:-1}" in
     1) INSTALL_TARGET=ai ;;
     2) INSTALL_TARGET=opencode ;;
     3) INSTALL_TARGET=shell ;;
@@ -318,6 +354,66 @@ copy_path_replace() {
   success "updated $target_path"
 }
 
+install_opencode_rtk_plugin() {
+  source_path=$BACKPACK_ROOT/cockpit/opencode/plugins/rtk.ts
+  target_path=$CONFIG_DIR/opencode/plugins/rtk.ts
+
+  if [ ! -f "$source_path" ]; then
+    printf '✗ missing OpenCode rtk plugin: %s\n' "$source_path" >&2
+    exit 1
+  fi
+
+  if [ "$APPLY" -eq 0 ]; then
+    info "install OpenCode rtk plugin at $target_path"
+    return
+  fi
+
+  copy_path_replace "$source_path" "$target_path"
+}
+
+install_claude_adapter() {
+  source_root=$BACKPACK_ROOT/cockpit/claude
+
+  if [ ! -d "$source_root/agents" ]; then
+    printf '✗ missing Claude adapter: %s\n' "$source_root/agents" >&2
+    exit 1
+  fi
+
+  if [ "$APPLY" -eq 0 ]; then
+    info "link Claude rules, skills, and agents into $BACKPACK_CLAUDE_DIR"
+    return
+  fi
+
+  mkdir -p "$BACKPACK_CLAUDE_DIR/rules" "$BACKPACK_CLAUDE_DIR/skills" "$BACKPACK_CLAUDE_DIR/agents"
+  link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_CLAUDE_DIR/rules/backpack.md"
+
+  for skill_path in "$BACKPACK_ROOT/cockpit/portable/skills"/*; do
+    skill_name=$(basename "$skill_path")
+    link_entry "$skill_path" "$BACKPACK_CLAUDE_DIR/skills/$skill_name"
+  done
+
+  for agent_path in "$source_root/agents"/*.md; do
+    agent_name=$(basename "$agent_path")
+    link_entry "$agent_path" "$BACKPACK_CLAUDE_DIR/agents/$agent_name"
+  done
+  success "Claude adapter linked at $BACKPACK_CLAUDE_DIR"
+}
+
+configure_rtk_claude() {
+  if [ "$APPLY" -eq 0 ]; then
+    info 'configure RTK Claude Code hook'
+    return
+  fi
+
+  mkdir -p "$BACKPACK_CLAUDE_DIR"
+
+  if rtk init -g --hook-only --auto-patch; then
+    success 'RTK Claude Code hook configured'
+  else
+    warn 'could not configure the RTK Claude Code hook; shared rules remain active'
+  fi
+}
+
 update_opencode_core() {
   source_root=$1
   target_root=$2
@@ -359,7 +455,7 @@ update_opencode_core() {
     fi
   done
 
-  for entry in agents prompts commands themes README.md tui.json .gitignore; do
+  for entry in agents prompts commands plugins themes README.md tui.json .gitignore; do
     if [ -e "$source_root/$entry" ]; then
       copy_path_replace "$source_root/$entry" "$target_root/$entry"
     fi
@@ -525,7 +621,24 @@ $(section 'Install plan')
 
 EOF
 
+  if [ "$WITH_RTK" -eq 1 ]; then
+    case "$INSTALL_TARGET" in
+      ai|all)
+        install_rtk
+        install_opencode_rtk_plugin
+        configure_rtk_claude
+        ;;
+      opencode)
+        install_rtk
+        install_opencode_rtk_plugin
+        ;;
+    esac
+  fi
+
   case "$INSTALL_TARGET" in
+    ai)
+      update_opencode_core "$BACKPACK_ROOT/cockpit/opencode" "$CONFIG_DIR/opencode"
+      ;;
     opencode|all)
       if [ "$UPDATE_EXISTING" -eq 1 ]; then
         update_opencode_core "$BACKPACK_ROOT/cockpit/opencode" "$CONFIG_DIR/opencode"
@@ -544,6 +657,7 @@ EOF
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$CONFIG_DIR/opencode/AGENTS.md"
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_CODEX_DIR/AGENTS.md"
       link_entry "$BACKPACK_ROOT/cockpit/portable/skills" "$BACKPACK_AGENTS_DIR/skills"
+      install_claude_adapter
       ;;
   esac
 

@@ -24,6 +24,12 @@ ok() {
   fi
 }
 
+info() {
+  if [ "$QUIET" -eq 0 ]; then
+    printf 'i %s\n' "$1"
+  fi
+}
+
 test -d "$BACKPACK_ROOT" || fail "missing backpack root: $BACKPACK_ROOT"
 ok "backpack root exists"
 
@@ -46,6 +52,12 @@ ok "opencode config exists"
 
 test -f "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "missing cockpit/portable/AGENTS.md"
 ok "portable AGENTS.md exists"
+
+test -d "$BACKPACK_ROOT/cockpit/claude/agents" || fail "missing Claude adapter agents"
+for agent in plan build review design pattern-scan; do
+  test -f "$BACKPACK_ROOT/cockpit/claude/agents/$agent.md" || fail "missing Claude $agent agent"
+done
+ok "Claude adapter agents exist"
 
 test -f "$BACKPACK_ROOT/cockpit/opencode/agents/product-design.md" || fail "missing cockpit/opencode/agents/product-design.md"
 ok "product-design agent exists"
@@ -86,6 +98,12 @@ ok "memory index exists"
 
 test -x "$BACKPACK_ROOT/tools/wakey/wakey" || fail "missing executable tools/wakey/wakey"
 ok "wakey executable exists"
+
+if command -v rtk >/dev/null 2>&1; then
+  ok "rtk token-efficient shell proxy available"
+else
+  info "rtk is not installed; AI hosts will fall back to native shell commands"
+fi
 
 if git -C "$BACKPACK_ROOT" ls-files --error-unmatch dotfiles/fish/fish_variables >/dev/null 2>&1; then
   fail "dotfiles/fish/fish_variables should not be versioned"

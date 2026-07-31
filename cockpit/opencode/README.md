@@ -162,6 +162,8 @@ commands/
   capture.md             # /capture
   pattern-scan.md        # /pattern-scan (épinglé au subagent pattern-scan)
   review.md              # /review (épinglé au subagent review)
+plugins/
+  rtk.ts                 # réécrit les commandes compatibles via rtk si présent
 ```
 
 ---

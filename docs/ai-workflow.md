@@ -11,7 +11,8 @@ See `cockpit/portable/AGENTS.md`, `cockpit/portable/MODELS.md`, and
 
 `AGENTS.md` defines classification, request routing, scope control, validation,
 review priorities, pattern learning, and communication style. `MODELS.md` maps
-the workflow to semantic Frontier, Balanced, and Fast tiers.
+the workflow to semantic Frontier, Balanced, and Fast tiers. Codex, OpenCode, and
+Claude Code each have a thin adapter over this same core.
 
 Skills follow the open agent-skills directory format and are installed once at
 `~/.agents/skills`. Hosts advertise metadata and load a skill body only when
@@ -39,6 +40,11 @@ source of doctrine.
   requirement or fix a measured quality gap.
 - Measure task success, tokens, latency, and cost on representative work before
   increasing model tier or reasoning effort.
+- Route shell output through `rtk` when it is installed. It is an execution
+  filter, not a second instruction corpus: OpenCode rewrites compatible commands
+  automatically, while every other host inherits the portable shell rule.
+- Use `bootstrap/install.sh --only ai --apply` to install RTK and
+  activate the Codex/OpenCode integration together on a new Mac.
 
 ## Default loop
 
