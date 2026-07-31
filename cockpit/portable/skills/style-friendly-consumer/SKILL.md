@@ -1,6 +1,6 @@
 ---
 name: style-friendly-consumer
-description: Internal style lens for /design. Do not invoke directly; select only for approachable consumer, support, onboarding, or collaboration interfaces.
+description: Define a warm, approachable visual direction for consumer, support, onboarding, or collaboration interfaces. Use only when this style fits the product.
 ---
 
 # Style Pack: Friendly Consumer

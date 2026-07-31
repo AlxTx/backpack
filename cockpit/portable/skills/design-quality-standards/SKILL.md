@@ -1,6 +1,6 @@
 ---
 name: design-quality-standards
-description: Internal design quality skill for /design and review. Do not invoke directly; use /design for UX/UI hierarchy, layout, accessibility, and polish.
+description: Define or audit UX/UI quality across hierarchy, typography, spacing, color, accessibility, responsiveness, and anti-slop standards.
 ---
 
 # Design Quality Standards

@@ -9,6 +9,8 @@ if [ ! -d "$BACKPACK_ROOT" ]; then
   BACKPACK_ROOT=$DEFAULT_BACKPACK_ROOT
 fi
 CONFIG_DIR=${CONFIG_DIR:-"$HOME/.config"}
+BACKPACK_AGENTS_DIR=${BACKPACK_AGENTS_DIR:-"$HOME/.agents"}
+BACKPACK_CODEX_DIR=${CODEX_HOME:-"$HOME/.codex"}
 APPLY=0
 DIRECT_APPLY=0
 PROFILE_MODE=personal
@@ -32,12 +34,12 @@ while [ "${1:-}" != "" ]; do
     --only)
       shift
       case "${1:-}" in
-        opencode|shell|editor|terminal|all)
+        ai|opencode|shell|editor|terminal|all)
           INSTALL_TARGET=$1
           TARGET_SET=1
           ;;
         *)
-          printf 'Usage: %s [--personal|--client] [--only opencode|shell|editor|terminal|all] [--replace] [--update] [--apply]\n' "$0" >&2
+          printf 'Usage: %s [--personal|--client] [--only ai|opencode|shell|editor|terminal|all] [--replace] [--update] [--apply]\n' "$0" >&2
           exit 2
           ;;
       esac
@@ -49,7 +51,7 @@ while [ "${1:-}" != "" ]; do
       UPDATE_EXISTING=1
       ;;
     *)
-      printf 'Usage: %s [--personal|--client] [--only opencode|shell|editor|terminal|all] [--replace] [--update] [--apply]\n' "$0" >&2
+      printf 'Usage: %s [--personal|--client] [--only ai|opencode|shell|editor|terminal|all] [--replace] [--update] [--apply]\n' "$0" >&2
       exit 2
       ;;
   esac
@@ -163,7 +165,8 @@ gum_choose_target() {
     --cursor '→ ' \
     --selected-prefix '✓ ' \
     --unselected-prefix '  ' \
-    'OpenCode     Agents, prompts, commands, skills → ~/.config/opencode' \
+    'AI core      Shared AGENTS.md + skills → Codex, OpenCode, compatible tools' \
+    'OpenCode     Host adapter + shared AI core' \
     'Shell        Fish + Starship' \
     'Editor       Neovim' \
     'Terminal UI  Ghostty + Karabiner' \
@@ -174,6 +177,7 @@ gum_choose_target() {
     }
 
   case $selection in
+    AI*) INSTALL_TARGET=ai ;;
     OpenCode*) INSTALL_TARGET=opencode ;;
     Shell*) INSTALL_TARGET=shell ;;
     Editor*) INSTALL_TARGET=editor ;;
@@ -250,11 +254,12 @@ Portable setup for a fresh machine.
 
 What do you want to unpack?
 
-  1  OpenCode     Agents, prompts, commands, skills → ~/.config/opencode
-  2  Shell        Fish + Starship
-  3  Editor       Neovim
-  4  Terminal UI  Ghostty + Karabiner
-  5  Everything   All Backpack config
+  1  AI core      Shared AGENTS.md + skills → Codex, OpenCode, compatible tools
+  2  OpenCode     Host adapter + shared AI core
+  3  Shell        Fish + Starship
+  4  Editor       Neovim
+  5  Terminal UI  Ghostty + Karabiner
+  6  Everything   All Backpack config
   q  Quit
 
 EOF
@@ -263,11 +268,12 @@ EOF
   read choice
 
   case $choice in
-    1) INSTALL_TARGET=opencode ;;
-    2) INSTALL_TARGET=shell ;;
-    3) INSTALL_TARGET=editor ;;
-    4) INSTALL_TARGET=terminal ;;
-    5) INSTALL_TARGET=all ;;
+    1) INSTALL_TARGET=ai ;;
+    2) INSTALL_TARGET=opencode ;;
+    3) INSTALL_TARGET=shell ;;
+    4) INSTALL_TARGET=editor ;;
+    5) INSTALL_TARGET=terminal ;;
+    6) INSTALL_TARGET=all ;;
     q|Q)
       printf '\n'
       warn 'Install cancelled. No changes were made.'
@@ -283,8 +289,11 @@ EOF
 backup_existing() {
   target_path=$1
 
-  mkdir -p "$backup_dir"
-  backup_path="$backup_dir/$(basename "$target_path")"
+  case "$target_path" in
+    /*) backup_path="$backup_dir$target_path" ;;
+    *) backup_path="$backup_dir/$target_path" ;;
+  esac
+  mkdir -p "$(dirname "$backup_path")"
   mv "$target_path" "$backup_path"
   LAST_BACKUP_PATH=$backup_path
   info "backup $target_path -> $backup_path"
@@ -342,7 +351,15 @@ update_opencode_core() {
     success "kept $target_root/opencode.json"
   fi
 
-  for entry in agents prompts commands skills themes bin README.md tui.json .gitignore; do
+  # Keep machine-local extensions and dependencies that Backpack does not own.
+  for entry in package.json package-lock.json node_modules .claude; do
+    if [ -e "$LAST_BACKUP_PATH/$entry" ]; then
+      cp -R "$LAST_BACKUP_PATH/$entry" "$target_root/$entry"
+      success "kept $target_root/$entry"
+    fi
+  done
+
+  for entry in agents prompts commands themes README.md tui.json .gitignore; do
     if [ -e "$source_root/$entry" ]; then
       copy_path_replace "$source_root/$entry" "$target_root/$entry"
     fi
@@ -352,6 +369,7 @@ update_opencode_core() {
 
 Kept local config:
   $target_root/opencode.json
+  package.json / package-lock.json / node_modules / .claude (when present)
 
 If Backpack agents or permissions changed, manually merge:
   from: $source_root/opencode.json
@@ -484,7 +502,7 @@ print_client_reminder() {
     cat <<EOF
 
 Client mode reminder:
-- Backpack copies the portable opencode core once to $CONFIG_DIR/opencode.
+- Backpack installs the OpenCode adapter and links the shared AI core.
 - Edit $CONFIG_DIR/opencode/opencode.json locally for client LLM providers/models.
 - Do not commit client providers, tokens, endpoints, or policies to Backpack.
 EOF
@@ -514,6 +532,18 @@ EOF
       else
         copy_dir_once "$BACKPACK_ROOT/cockpit/opencode" "$CONFIG_DIR/opencode"
       fi
+      ;;
+  esac
+
+  case "$INSTALL_TARGET" in
+    opencode)
+      link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$CONFIG_DIR/opencode/AGENTS.md"
+      link_entry "$BACKPACK_ROOT/cockpit/portable/skills" "$BACKPACK_AGENTS_DIR/skills"
+      ;;
+    ai|all)
+      link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$CONFIG_DIR/opencode/AGENTS.md"
+      link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_CODEX_DIR/AGENTS.md"
+      link_entry "$BACKPACK_ROOT/cockpit/portable/skills" "$BACKPACK_AGENTS_DIR/skills"
       ;;
   esac
 

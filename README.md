@@ -7,7 +7,7 @@ learning memory.
 
 ```txt
 bootstrap/   setup and validation scripts
-cockpit/     AI/dev workflow configuration, currently OpenCode
+cockpit/     host-agnostic AI workflow plus thin tool adapters
 memory/      durable personal learning: craft, AI, concepts, books, playbooks
 ```
 
@@ -24,6 +24,12 @@ memory/      durable personal learning: craft, AI, concepts, books, playbooks
 Install is non-destructive by default. `--apply` backs up existing config before
 creating symlinks.
 
+The canonical AI workflow lives in `cockpit/portable/`: one global `AGENTS.md`
+and standard agent skills. Codex and OpenCode consume the same files; OpenCode
+keeps a thin adapter for its modes, commands, permissions, and local models.
+See [the host-agnostic workflow](docs/ai-workflow.md) for routing and host
+boundaries.
+
 ## Usage
 
 ```sh
@@ -37,10 +43,19 @@ creating symlinks.
 ~/dev/perso/backpack/bootstrap/install.sh --client --apply
 ```
 
-OpenCode uses Backpack as a one-shot portable core. On a new machine, the
-installer copies `cockpit/opencode/` to `~/.config/opencode/` if it does not
-exist yet. Real providers/models then stay local in the effective OpenCode
-config:
+The AI core installer links the same guidance and skills into the standard
+locations used by Codex and OpenCode:
+
+```txt
+~/.codex/AGENTS.md            -> backpack/cockpit/portable/AGENTS.md
+~/.config/opencode/AGENTS.md  -> backpack/cockpit/portable/AGENTS.md
+~/.agents/skills              -> backpack/cockpit/portable/skills
+```
+
+OpenCode additionally uses a one-shot host adapter. On a new machine, the
+installer copies `cockpit/opencode/` to `~/.config/opencode/`. Backpack ships
+personal OpenAI defaults; machine- or client-specific provider/model overrides
+stay local in the effective config, which adapter updates preserve:
 
 ```txt
 ~/.config/opencode/opencode.json
@@ -70,8 +85,9 @@ Then run the installer:
 bootstrap/install.sh
 ```
 
-The default mode is interactive: choose OpenCode, shell, editor, terminal/UI, or
-everything. If `gum` is installed, Backpack uses a modern selectable prompt. On
+The default mode is interactive: choose the shared AI core, OpenCode, shell,
+editor, terminal/UI, or everything. If `gum` is installed, Backpack uses a
+modern selectable prompt. On
 a fresh Mac with Homebrew but without `gum`, Backpack offers to install it; if
 that is skipped or unavailable, it falls back to a plain numbered menu. If an
 OpenCode config already exists locally, Backpack asks whether to keep it or back
@@ -92,6 +108,13 @@ To refresh the local OpenCode core later without touching local models/providers
 
 ```sh
 bootstrap/install.sh --only opencode --update --apply
+```
+
+To install or refresh only the shared AI workflow for Codex, OpenCode, and
+compatible tools:
+
+```sh
+bootstrap/install.sh --only ai --apply
 ```
 
 ### When to use each command

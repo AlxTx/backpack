@@ -82,11 +82,16 @@ bootstrap/install.sh --apply
 To install only one part from Backpack, use `--only`:
 
 ```sh
+bootstrap/install.sh --only ai
 bootstrap/install.sh --only opencode
 bootstrap/install.sh --only shell
 bootstrap/install.sh --only editor
 bootstrap/install.sh --only terminal
 ```
+
+`--only ai` links the canonical `AGENTS.md` into Codex and OpenCode and links
+the shared standard skills into `~/.agents/skills`. Use `--only opencode` when
+you also want the OpenCode-specific modes, commands, permissions, and defaults.
 
 If `~/.config/opencode` already exists, interactive mode asks whether to keep it
 or back it up and install a fresh copy. Non-interactive apply mode keeps it by
@@ -103,10 +108,13 @@ providers/models, use `--update`:
 bootstrap/install.sh --only opencode --update --apply
 ```
 
-This backs up `~/.config/opencode`, then refreshes core files such as
-`agents/`, `prompts/`, `commands/`, `skills/`, `themes/`, `bin/`, `README.md`, and
-`tui.json`. It intentionally keeps `~/.config/opencode/opencode.json` untouched,
-because that file may contain machine/client LLM settings.
+This backs up `~/.config/opencode`, then refreshes adapter files such as
+`agents/`, `prompts/`, `commands/`, `themes/`, `README.md`, and `tui.json`. It
+intentionally keeps `~/.config/opencode/opencode.json` untouched because that
+file may contain machine/client LLM settings. Machine-local extensions and
+dependencies (`package.json`, its lockfile, `node_modules`, and `.claude`) are
+preserved when present. Shared guidance and skills remain linked to
+`cockpit/portable/`.
 
 Personal Mac:
 
@@ -124,6 +132,7 @@ Apply mode:
 
 - backs up existing symlinked `~/.config` entries into `~/.config.backup.<timestamp>/`;
 - creates symlinks from most `~/.config/*` entries to this repo;
+- links the shared AI workflow into Codex, OpenCode, and `~/.agents/skills`;
 - copies `cockpit/opencode/` once to `~/.config/opencode/` when it is missing;
 - is idempotent when a link already points to the right source.
 
@@ -131,19 +140,26 @@ After applying, restart shells/apps that load config at startup: Fish, OpenCode,
 Nvim, Karabiner, Ghostty. OpenCode must be restarted after updating agents,
 commands, prompts, or skills; it loads those files at startup.
 
-## opencode local config
+## AI workflow and OpenCode local config
 
-Backpack contains the portable opencode core only: modes, agents, prompts,
-commands, skills, theme, and generic guardrails. The installer copies that core
-once to the real OpenCode config directory:
+Backpack stores the canonical workflow in `cockpit/portable/` and links it to
+the global locations consumed by Codex and OpenCode:
+
+```txt
+~/.codex/AGENTS.md
+~/.config/opencode/AGENTS.md
+~/.agents/skills/
+```
+
+The OpenCode adapter is copied once to the real OpenCode config directory:
 
 ```txt
 ~/.config/opencode/
+  AGENTS.md -> backpack/cockpit/portable/AGENTS.md
   opencode.json
   agents/
   prompts/
   commands/
-  skills/
 ```
 
 Real providers and model choices belong in that local machine file. On a client

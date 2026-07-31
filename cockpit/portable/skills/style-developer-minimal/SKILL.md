@@ -1,6 +1,6 @@
 ---
 name: style-developer-minimal
-description: Internal style lens for /design. Do not invoke directly; select only for developer tools, APIs, CLIs, docs, or technical workflows.
+description: Define a minimal technical visual direction for developer tools, APIs, CLIs, documentation, or technical workflows. Use only when this style fits the product.
 ---
 
 # Style Pack: Developer Minimal

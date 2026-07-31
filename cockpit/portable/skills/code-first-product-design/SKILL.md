@@ -1,13 +1,13 @@
 ---
 name: code-first-product-design
-description: Internal design skill for /design and product-design. Do not invoke directly; use /design for business needs, vague UI ideas, or missing mockups.
+description: Turn a business need, vague UI idea, or missing mockup into a concrete content, UX, and UI design handoff without prescribing code.
 ---
 
 # Code-first Product Design
 
-Use this skill to bridge product thinking and frontend implementation when there
-is no designer-provided mockup. The output should be a design contract that can
-be implemented directly in code, not decorative inspiration.
+Use this skill to turn product thinking into concrete content, UX, and UI design
+decisions when there is no designer-provided mockup. The output should be a
+design handoff that guides future implementation without prescribing code.
 
 ## Core principle
 
@@ -25,8 +25,8 @@ the interface states. Visual style exists to make the product action obvious.
    mobile, keyboard/focus.
 5. **UI system** — reusable components, layout grid, density, typography,
    spacing, color roles, radius, elevation, iconography, motion.
-6. **Build contract** — exact screens/components to implement and validation
-   checks.
+6. **Design handoff** — exact screens, component intent, responsive behavior,
+   acceptance criteria, and design validation checks.
 
 ## Brief interrogation
 
@@ -35,12 +35,13 @@ user down the design tree until the next decision is clear. Ask only blocking
 questions, one decision at a time. If a question can be answered by inspecting
 the codebase, inspect instead of asking.
 
-## Code-first defaults
+## Design-system defaults
 
-- Prefer existing project components and tokens before introducing new ones.
-- For React apps, prefer composable components over one-off page blobs.
-- For shadcn/Radix/Tailwind projects, reuse primitives and variants; avoid raw
-  custom widgets unless the product need requires them.
+- Prefer existing project components and tokens before proposing new visual
+  elements.
+- Describe component intent and hierarchy, not component architecture.
+- For existing design systems, name the closest primitives/variants to reuse;
+  avoid prescribing custom widgets unless the product need requires them.
 - Treat Storybook, component previews, or app screenshots as the practical source
   of visual truth when Figma is absent.
 - Figma is optional: useful for stakeholder validation, not required for code.
@@ -59,7 +60,8 @@ the codebase, inspect instead of asking.
 
 - Propose 2–3 UX options only when the tradeoff is real.
 - Name assumptions explicitly.
-- Keep the contract concrete enough for a build agent to execute.
+- Keep the handoff concrete enough that a builder can understand the intended
+  experience without receiving code instructions.
 - Include validation steps: visual check, responsive check, a11y check, behavior
   check.
 - Pick a style lens deliberately when no design system exists; justify why it fits
@@ -71,5 +73,5 @@ the codebase, inspect instead of asking.
 - Do not invent a brand system if the project already has one.
 - Do not recommend Figma-to-code as the default path.
 - Do not skip edge states or accessibility because the request sounds visual.
-- Do not ask the build agent to “make it look professional” without concrete
-  layout, component, and token guidance.
+- Do not end with vague polish requests like “make it look professional”; provide
+  concrete layout, component intent, and token guidance instead.

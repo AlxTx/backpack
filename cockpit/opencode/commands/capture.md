@@ -2,7 +2,8 @@
 description: Capture the pattern(s) just discussed into the personal pattern log, without polluting the conversation.
 ---
 
-**You ARE allowed to run `~/.config/opencode/bin/capture.sh` here — in ANY agent,
+**You ARE allowed to run
+`~/.agents/skills/pattern-capture/scripts/capture.sh` here — in ANY agent,
 including plan and review read-only modes.** The script appends to a personal
 learning log OUTSIDE the project; it is NOT a project modification, NOT "running a
 command" in the read-only sense, and NOT blocked by plan mode. Do NOT refuse with
@@ -23,7 +24,7 @@ Then append them by piping that block to the capture script (this auto-detects
 project, date, and target file):
 
 ```
-printf '%s\n' '<the bullets above>' | ~/.config/opencode/bin/capture.sh
+printf '%s\n' '<the bullets above>' | ~/.agents/skills/pattern-capture/scripts/capture.sh
 ```
 
 If $ARGUMENTS is non-empty, capture that text instead of the conversation patterns.

@@ -9,7 +9,7 @@ not visible enough. In this Backpack workflow, switching agent changes what the
 assistant can do:
 
 - `interactive` should not touch project files or shell;
-- `product-design`, `plan`, and `review` should inspect only;
+- `design`, `plan`, and `review` should inspect only;
 - `build` can edit files.
 
 The UI should make that difference visible at a glance.
@@ -22,11 +22,11 @@ GUI.
 Examples:
 
 ```txt
-interactive | gpt-5.5-fast | NO-IO
-product-design | gpt-5.5 | READ · SH?
-plan        | gpt-5.5      | READ · SH?
-build       | gpt-5.5      | WRITE · SH?
-review      | gpt-5.5      | READ · SH?
+interactive | gpt-5.6-terra | NO-IO
+design      | gpt-5.6-sol   | READ · SH?
+plan        | gpt-5.6-sol   | READ · SH?
+build       | gpt-5.6-luna  | WRITE · SH?
+review      | gpt-5.6-sol   | READ · SH?
 ```
 
 Do not show `READ` when `WRITE` is active; write access already implies the
@@ -93,7 +93,7 @@ Expected badges for the current Backpack agents:
 | Agent | Expected badge |
 |---|---|
 | `interactive` | `NO-IO` |
-| `product-design` | `READ · SH?` |
+| `design` | `READ · SH?` |
 | `plan` | `READ · SH?` |
 | `build` | `WRITE · SH?` |
 | `review` | `READ · SH?` |
@@ -145,7 +145,7 @@ Reduction rules:
 
 Examples:
 - `interactive | model | NO-IO`
-- `product-design | model | READ · SH?`
+- `design | model | READ · SH?`
 - `plan | model | READ · SH?`
 - `build | model | WRITE · SH?`
 

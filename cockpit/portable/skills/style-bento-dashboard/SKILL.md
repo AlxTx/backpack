@@ -1,6 +1,6 @@
 ---
 name: style-bento-dashboard
-description: Internal style lens for /design. Do not invoke directly; select only for dashboards, analytics, admin, or AI workspaces.
+description: Define a structured bento-style visual direction for dashboards, analytics, admin, or AI workspaces. Use only when this style fits the product.
 ---
 
 # Style Pack: Bento Dashboard

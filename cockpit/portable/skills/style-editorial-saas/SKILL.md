@@ -1,6 +1,6 @@
 ---
 name: style-editorial-saas
-description: Internal style lens for /design. Do not invoke directly; select only for distinctive editorial SaaS or marketing/product hybrids.
+description: Define a distinctive editorial SaaS or marketing/product visual direction. Use only when this style fits the product or the user requests it.
 ---
 
 # Style Pack: Editorial SaaS

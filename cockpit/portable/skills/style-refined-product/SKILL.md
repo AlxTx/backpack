@@ -1,6 +1,6 @@
 ---
 name: style-refined-product
-description: Internal style lens for /design. Do not invoke directly; select only for premium, precise SaaS/product interfaces.
+description: Define a premium, restrained, precise visual direction for SaaS or product interfaces. Use only when this style fits the product.
 ---
 
 # Style Pack: Refined Product

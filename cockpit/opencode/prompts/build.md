@@ -2,7 +2,7 @@
 
 You are the Build agent. You implement the approved plan with minimal, safe,
 production-quality changes. Ship the requested change cleanly — do not redesign.
-(Shared doctrine, classification, skills and style are in core context.)
+(Shared doctrine, classification, skills, and style come from global AGENTS.md.)
 
 ## Hard rules
 

@@ -1,6 +1,6 @@
 ---
 name: frontend-design
-description: Internal visual skill for /design and build. Do not invoke directly; use only after a distinctive visual direction is explicitly requested or selected.
+description: Define a distinctive production-grade frontend visual direction. Use when the user explicitly requests stronger visual character or selects an aesthetic direction.
 ---
 
 # Frontend Design
@@ -8,29 +8,31 @@ description: Internal visual skill for /design and build. Do not invoke directly
 Source: Anthropic `frontend-design` skill, captured from AI UX Playground on
 2026-07-08.
 
-This skill guides creation of distinctive, production-grade frontend interfaces
-that avoid generic "AI slop" aesthetics. Use it as a visual execution lens when
-the user or product-design contract selected a clear aesthetic direction.
+This skill guides definition of distinctive, production-grade frontend interface
+directions that avoid generic "AI slop" aesthetics. Use it as a visual design
+lens when the user or product-design work selected a clear aesthetic
+direction.
 
 In read-only product-design work, do not implement. Extract concrete visual rules
-for the implementation contract instead. In build work, implement real working
-code with exceptional attention to aesthetic details and creative choices.
+for the design handoff instead: hierarchy, composition, typography, color roles,
+motion intent, texture, density, and constraints.
 
 Do not use this skill for routine component/page work, bugfixes, refactors, or
-existing design-system implementation unless the request explicitly asks for a
-new or stronger visual direction.
+existing design-system work unless the request explicitly asks for a new or
+stronger visual direction.
 
 ## Design Thinking
 
-Before coding, understand the context and commit to a BOLD aesthetic direction:
+Before defining the visual direction, understand the context and commit to a BOLD
+aesthetic direction:
 
 - **Purpose**: What problem does this interface solve? Who uses it?
 - **Tone**: Pick an extreme: brutally minimal, maximalist chaos,
   retro-futuristic, organic/natural, luxury/refined, playful/toy-like,
   editorial/magazine, brutalist/raw, art deco/geometric, soft/pastel,
   industrial/utilitarian, etc.
-- **Constraints**: Technical requirements (framework, performance,
-  accessibility).
+- **Constraints**: Product, brand, accessibility, responsiveness, delivery risk,
+  and existing design-system constraints.
 - **Differentiation**: What makes this unforgettable? What's the one thing
   someone will remember?
 
@@ -44,8 +46,8 @@ Focus on:
 
 - **Typography**: Choose fonts that are beautiful, unique, and interesting. Avoid
   generic fonts like Arial and Inter when a stronger project fit exists.
-- **Color & Theme**: Commit to a cohesive aesthetic. Use CSS variables for
-  consistency. Dominant colors with sharp accents outperform timid,
+- **Color & Theme**: Commit to a cohesive aesthetic. Specify semantic color/token
+  intent for consistency. Dominant colors with sharp accents outperform timid,
   evenly-distributed palettes.
 - **Motion**: Use animations for effects and micro-interactions. Focus on
   high-impact moments: one well-orchestrated page load with staggered reveals
@@ -63,7 +65,7 @@ layouts, and default component patterns.
 Interpret creatively and make unexpected choices that feel genuinely designed
 for the context. No two designs should feel the same.
 
-**Important**: Match implementation complexity to the aesthetic vision.
-Maximalist designs need elaborate code with extensive animations and effects.
-Minimalist or refined designs need restraint, precision, and careful attention
-to spacing, typography, and subtle details.
+**Important**: Match visual complexity and delivery risk to the aesthetic vision.
+Maximalist designs need stronger motion/detail specifications. Minimalist or
+refined designs need restraint, precision, and careful attention to spacing,
+typography, and subtle details.
