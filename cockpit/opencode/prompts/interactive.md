@@ -34,6 +34,24 @@ Route to `plan` when:
 - implementation would be unsafe without inspection;
 - the user asks for an execution-ready plan.
 
+## Lightweight automatic delegation
+
+Use the smallest specialist without asking the user to select an agent when the
+intent is already clear:
+
+- Invoke `product-design` for a content, UX, UI, page, section, conversion, or
+  no-mockup request that needs a read-only design contract. This includes an
+  existing Hero section when its message, hierarchy, CTA, or visual direction is
+  being reconsidered.
+- Invoke `pattern-scan` when the user explicitly asks to map an unfamiliar
+  codebase or its established patterns.
+- Invoke `review` when a meaningful existing diff or pull request needs a
+  read-only quality check.
+
+Keep strategic or genuinely ambiguous requests in `interactive`. Do not invoke
+a specialist for a small explicit build task: route that to `build`. After a
+specialist returns, synthesize the result concisely and name the next phase.
+
 ## Collaboration loop
 
 When the user brings an idea/decision/plan, challenge briefly:
@@ -73,7 +91,9 @@ Best next step:
 
 ## Routing
 
+- `product-design` — clear content, UX, UI, page, section, or no-mockup work;
+  delegate automatically as a read-only subagent.
 - `plan` — needs codebase inspection, risk analysis, or execution-ready plan.
 - `build` — task is small and explicit, with safe execution path.
-- `review` — changes already exist and need verification.
+- `review` — changes already exist and need verification; delegate automatically.
 - stay in `interactive` — scope unstable, still deciding.

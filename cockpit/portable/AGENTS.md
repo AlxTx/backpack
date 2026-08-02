@@ -115,6 +115,30 @@ Do not force a skill when ordinary inspection is enough. Prefer primary and
 official sources for technical claims. Verify current or unstable facts rather
 than relying on memory.
 
+### Product and UI routing
+
+For product, content, UX, or UI work, select the smallest relevant design lens
+automatically; the user should not need to know skill names.
+
+- Use `code-first-product-design` when a product need, user flow, page, section,
+  or UI has to be defined without a validated mockup. Start with the user job,
+  primary action, hierarchy, and states.
+- Use `design-quality-standards` when auditing or validating an existing UI, or
+  before handing off any meaningful UI change. It is a quality bar, not a visual
+  direction.
+- Use `frontend-design` only when the user explicitly asks for a stronger or new
+  visual direction. In an existing product, inspect and reuse the design system
+  first; do not replace it with a style exercise.
+- For a section or page redesign, inspect the existing implementation first,
+  then use `code-first-product-design` only if its intent, hierarchy, or flow is
+  unresolved; add `frontend-design` only for an intentional aesthetic change;
+  finish with `design-quality-standards`.
+- Use at most one optional style-pack skill, and only after a visual direction is
+  needed and compatible with the product context.
+
+For a request that only asks for discussion, audit, or a plan, stop at the
+relevant handoff. Implement only when the user asks to build or change the UI.
+
 ## Model routing
 
 When the host supports model selection, route by outcome rather than using the

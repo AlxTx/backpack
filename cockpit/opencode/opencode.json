@@ -29,6 +29,12 @@
         },
         "question": "allow",
         "todowrite": "deny",
+        "task": {
+          "*": "deny",
+          "product-design": "allow",
+          "pattern-scan": "allow",
+          "review": "allow"
+        },
         "skill": {
           "*": "ask"
         }
