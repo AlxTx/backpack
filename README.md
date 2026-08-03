@@ -92,10 +92,13 @@ constraints. Backpack never creates or commits them automatically.
 ## Visible Backpack activity
 
 For a non-trivial task, Backpack-compatible hosts announce the selected phase,
-then any skill, agent, plugin, or integration actually activated. This makes the
-workflow visible without exposing private model reasoning or producing a log for
-every shell command. After updating Backpack, restart the host; for GitHub
-Copilot App, copy the refreshed global-instructions block again.
+then any skill, agent, plugin, or integration actually activated. Native host
+events are preferred; otherwise Backpack emits a compact one-line fallback such
+as `Backpack · skill loaded · code-first-product-design`. It never duplicates an
+activation the host already displays. This makes the workflow visible without
+exposing private model reasoning or producing a log for every shell command.
+After updating Backpack, restart the host; for GitHub Copilot App, copy the
+refreshed global-instructions block again.
 
 OpenCode is the default target and the exception to the symlink-only model: its
 adapter is copied once to `~/.config/opencode/`. Local provider and model choices

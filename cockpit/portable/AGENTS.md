@@ -174,26 +174,38 @@ model IDs belong in host adapters, not in this shared contract.
 Never expose hidden chain-of-thought or pretend to reveal private reasoning.
 Instead, make the active Backpack workflow observable in the conversation.
 
+Treat visibility as a portable semantic event, not a host-specific UI. Prefer a
+host's native skill, agent, plugin, or tool event when it already exposes the
+activation. Otherwise render the event as one compact line in the host's
+progress surface, or as a normal message when no progress surface exists.
+
 For any non-trivial task that will inspect files, use tools, delegate, change
-files, or perform a multi-step action, send one short public status before the
-first action:
+files, or perform a multi-step action, send one short status before the first
+action:
 
 ```txt
-Backpack · <phase>
-Actifs : <portable workflow, named skills/agents/plugins already selected>
-Ensuite : <the immediate next action>
+Backpack · <phase> · <immediate next action>
 ```
 
-- Announce each named skill, subagent, plugin, MCP integration, or other
-  specialized capability when it is actually activated, with one short reason.
+- When a named capability is activated and the host does not already show it,
+  emit one additional compact event using the applicable form:
+
+  ```txt
+  Backpack · skill loaded · <name>
+  Backpack · agent delegated · <name>
+  Backpack · plugin activated · <name>
+  Backpack · integration connected · <name>
+  ```
+
+- Never duplicate an activation already rendered natively by the host.
+- Keep the stable Backpack prefix and the canonical capability name across
+  hosts; localize the short phase/action description to the user's language.
 - Name only capabilities that are truly in use; do not claim an adapter, skill,
   or plugin is active merely because it is installed.
 - Keep updates concise and event-based: at task start, when a specialized
   capability starts, and when a meaningful phase completes. Do not narrate every
   internal thought or routine command.
 - For direct answers and simple one-step requests, skip the status entirely.
-- In a host without a separate commentary surface, emit the same status as a
-  normal chat message before acting.
 
 ## Shell ergonomics
 

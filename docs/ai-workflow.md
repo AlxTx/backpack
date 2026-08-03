@@ -64,8 +64,11 @@ source of doctrine.
 
 Backpack does not expose private model reasoning. For non-trivial work it emits
 a short public status before acting, then announces any selected skill, subagent,
-plugin, or integration when it is actually activated. This is an audit trail of
-the workflow, not a transcript of every command or internal thought.
+plugin, or integration when it is actually activated. This is a portable
+semantic event: use the host's native rendering when available, otherwise fall
+back to a compact `Backpack · <event> · <name>` line. Never show both for the
+same activation. This is an audit trail of the workflow, not a transcript of
+every command or internal thought.
 
 Hosts with a dedicated progress surface show it there; other hosts send the same
 status in the conversation.
