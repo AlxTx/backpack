@@ -6,13 +6,13 @@ limited to capabilities the common standards cannot express.
 
 ## Canonical sources
 
-See `cockpit/portable/AGENTS.md`, `cockpit/portable/MODELS.md`, and
-`cockpit/portable/skills/`.
+See `cockpit/portable/AGENTS.md`, `cockpit/portable/MODELS.md`,
+`cockpit/portable/skills/`, and `cockpit/adapters/`.
 
 `AGENTS.md` defines classification, request routing, scope control, validation,
 review priorities, pattern learning, and communication style. `MODELS.md` maps
-the workflow to semantic Frontier, Balanced, and Fast tiers. Codex, OpenCode, and
-Claude Code each have a thin adapter over this same core.
+the workflow to semantic Frontier, Balanced, and Fast tiers. Codex, GitHub
+Copilot, OpenCode, and Claude Code consume this same core.
 
 Skills follow the open agent-skills directory format and are installed once at
 `~/.agents/skills`. Hosts advertise metadata and load a skill body only when
@@ -20,11 +20,22 @@ the request matches.
 
 ## Host adapters
 
+All host-specific payloads live under `cockpit/adapters/<host>/`. An adapter may
+contain a full local configuration template, a small set of subagents, or only
+the installation mapping when the host directly consumes the portable files.
+
 | Host | Shared guidance | Shared skills | Adapter-only concerns |
 |---|---|---|---|
 | Codex | `~/.codex/AGENTS.md` | `~/.agents/skills` | models, plugins, MCP, desktop/CLI settings |
+| GitHub Copilot | `~/.copilot/copilot-instructions.md` and `~/.copilot/instructions/backpack.instructions.md` | `~/.agents/skills` | account, organization policies, repository instructions |
 | OpenCode | `~/.config/opencode/AGENTS.md` | `~/.agents/skills` | agents, commands, permissions, provider/model |
+| Claude Code | `~/.claude/rules/backpack.md` | `~/.claude/skills` | subagents, hooks, permissions, provider/model |
 | Other compatible hosts | global or repo `AGENTS.md` | `.agents/skills` | host permissions and UI |
+
+Copilot CLI and VS Code use Backpack's personal instructions locally. Copilot
+cloud agents and code review use repository-level `AGENTS.md` or
+`.github/copilot-instructions.md`; Backpack deliberately leaves those files to
+the client repository.
 
 OpenCode keeps richer phase switching because its primary-agent model makes it
 useful. Those modes are an interface over the common workflow, not a second
@@ -43,8 +54,8 @@ source of doctrine.
 - Route shell output through `rtk` when it is installed. It is an execution
   filter, not a second instruction corpus: OpenCode rewrites compatible commands
   automatically, while every other host inherits the portable shell rule.
-- Use `bootstrap/install.sh --only ai --apply` to install RTK and
-  activate the Codex/OpenCode integration together on a new Mac.
+- Use `bootstrap/install.sh --only ai --apply` to install RTK and activate the
+  shared workflow for Codex, Copilot, OpenCode, and Claude Code on a new Mac.
 
 ## Default loop
 
@@ -61,7 +72,13 @@ Planning and review depth scale with uncertainty, blast radius, and risk.
 # shared workflow
 bootstrap/install.sh --only ai --apply
 
-# OpenCode adapter plus shared workflow
+# one adapter only
+bootstrap/install.sh --only codex --apply
+bootstrap/install.sh --only claude --apply
+bootstrap/install.sh --only copilot --apply
+bootstrap/install.sh --only opencode --apply
+
+# refresh the local OpenCode adapter without replacing providers/models
 bootstrap/install.sh --only opencode --update --apply
 ```
 

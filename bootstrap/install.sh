@@ -12,10 +12,11 @@ CONFIG_DIR=${CONFIG_DIR:-"$HOME/.config"}
 BACKPACK_AGENTS_DIR=${BACKPACK_AGENTS_DIR:-"$HOME/.agents"}
 BACKPACK_CODEX_DIR=${CODEX_HOME:-"$HOME/.codex"}
 BACKPACK_CLAUDE_DIR=${CLAUDE_CONFIG_DIR:-"$HOME/.claude"}
+BACKPACK_COPILOT_DIR=${COPILOT_HOME:-"$HOME/.copilot"}
 APPLY=0
 DIRECT_APPLY=0
 PROFILE_MODE=personal
-INSTALL_TARGET=all
+INSTALL_TARGET=opencode
 TARGET_SET=0
 REPLACE_EXISTING=0
 UPDATE_EXISTING=0
@@ -36,12 +37,12 @@ while [ "${1:-}" != "" ]; do
     --only)
       shift
       case "${1:-}" in
-        ai|opencode|shell|editor|terminal|all)
+        ai|codex|claude|copilot|opencode|shell|editor|terminal|all)
           INSTALL_TARGET=$1
           TARGET_SET=1
           ;;
         *)
-          printf 'Usage: %s [--personal|--client] [--only ai|opencode|shell|editor|terminal|all] [--with-rtk|--without-rtk] [--replace] [--update] [--apply]\n' "$0" >&2
+          printf 'Usage: %s [--personal|--client] [--only ai|codex|claude|copilot|opencode|shell|editor|terminal|all] [--with-rtk|--without-rtk] [--replace] [--update] [--apply]\n' "$0" >&2
           exit 2
           ;;
       esac
@@ -59,7 +60,7 @@ while [ "${1:-}" != "" ]; do
       WITH_RTK=0
       ;;
     *)
-      printf 'Usage: %s [--personal|--client] [--only ai|opencode|shell|editor|terminal|all] [--with-rtk|--without-rtk] [--replace] [--update] [--apply]\n' "$0" >&2
+      printf 'Usage: %s [--personal|--client] [--only ai|codex|claude|copilot|opencode|shell|editor|terminal|all] [--with-rtk|--without-rtk] [--replace] [--update] [--apply]\n' "$0" >&2
       exit 2
       ;;
   esac
@@ -201,8 +202,11 @@ gum_choose_target() {
     --cursor '→ ' \
     --selected-prefix '✓ ' \
     --unselected-prefix '  ' \
-    'AI stack     Shared workflow → Codex, OpenCode, Claude, RTK' \
-    'OpenCode     Host adapter + shared AI core' \
+    'OpenCode     Host adapter + shared workflow (default)' \
+    'Codex        Personal instructions + shared skills' \
+    'Claude Code  Rules, agents + shared skills' \
+    'Copilot      Personal instructions + shared skills' \
+    'AI stack     All four host adapters + RTK' \
     'Shell        Fish + Starship' \
     'Editor       Neovim' \
     'Terminal UI  Ghostty + Karabiner' \
@@ -213,8 +217,11 @@ gum_choose_target() {
     }
 
   case $selection in
-    AI*) INSTALL_TARGET=ai ;;
     OpenCode*) INSTALL_TARGET=opencode ;;
+    Codex*) INSTALL_TARGET=codex ;;
+    Claude*) INSTALL_TARGET=claude ;;
+    Copilot*) INSTALL_TARGET=copilot ;;
+    AI*) INSTALL_TARGET=ai ;;
     Shell*) INSTALL_TARGET=shell ;;
     Editor*) INSTALL_TARGET=editor ;;
     Terminal*) INSTALL_TARGET=terminal ;;
@@ -290,26 +297,32 @@ Portable setup for a fresh machine.
 
 What do you want to unpack?
 
-  1  AI stack     Shared workflow → Codex, OpenCode, Claude, RTK
-  2  OpenCode     Host adapter + shared AI core
-  3  Shell        Fish + Starship
-  4  Editor       Neovim
-  5  Terminal UI  Ghostty + Karabiner
-  6  Everything   All Backpack config
+  1  OpenCode     Host adapter + shared workflow (default)
+  2  Codex        Personal instructions + shared skills
+  3  Claude Code  Rules, agents + shared skills
+  4  Copilot      Personal instructions + shared skills
+  5  AI stack     All four host adapters + RTK
+  6  Shell        Fish + Starship
+  7  Editor       Neovim
+  8  Terminal UI  Ghostty + Karabiner
+  9  Everything   All Backpack config
   q  Quit
 
 EOF
 
-  choice_prompt 'Select an option (default: 1 AI stack): '
+  choice_prompt 'Select an option (default: 1 OpenCode): '
   read choice
 
   case "${choice:-1}" in
-    1) INSTALL_TARGET=ai ;;
-    2) INSTALL_TARGET=opencode ;;
-    3) INSTALL_TARGET=shell ;;
-    4) INSTALL_TARGET=editor ;;
-    5) INSTALL_TARGET=terminal ;;
-    6) INSTALL_TARGET=all ;;
+    1) INSTALL_TARGET=opencode ;;
+    2) INSTALL_TARGET=codex ;;
+    3) INSTALL_TARGET=claude ;;
+    4) INSTALL_TARGET=copilot ;;
+    5) INSTALL_TARGET=ai ;;
+    6) INSTALL_TARGET=shell ;;
+    7) INSTALL_TARGET=editor ;;
+    8) INSTALL_TARGET=terminal ;;
+    9) INSTALL_TARGET=all ;;
     q|Q)
       printf '\n'
       warn 'Install cancelled. No changes were made.'
@@ -355,7 +368,7 @@ copy_path_replace() {
 }
 
 install_opencode_rtk_plugin() {
-  source_path=$BACKPACK_ROOT/cockpit/opencode/plugins/rtk.ts
+  source_path=$BACKPACK_ROOT/cockpit/adapters/opencode/plugins/rtk.ts
   target_path=$CONFIG_DIR/opencode/plugins/rtk.ts
 
   if [ ! -f "$source_path" ]; then
@@ -372,7 +385,7 @@ install_opencode_rtk_plugin() {
 }
 
 install_claude_adapter() {
-  source_root=$BACKPACK_ROOT/cockpit/claude
+  source_root=$BACKPACK_ROOT/cockpit/adapters/claude
 
   if [ ! -d "$source_root/agents" ]; then
     printf '✗ missing Claude adapter: %s\n' "$source_root/agents" >&2
@@ -595,13 +608,23 @@ copy_dir_once() {
 
 print_client_reminder() {
   if [ "$PROFILE_MODE" = "client" ]; then
-    cat <<EOF
+    printf '\nClient mode reminder:\n'
 
-Client mode reminder:
-- Backpack installs the OpenCode adapter and links the shared AI core.
-- Edit $CONFIG_DIR/opencode/opencode.json locally for client LLM providers/models.
-- Do not commit client providers, tokens, endpoints, or policies to Backpack.
-EOF
+    case "$INSTALL_TARGET" in
+      ai|opencode|all)
+        printf '%s\n' \
+          '- Backpack installs the OpenCode adapter and links the shared AI core.' \
+          "- Edit $CONFIG_DIR/opencode/opencode.json locally for client LLM providers/models."
+        ;;
+    esac
+
+    case "$INSTALL_TARGET" in
+      ai|copilot|all)
+        printf '%s\n' '- Copilot gets personal instructions locally; client repository instructions remain authoritative.'
+        ;;
+    esac
+
+    printf '%s\n' '- Do not commit client providers, tokens, endpoints, or policies to Backpack.'
   fi
 }
 
@@ -628,6 +651,13 @@ EOF
         install_opencode_rtk_plugin
         configure_rtk_claude
         ;;
+      codex)
+        install_rtk
+        ;;
+      claude)
+        install_rtk
+        configure_rtk_claude
+        ;;
       opencode)
         install_rtk
         install_opencode_rtk_plugin
@@ -637,13 +667,13 @@ EOF
 
   case "$INSTALL_TARGET" in
     ai)
-      update_opencode_core "$BACKPACK_ROOT/cockpit/opencode" "$CONFIG_DIR/opencode"
+      update_opencode_core "$BACKPACK_ROOT/cockpit/adapters/opencode" "$CONFIG_DIR/opencode"
       ;;
     opencode|all)
       if [ "$UPDATE_EXISTING" -eq 1 ]; then
-        update_opencode_core "$BACKPACK_ROOT/cockpit/opencode" "$CONFIG_DIR/opencode"
+        update_opencode_core "$BACKPACK_ROOT/cockpit/adapters/opencode" "$CONFIG_DIR/opencode"
       else
-        copy_dir_once "$BACKPACK_ROOT/cockpit/opencode" "$CONFIG_DIR/opencode"
+        copy_dir_once "$BACKPACK_ROOT/cockpit/adapters/opencode" "$CONFIG_DIR/opencode"
       fi
       ;;
   esac
@@ -653,9 +683,24 @@ EOF
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$CONFIG_DIR/opencode/AGENTS.md"
       link_entry "$BACKPACK_ROOT/cockpit/portable/skills" "$BACKPACK_AGENTS_DIR/skills"
       ;;
+    codex)
+      link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_CODEX_DIR/AGENTS.md"
+      link_entry "$BACKPACK_ROOT/cockpit/portable/skills" "$BACKPACK_AGENTS_DIR/skills"
+      ;;
+    claude)
+      link_entry "$BACKPACK_ROOT/cockpit/portable/skills" "$BACKPACK_AGENTS_DIR/skills"
+      install_claude_adapter
+      ;;
+    copilot)
+      link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_COPILOT_DIR/copilot-instructions.md"
+      link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_COPILOT_DIR/instructions/backpack.instructions.md"
+      link_entry "$BACKPACK_ROOT/cockpit/portable/skills" "$BACKPACK_AGENTS_DIR/skills"
+      ;;
     ai|all)
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$CONFIG_DIR/opencode/AGENTS.md"
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_CODEX_DIR/AGENTS.md"
+      link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_COPILOT_DIR/copilot-instructions.md"
+      link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_COPILOT_DIR/instructions/backpack.instructions.md"
       link_entry "$BACKPACK_ROOT/cockpit/portable/skills" "$BACKPACK_AGENTS_DIR/skills"
       install_claude_adapter
       ;;

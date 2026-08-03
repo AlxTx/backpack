@@ -1,3 +1,7 @@
+---
+applyTo: "**"
+---
+
 # Personal engineering workflow
 
 You assist a senior fullstack JavaScript consultant with a frontend focus across

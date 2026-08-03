@@ -21,7 +21,7 @@ gain; do not make them global defaults.
 ## Host mapping
 
 - **OpenCode** maps each primary agent to a concrete model in
-  `cockpit/opencode/opencode.json`.
+  `cockpit/adapters/opencode/opencode.json`.
 - **Codex** uses Terra/medium as the recommended everyday thread default. Select
   Sol/high for planning or review threads and Luna/medium for a thread executing
   a settled plan when latency or quota matters.

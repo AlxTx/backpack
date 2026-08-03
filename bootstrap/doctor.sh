@@ -47,25 +47,38 @@ else
   fail "backpack currently targets macOS only"
 fi
 
-test -f "$BACKPACK_ROOT/cockpit/opencode/opencode.json" || fail "missing cockpit/opencode/opencode.json"
+test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" || fail "missing OpenCode adapter config"
 ok "opencode config exists"
 
 test -f "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "missing cockpit/portable/AGENTS.md"
 ok "portable AGENTS.md exists"
 
-test -d "$BACKPACK_ROOT/cockpit/claude/agents" || fail "missing Claude adapter agents"
+grep -q '^applyTo: "\*\*"$' "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "portable AGENTS.md must apply to all files when loaded by Copilot"
+ok "portable AGENTS.md is compatible with Copilot personal instructions"
+
+for adapter in codex claude copilot opencode; do
+  test -d "$BACKPACK_ROOT/cockpit/adapters/$adapter" || fail "missing $adapter adapter"
+done
+ok "all host adapter directories exist"
+
+for adapter in codex claude copilot opencode; do
+  test -f "$BACKPACK_ROOT/cockpit/adapters/$adapter/README.md" || fail "missing $adapter adapter documentation"
+done
+ok "all host adapters are documented"
+
+test -d "$BACKPACK_ROOT/cockpit/adapters/claude/agents" || fail "missing Claude adapter agents"
 for agent in plan build review design pattern-scan; do
-  test -f "$BACKPACK_ROOT/cockpit/claude/agents/$agent.md" || fail "missing Claude $agent agent"
+  test -f "$BACKPACK_ROOT/cockpit/adapters/claude/agents/$agent.md" || fail "missing Claude $agent agent"
 done
 ok "Claude adapter agents exist"
 
-test -f "$BACKPACK_ROOT/cockpit/opencode/agents/product-design.md" || fail "missing cockpit/opencode/agents/product-design.md"
+test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/agents/product-design.md" || fail "missing OpenCode product-design agent"
 ok "product-design agent exists"
 
-test -f "$BACKPACK_ROOT/cockpit/opencode/commands/design.md" || fail "missing cockpit/opencode/commands/design.md"
+test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/design.md" || fail "missing OpenCode design command"
 ok "design command exists"
 
-test -f "$BACKPACK_ROOT/cockpit/opencode/prompts/product-design.md" || fail "missing cockpit/opencode/prompts/product-design.md"
+test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/prompts/product-design.md" || fail "missing OpenCode design primary prompt"
 ok "design primary prompt exists"
 
 test -f "$BACKPACK_ROOT/cockpit/portable/skills/code-first-product-design/SKILL.md" || fail "missing portable code-first-product-design skill"

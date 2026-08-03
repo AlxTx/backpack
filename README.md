@@ -6,9 +6,10 @@ learning memory.
 ## Structure
 
 ```txt
-bootstrap/   setup and validation scripts
-cockpit/     host-agnostic AI workflow plus thin tool adapters
-memory/      durable personal learning: craft, AI, concepts, books, playbooks
+bootstrap/           setup and validation scripts
+cockpit/portable/    host-agnostic AI workflow and skills
+cockpit/adapters/    thin Codex, Claude, Copilot, and OpenCode adapters
+memory/              durable personal learning: craft, AI, concepts, books, playbooks
 ```
 
 ## Boundaries
@@ -17,64 +18,11 @@ memory/      durable personal learning: craft, AI, concepts, books, playbooks
 - Client mission notes live outside this repo.
 - Project truth lives in each project repo (`README.md`, `AGENTS.md`, `docs/`).
 - Secrets, SSH keys, tokens, client-specific certs, and local state are not committed.
-- Client-specific opencode providers/models are local machine config and are not committed.
-
-## Status
-
-Install is non-destructive by default. `--apply` backs up existing config before
-creating symlinks.
-
-The canonical AI workflow lives in `cockpit/portable/`: one global `AGENTS.md`
-and standard agent skills. Codex, OpenCode, and Claude Code consume the same
-rules; OpenCode and Claude Code keep thin adapters for their agents, commands,
-permissions, and local models.
-See [the host-agnostic workflow](docs/ai-workflow.md) for routing and host
-boundaries.
-
-When available, AI hosts run shell work through [`rtk`](https://github.com/rtk-ai/rtk)
-to compact command output before it enters the model context. The OpenCode
-adapter installs its rewrite plugin automatically; Codex and other compatible
-hosts inherit the same rule from the shared `AGENTS.md`. `rtk` itself remains a
-machine-local prerequisite and Backpack falls back safely when it is absent.
-
-## Usage
-
-```sh
-# check
-~/dev/perso/backpack/bootstrap/doctor.sh
-
-# personal Mac
-~/dev/perso/backpack/bootstrap/install.sh --personal --apply
-
-# client Mac
-~/dev/perso/backpack/bootstrap/install.sh --client --apply
-```
-
-The AI core installer links the same guidance and skills into the standard
-locations used by Codex and OpenCode:
-
-```txt
-~/.codex/AGENTS.md            -> backpack/cockpit/portable/AGENTS.md
-~/.config/opencode/AGENTS.md  -> backpack/cockpit/portable/AGENTS.md
-~/.agents/skills              -> backpack/cockpit/portable/skills
-```
-
-OpenCode additionally uses a one-shot host adapter. On a new machine, the
-installer copies `cockpit/opencode/` to `~/.config/opencode/`. Backpack ships
-personal OpenAI defaults; machine- or client-specific provider/model overrides
-stay local in the effective config, which adapter updates preserve:
-
-```txt
-~/.config/opencode/opencode.json
-```
-
-For example, on a client Mac, run the installer once, edit
-`~/.config/opencode/opencode.json` to select the client LLM provider/models,
-then launch `opencode` normally.
+- Client-specific providers and models remain in local machine configuration.
 
 ## Quick start
 
-Clone the repo wherever you keep your projects:
+Clone the repository wherever you keep personal projects:
 
 ```sh
 mkdir -p ~/dev/perso
@@ -82,75 +30,78 @@ git clone git@github.com:AlxTx/backpack.git ~/dev/perso/backpack
 cd ~/dev/perso/backpack
 ```
 
-On macOS, an existing `~/Dev` directory may preserve uppercase casing even when
-you type `~/dev`. That is OK; Backpack scripts resolve their real path, and Git
-identity examples include both `~/dev/perso` and `~/Dev/perso`.
-
-Then run the installer:
+Run the interactive installer. It validates the repository, previews the plan,
+and asks before changing local configuration:
 
 ```sh
 bootstrap/install.sh
 ```
 
-The default mode is interactive: choose the AI stack (Codex, OpenCode, Claude,
-and RTK), shell,
-editor, terminal/UI, or everything. If `gum` is installed, Backpack uses a
-modern selectable prompt. On
-a fresh Mac with Homebrew but without `gum`, Backpack offers to install it; if
-that is skipped or unavailable, it falls back to a plain numbered menu. If an
-OpenCode config already exists locally, Backpack asks whether to keep it or back
-it up before installing a fresh copy.
+OpenCode is selected by default. You can instead choose Codex, Claude Code,
+GitHub Copilot, the complete AI stack, shell, editor, terminal UI, or everything.
+The installer uses `gum` when available and falls back to a numbered menu.
+Uppercase `~/Dev` casing is also tolerated on macOS.
 
-It guides you through three steps:
+## Common commands
 
-1. runs `bootstrap/doctor.sh` to check that the repo is healthy;
-2. asks what you want to install when no target is provided;
-3. shows the install plan in dry-run mode, without changing anything;
-4. asks for confirmation before creating local config entries and symlinks.
+| Need | Command |
+|---|---|
+| Validate the repository only | `bootstrap/doctor.sh` |
+| Preview and choose interactively | `bootstrap/install.sh` |
+| Install OpenCode directly (default target) | `bootstrap/install.sh --apply` |
+| Install everything on a personal Mac | `bootstrap/install.sh --only all --personal --apply` |
+| Install everything on a client Mac | `bootstrap/install.sh --only all --client --apply` |
+| Install the complete AI stack | `bootstrap/install.sh --only ai --apply` |
+| Install Codex only | `bootstrap/install.sh --only codex --apply` |
+| Install Claude Code only | `bootstrap/install.sh --only claude --apply` |
+| Install GitHub Copilot instructions only | `bootstrap/install.sh --only copilot --apply` |
+| Replace an existing OpenCode install | `bootstrap/install.sh --only opencode --replace --apply` |
+| Refresh OpenCode without replacing local providers | `bootstrap/install.sh --only opencode --update --apply` |
 
-OpenCode is copied once rather than symlinked, so editing
-`~/.config/opencode/opencode.json` on a client machine does not modify
-Backpack.
+`--apply` skips the confirmation prompt. The `ai`, `codex`, `claude`,
+`opencode`, and `all` targets install [`rtk`](https://github.com/rtk-ai/rtk)
+through Homebrew when needed; use `--without-rtk` to opt out. The Copilot-only
+target does not install RTK.
 
-To refresh the local OpenCode core later without touching local models/providers:
+## Shared AI workflow
 
-```sh
-bootstrap/install.sh --only opencode --update --apply
+The canonical rules and skills live in `cockpit/portable/`. Host-specific files
+live under `cockpit/adapters/<host>/`. The installer combines the selected
+adapter with the portable core and links them into the locations consumed by
+that host:
+
+```txt
+Codex CLI/Desktop  ~/.codex/AGENTS.md
+GitHub Copilot CLI ~/.copilot/copilot-instructions.md
+Copilot in VS Code ~/.copilot/instructions/backpack.instructions.md
+OpenCode           ~/.config/opencode/AGENTS.md
+Claude Code        ~/.claude/rules/backpack.md
+Shared skills      ~/.agents/skills
 ```
 
-To install or refresh only the shared AI workflow for Codex, OpenCode, and
-compatible tools:
+Copilot CLI and VS Code therefore receive the personal workflow without adding
+files to client repositories. Repository-level `AGENTS.md` and
+`.github/copilot-instructions.md` files remain project truth and can add
+client-specific constraints. GitHub-hosted Copilot agents and code review need
+those repository-level instructions; Backpack does not create or commit them
+automatically.
 
-```sh
-bootstrap/install.sh --only ai --apply
-```
+OpenCode is the default target and the exception to the symlink-only model: its
+adapter is copied once to `~/.config/opencode/`. Local provider and model choices
+stay in `~/.config/opencode/opencode.json` and are preserved by `--update`.
 
-To install RTK and activate its Codex/OpenCode/Claude integrations in the same pass:
+## Safety and profiles
 
-```sh
-bootstrap/install.sh --only ai --apply
-```
+Installation is non-destructive by default: it previews first, backs up replaced
+entries under `~/.config.backup.<timestamp>/`, and leaves matching links alone.
+Interactive installation asks whether an existing OpenCode configuration should
+be kept or replaced; direct apply keeps it unless `--replace` is passed.
+On client machines, use `--client` and keep providers, tokens, endpoints,
+policies, and mission notes outside Backpack.
 
-On macOS, AI installs use Homebrew only when `rtk` is not already on `PATH`.
-Pass `--without-rtk` only when you intentionally do not want it.
+After installation, restart applications that load configuration at startup.
+OpenCode must be restarted after adapter or skill updates; Copilot CLI can reload
+skills with `/skills reload`.
 
-### When to use each command
-
-Use `doctor.sh` after cloning, or after changing the repo structure. It only validates that expected files exist and that the repo looks healthy.
-
-```sh
-bootstrap/doctor.sh
-```
-
-Use `install.sh` for normal setup. It checks, previews, then prompts before applying.
-
-```sh
-bootstrap/install.sh
-```
-
-Use `install.sh --apply` only when you want to skip the prompt, for example in a scripted setup. Add `--personal` on a personal Mac or `--client` on a client Mac.
-
-```sh
-bootstrap/install.sh --personal --apply
-bootstrap/install.sh --client --apply
-```
+See [installation details](docs/install.md) for every option and
+[the host-agnostic AI workflow](docs/ai-workflow.md) for host boundaries.

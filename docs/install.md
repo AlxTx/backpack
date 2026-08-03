@@ -67,6 +67,13 @@ bootstrap/doctor.sh
 
 By default, the script is interactive: it runs `doctor.sh`, prints the install plan, then asks before modifying `~/.config`.
 
+OpenCode is the default selection. In direct apply mode, omitting `--only`
+therefore installs OpenCode rather than the complete Backpack configuration:
+
+```sh
+bootstrap/install.sh --apply
+```
+
 It is for wiring local machine config after clone, not for GitHub authentication.
 
 ```sh
@@ -83,26 +90,34 @@ To install only one part from Backpack, use `--only`:
 
 ```sh
 bootstrap/install.sh --only ai
+bootstrap/install.sh --only codex
+bootstrap/install.sh --only claude
+bootstrap/install.sh --only copilot
 bootstrap/install.sh --only opencode
 bootstrap/install.sh --only shell
 bootstrap/install.sh --only editor
 bootstrap/install.sh --only terminal
 ```
 
-`--only ai` installs the shared workflow for Codex, OpenCode, and Claude Code,
-including Claude subagents, shared skills, and RTK integrations. Use `--only
-opencode` when you only want the OpenCode-specific modes, commands, permissions,
-and defaults.
+Every AI host has a standalone target. `--only codex`, `--only claude`,
+`--only copilot`, and `--only opencode` install the selected adapter plus the
+portable workflow and shared skills. `--only ai` installs all four adapters.
+OpenCode adds its modes, commands, permissions, and defaults; Claude adds its
+subagents; Codex and Copilot mainly map the portable files to their native
+personal-instruction locations.
 
-RTK is installed by default for AI targets. The explicit equivalent is:
+RTK is installed by default for the `ai`, `codex`, `claude`, `opencode`, and
+`all` targets. The explicit complete-AI-stack command is:
 
 ```sh
 bootstrap/install.sh --only ai --apply
 ```
 
 This installs the [`rtk`](https://github.com/rtk-ai/rtk) binary through Homebrew
-when necessary, then activates the Codex, OpenCode, and Claude integrations.
-Use `--without-rtk` to opt out. A shell-only install does not install RTK.
+when necessary, installs the OpenCode rewrite plugin, and configures the Claude
+Code hook. Codex and Copilot inherit the portable shell rule. Use
+`--without-rtk` to opt out. Copilot-only and shell-only installs do not install
+RTK.
 
 If `~/.config/opencode` already exists, interactive mode asks whether to keep it
 or back it up and install a fresh copy. Non-interactive apply mode keeps it by
@@ -131,21 +146,22 @@ preserved when present. Shared guidance and skills remain linked to
 Personal Mac:
 
 ```sh
-~/dev/perso/backpack/bootstrap/install.sh --personal --apply
+~/dev/perso/backpack/bootstrap/install.sh --only all --personal --apply
 ```
 
 Client Mac:
 
 ```sh
-~/dev/perso/backpack/bootstrap/install.sh --client --apply
+~/dev/perso/backpack/bootstrap/install.sh --only all --client --apply
 ```
 
 Apply mode:
 
 - backs up existing symlinked `~/.config` entries into `~/.config.backup.<timestamp>/`;
 - creates symlinks from most `~/.config/*` entries to this repo;
-- links the shared AI workflow into Codex, OpenCode, and `~/.agents/skills`;
-- copies `cockpit/opencode/` once to `~/.config/opencode/` when it is missing;
+- links the shared AI workflow into Codex, GitHub Copilot, OpenCode, Claude Code,
+  and `~/.agents/skills`;
+- copies `cockpit/adapters/opencode/` once to `~/.config/opencode/` when it is missing;
 - is idempotent when a link already points to the right source.
 
 After applying, restart shells/apps that load config at startup: Fish, OpenCode,
@@ -154,14 +170,23 @@ commands, prompts, or skills; it loads those files at startup.
 
 ## AI workflow and OpenCode local config
 
-Backpack stores the canonical workflow in `cockpit/portable/` and links it to
-the global locations consumed by Codex and OpenCode:
+Backpack stores the canonical workflow in `cockpit/portable/`, keeps thin
+host-specific payloads in `cockpit/adapters/`, and links both to the personal
+locations consumed by the selected host:
 
 ```txt
 ~/.codex/AGENTS.md
+~/.copilot/copilot-instructions.md
+~/.copilot/instructions/backpack.instructions.md
 ~/.config/opencode/AGENTS.md
+~/.claude/rules/backpack.md
 ~/.agents/skills/
 ```
+
+The two Copilot links cover Copilot CLI and personal instruction files in VS
+Code. Shared agent skills are already discovered through `~/.agents/skills`.
+Client repository instructions remain in that repository's `AGENTS.md` or
+`.github/copilot-instructions.md`; the installer never creates them.
 
 The OpenCode adapter is copied once to the real OpenCode config directory:
 

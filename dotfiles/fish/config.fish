@@ -20,7 +20,7 @@ else
 end
 
 alias @backpack='cd "$BACKPACK_ROOT" && nvim'
-alias @opencodeconfig='cd "$BACKPACK_ROOT/cockpit/opencode" && nvim'
+alias @opencodeconfig='cd "$BACKPACK_ROOT/cockpit/adapters/opencode" && nvim'
 alias @fishconfig='cd "$BACKPACK_ROOT/dotfiles/fish" && nvim'
 alias @nvimconfig='cd "$BACKPACK_ROOT/dotfiles/nvim" && nvim'
 alias @karabinerconfig='cd "$BACKPACK_ROOT/dotfiles/karabiner" && nvim'
