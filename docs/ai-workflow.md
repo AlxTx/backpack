@@ -24,16 +24,19 @@ All host-specific payloads live under `cockpit/adapters/<host>/`. An adapter may
 contain a full local configuration template, a small set of subagents, or only
 the installation mapping when the host directly consumes the portable files.
 
-| Host | Shared guidance | Shared skills | Adapter-only concerns |
-|---|---|---|---|
-| Codex | `~/.codex/AGENTS.md` | `~/.agents/skills` | models, plugins, MCP, desktop/CLI settings |
-| GitHub Copilot | `~/.copilot/copilot-instructions.md` and `~/.copilot/instructions/backpack.instructions.md` | `~/.agents/skills` | account, organization policies, repository instructions |
-| OpenCode | `~/.config/opencode/AGENTS.md` | `~/.agents/skills` | agents, commands, permissions, provider/model |
-| Claude Code | `~/.claude/rules/backpack.md` | `~/.claude/skills` | subagents, hooks, permissions, provider/model |
-| Other compatible hosts | global or repo `AGENTS.md` | `.agents/skills` | host permissions and UI |
+| Host | CLI/Desktop coverage | Shared guidance | Shared skills | Adapter-only concerns |
+|---|---|---|---|---|
+| Codex | Same portable files in CLI and desktop app | `~/.codex/AGENTS.md` | `~/.agents/skills` | models, plugins, MCP |
+| GitHub Copilot | CLI automatic; App global instructions require one in-app paste | `~/.copilot/copilot-instructions.md` | `~/.agents/skills` | account, organization policies, repository instructions |
+| OpenCode | Same configuration in CLI, TUI, desktop app, and GitHub Action | `~/.config/opencode/AGENTS.md` | `~/.agents/skills` | agents, commands, permissions, provider/model |
+| Claude Code | CLI and Desktop Code tab share local configuration | `~/.claude/rules/backpack.md` | `~/.claude/skills` | subagents, hooks, permissions, provider/model |
+| Other compatible hosts | Varies by host | global or repo `AGENTS.md` | `.agents/skills` | host permissions and UI |
 
-Copilot CLI and VS Code use Backpack's personal instructions locally. Copilot
-cloud agents and code review use repository-level `AGENTS.md` or
+Copilot CLI uses Backpack's personal instructions locally. After a successful
+Copilot install, Backpack prints the canonical global-instructions block for the
+GitHub Copilot App. `bootstrap/copilot-app-instructions.sh --copy` remains
+available to recopy it later. Copilot cloud agents and code review use
+repository-level `AGENTS.md` or
 `.github/copilot-instructions.md`; Backpack deliberately leaves those files to
 the client repository.
 
@@ -56,6 +59,16 @@ source of doctrine.
   automatically, while every other host inherits the portable shell rule.
 - Use `bootstrap/install.sh --only ai --apply` to install RTK and activate the
   shared workflow for Codex, Copilot, OpenCode, and Claude Code on a new Mac.
+
+## Visible execution context
+
+Backpack does not expose private model reasoning. For non-trivial work it emits
+a short public status before acting, then announces any selected skill, subagent,
+plugin, or integration when it is actually activated. This is an audit trail of
+the workflow, not a transcript of every command or internal thought.
+
+Hosts with a dedicated progress surface show it there; other hosts send the same
+status in the conversation.
 
 ## Default loop
 

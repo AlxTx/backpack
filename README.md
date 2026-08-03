@@ -37,10 +37,10 @@ and asks before changing local configuration:
 bootstrap/install.sh
 ```
 
-OpenCode is selected by default. You can instead choose Codex, Claude Code,
-GitHub Copilot, the complete AI stack, shell, editor, terminal UI, or everything.
-The installer uses `gum` when available and falls back to a numbered menu.
-Uppercase `~/Dev` casing is also tolerated on macOS.
+OpenCode is selected by default. The menu first presents the **Cockpit** — the
+portable workflow and its host adapters — then the machine **Tools**: shell,
+editor, and terminal UI. The installer uses `gum` when available and falls back
+to a numbered menu. Uppercase `~/Dev` casing is also tolerated on macOS.
 
 ## Common commands
 
@@ -55,6 +55,7 @@ Uppercase `~/Dev` casing is also tolerated on macOS.
 | Install Codex only | `bootstrap/install.sh --only codex --apply` |
 | Install Claude Code only | `bootstrap/install.sh --only claude --apply` |
 | Install GitHub Copilot instructions only | `bootstrap/install.sh --only copilot --apply` |
+| Copy instructions for GitHub Copilot App again | `sh bootstrap/copilot-app-instructions.sh --copy` |
 | Replace an existing OpenCode install | `bootstrap/install.sh --only opencode --replace --apply` |
 | Refresh OpenCode without replacing local providers | `bootstrap/install.sh --only opencode --update --apply` |
 
@@ -67,24 +68,34 @@ target does not install RTK.
 
 The canonical rules and skills live in `cockpit/portable/`. Host-specific files
 live under `cockpit/adapters/<host>/`. The installer combines the selected
-adapter with the portable core and links them into the locations consumed by
-that host:
+adapter with the portable core.
 
-```txt
-Codex CLI/Desktop  ~/.codex/AGENTS.md
-GitHub Copilot CLI ~/.copilot/copilot-instructions.md
-Copilot in VS Code ~/.copilot/instructions/backpack.instructions.md
-OpenCode           ~/.config/opencode/AGENTS.md
-Claude Code        ~/.claude/rules/backpack.md
-Shared skills      ~/.agents/skills
+| Host | CLI | Desktop app |
+|---|---|---|
+| Codex | `~/.codex/AGENTS.md` | Uses the same instruction source |
+| Claude Code | `~/.claude/rules/backpack.md`, agents, and skills | Code tab shares the same local configuration |
+| OpenCode | `~/.config/opencode/` | Uses the same configuration as CLI and TUI |
+| GitHub Copilot | `~/.copilot/copilot-instructions.md` and `~/.agents/skills` | Skills are shared; paste the workflow into App global instructions |
+
+GitHub Copilot App is the one exception: its global instructions have no
+documented local file. A successful Copilot install prints the complete block to
+paste in `Settings → General → Global instructions`. If the portable workflow is
+updated later, recopy it with:
+
+```sh
+sh bootstrap/copilot-app-instructions.sh --copy
 ```
 
-Copilot CLI and VS Code therefore receive the personal workflow without adding
-files to client repositories. Repository-level `AGENTS.md` and
-`.github/copilot-instructions.md` files remain project truth and can add
-client-specific constraints. GitHub-hosted Copilot agents and code review need
-those repository-level instructions; Backpack does not create or commit them
-automatically.
+Repository-level instructions remain project truth and can add client-specific
+constraints. Backpack never creates or commits them automatically.
+
+## Visible Backpack activity
+
+For a non-trivial task, Backpack-compatible hosts announce the selected phase,
+then any skill, agent, plugin, or integration actually activated. This makes the
+workflow visible without exposing private model reasoning or producing a log for
+every shell command. After updating Backpack, restart the host; for GitHub
+Copilot App, copy the refreshed global-instructions block again.
 
 OpenCode is the default target and the exception to the symlink-only model: its
 adapter is copied once to `~/.config/opencode/`. Local provider and model choices

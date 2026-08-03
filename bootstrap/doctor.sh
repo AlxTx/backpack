@@ -53,6 +53,9 @@ ok "opencode config exists"
 test -f "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "missing cockpit/portable/AGENTS.md"
 ok "portable AGENTS.md exists"
 
+test -f "$BACKPACK_ROOT/bootstrap/copilot-app-instructions.sh" || fail "missing Copilot App instructions helper"
+ok "Copilot App instructions helper exists"
+
 grep -q '^applyTo: "\*\*"$' "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "portable AGENTS.md must apply to all files when loaded by Copilot"
 ok "portable AGENTS.md is compatible with Copilot personal instructions"
 

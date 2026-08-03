@@ -1,7 +1,7 @@
 # Codex adapter
 
-Codex consumes the portable workflow through `~/.codex/AGENTS.md` and discovers
-personal skills through `~/.agents/skills`.
+Codex CLI and the Codex desktop app consume the portable workflow through
+`~/.codex/AGENTS.md` and discover personal skills through `~/.agents/skills`.
 
 Install only this adapter with:
 

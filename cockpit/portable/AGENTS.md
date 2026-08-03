@@ -169,6 +169,32 @@ model IDs belong in host adapters, not in this shared contract.
 - Avoid generic advice, motivational filler, and walls of text.
 - Keep the final handoff self-contained.
 
+## Visible Backpack context
+
+Never expose hidden chain-of-thought or pretend to reveal private reasoning.
+Instead, make the active Backpack workflow observable in the conversation.
+
+For any non-trivial task that will inspect files, use tools, delegate, change
+files, or perform a multi-step action, send one short public status before the
+first action:
+
+```txt
+Backpack · <phase>
+Actifs : <portable workflow, named skills/agents/plugins already selected>
+Ensuite : <the immediate next action>
+```
+
+- Announce each named skill, subagent, plugin, MCP integration, or other
+  specialized capability when it is actually activated, with one short reason.
+- Name only capabilities that are truly in use; do not claim an adapter, skill,
+  or plugin is active merely because it is installed.
+- Keep updates concise and event-based: at task start, when a specialized
+  capability starts, and when a meaningful phase completes. Do not narrate every
+  internal thought or routine command.
+- For direct answers and simple one-step requests, skip the status entirely.
+- In a host without a separate commentary surface, emit the same status as a
+  normal chat message before acting.
+
 ## Shell ergonomics
 
 - Prefer `rg` and `rg --files` for search.

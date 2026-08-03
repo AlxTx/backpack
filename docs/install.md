@@ -102,9 +102,19 @@ bootstrap/install.sh --only terminal
 Every AI host has a standalone target. `--only codex`, `--only claude`,
 `--only copilot`, and `--only opencode` install the selected adapter plus the
 portable workflow and shared skills. `--only ai` installs all four adapters.
-OpenCode adds its modes, commands, permissions, and defaults; Claude adds its
-subagents; Codex and Copilot mainly map the portable files to their native
-personal-instruction locations.
+Codex CLI/Desktop, Claude Code CLI/Desktop, and OpenCode CLI/Desktop share those
+local configurations. GitHub Copilot CLI is configured locally, while GitHub
+Copilot App requires one additional UI step because its global instructions are
+stored by the app. After a successful install, Backpack prints the complete
+block to copy and paste. To display it again later:
+
+```sh
+sh bootstrap/copilot-app-instructions.sh --copy
+```
+
+Paste the result in GitHub Copilot App → Settings → General → Global
+instructions. OpenCode adds its modes, commands, permissions, and defaults;
+Claude adds its subagents; Codex maps the portable files to its native location.
 
 RTK is installed by default for the `ai`, `codex`, `claude`, `opencode`, and
 `all` targets. The explicit complete-AI-stack command is:

@@ -197,19 +197,22 @@ gum_header() {
 gum_choose_target() {
   gum_header
 
+  gum style --foreground 39 'Cockpit: portable engineering workflow and host adapters.'
+  gum style --foreground 245 'Tools: shell, editor, and terminal configuration.'
+
   selection=$(gum choose \
-    --header 'What do you want to unpack?' \
+    --header 'What do you want to install?' \
     --cursor '→ ' \
     --selected-prefix '✓ ' \
     --unselected-prefix '  ' \
-    'OpenCode     Host adapter + shared workflow (default)' \
-    'Codex        Personal instructions + shared skills' \
-    'Claude Code  Rules, agents + shared skills' \
-    'Copilot      Personal instructions + shared skills' \
-    'AI stack     All four host adapters + RTK' \
-    'Shell        Fish + Starship' \
-    'Editor       Neovim' \
-    'Terminal UI  Ghostty + Karabiner' \
+    'Cockpit · OpenCode     Host adapter + shared workflow (default)' \
+    'Cockpit · Codex        CLI + Desktop instructions and skills' \
+    'Cockpit · Claude Code  CLI + Desktop rules, agents, and skills' \
+    'Cockpit · Copilot      CLI instructions, skills, and App setup guide' \
+    'Cockpit · AI stack     All four host adapters + RTK' \
+    'Tools · Shell           Fish + Starship' \
+    'Tools · Editor          Neovim' \
+    'Tools · Terminal UI     Ghostty + Karabiner' \
     'Everything   All Backpack config' \
     'Quit') || {
       warn 'Install cancelled. No changes were made.'
@@ -217,14 +220,14 @@ gum_choose_target() {
     }
 
   case $selection in
-    OpenCode*) INSTALL_TARGET=opencode ;;
-    Codex*) INSTALL_TARGET=codex ;;
-    Claude*) INSTALL_TARGET=claude ;;
-    Copilot*) INSTALL_TARGET=copilot ;;
-    AI*) INSTALL_TARGET=ai ;;
-    Shell*) INSTALL_TARGET=shell ;;
-    Editor*) INSTALL_TARGET=editor ;;
-    Terminal*) INSTALL_TARGET=terminal ;;
+    'Cockpit · OpenCode'*) INSTALL_TARGET=opencode ;;
+    'Cockpit · Codex'*) INSTALL_TARGET=codex ;;
+    'Cockpit · Claude'*) INSTALL_TARGET=claude ;;
+    'Cockpit · Copilot'*) INSTALL_TARGET=copilot ;;
+    'Cockpit · AI'*) INSTALL_TARGET=ai ;;
+    'Tools · Shell'*) INSTALL_TARGET=shell ;;
+    'Tools · Editor'*) INSTALL_TARGET=editor ;;
+    'Tools · Terminal'*) INSTALL_TARGET=terminal ;;
     Everything*) INSTALL_TARGET=all ;;
     Quit)
       warn 'Install cancelled. No changes were made.'
@@ -295,16 +298,25 @@ ask_install_target() {
 $(title)
 Portable setup for a fresh machine.
 
-What do you want to unpack?
+What do you want to install?
 
-  1  OpenCode     Host adapter + shared workflow (default)
-  2  Codex        Personal instructions + shared skills
-  3  Claude Code  Rules, agents + shared skills
-  4  Copilot      Personal instructions + shared skills
+
+Cockpit — portable workflow and host adapters
+
+  1  OpenCode     CLI + Desktop adapter (default)
+  2  Codex        CLI + Desktop instructions and skills
+  3  Claude Code  CLI + Desktop rules, agents, and skills
+  4  Copilot      CLI instructions, skills, and App setup guide
   5  AI stack     All four host adapters + RTK
+
+Tools — machine and interface configuration
+
   6  Shell        Fish + Starship
   7  Editor       Neovim
   8  Terminal UI  Ghostty + Karabiner
+
+Everything
+
   9  Everything   All Backpack config
   q  Quit
 
@@ -628,6 +640,42 @@ print_client_reminder() {
   fi
 }
 
+print_copilot_app_reminder() {
+  case "$INSTALL_TARGET" in
+    ai|copilot|all)
+      cat <<EOF
+
+GitHub Copilot App setup:
+- Copilot CLI instructions and personal skills are installed automatically.
+- The desktop app stores global instructions in its own settings and has no
+  documented file-based configuration.
+- After a successful install, Backpack prints the exact instruction block to paste.
+EOF
+      ;;
+  esac
+}
+
+print_copilot_app_instructions() {
+  case "$INSTALL_TARGET" in
+    ai|copilot|all)
+      cat <<EOF
+
+GitHub Copilot App — one final step
+
+Copy the complete block below, then paste it in:
+  GitHub Copilot App → Settings → General → Global instructions
+
+----- COPY FROM HERE -----
+EOF
+      "$SCRIPT_DIR/copilot-app-instructions.sh"
+      cat <<EOF
+----- COPY UNTIL HERE -----
+
+EOF
+      ;;
+  esac
+}
+
 run_doctor() {
   BACKPACK_DOCTOR_QUIET=1 BACKPACK_ROOT=$BACKPACK_ROOT "$SCRIPT_DIR/doctor.sh"
   success 'Backpack health check passed'
@@ -730,6 +778,7 @@ EOF
   esac
 
   print_client_reminder
+  print_copilot_app_reminder
 }
 
 if [ "$DIRECT_APPLY" -eq 0 ] && [ "$TARGET_SET" -eq 0 ]; then
@@ -751,6 +800,7 @@ if [ "$DIRECT_APPLY" -eq 1 ]; then
   run_plan
   printf '\n'
   success 'Install complete'
+  print_copilot_app_instructions
   if [ -d "$backup_dir" ]; then
     printf 'Backups: %s\n' "$backup_dir"
   fi
@@ -777,6 +827,7 @@ fi
 
 printf '\n'
 success 'Install complete'
+print_copilot_app_instructions
 if [ -d "$backup_dir" ]; then
   printf 'Backups: %s\n' "$backup_dir"
 fi
