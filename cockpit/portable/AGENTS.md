@@ -143,6 +143,25 @@ automatically; the user should not need to know skill names.
 For a request that only asks for discussion, audit, or a plan, stop at the
 relevant handoff. Implement only when the user asks to build or change the UI.
 
+### React and Next.js routing
+
+Two vendored Vercel skills cover frontend implementation quality. They are rule
+sets, not visual direction, and are read at build or review time.
+
+- Use `vercel-react-best-practices` when writing, reviewing, or refactoring
+  React/Next.js code with a performance dimension: data fetching, waterfalls,
+  bundle size, server rendering, re-renders. Its 70 rules are ranked by impact —
+  resolve `async-` and `bundle-` before the lower tiers.
+- Use `vercel-composition-patterns` when a component API is growing boolean
+  props, when building reusable components, or when reshaping component
+  architecture.
+
+Load individual `rules/<prefix>-<name>.md` files rather than the whole catalog.
+Each rule states its own exceptions; honour them instead of applying rules
+blindly, and skip manual-memoization rules on projects using React Compiler.
+Both are upstream MIT content: fix problems upstream rather than editing rule
+files locally, so a refresh does not silently drop the change.
+
 ## Model routing
 
 When the host supports model selection, route by outcome rather than using the

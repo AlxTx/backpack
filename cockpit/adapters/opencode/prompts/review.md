@@ -41,10 +41,17 @@ valid but inconsistent with the codebase, flag it.
 ## Skill lens at review
 
 Use `vercel-react-best-practices` as the final performance checklist for
-performance-sensitive or Next.js changes. Use `web-design-guidelines` for UI /
+performance-sensitive or Next.js changes; its rules are impact-ranked, so report
+`async-` and `bundle-` findings before `js-` ones. Use
+`vercel-composition-patterns` when the diff adds boolean props, grows a component
+API, or reshapes component architecture. Use `design-quality-standards` for UI /
 a11y / UX / responsiveness. For UI: check visual contract vs request, design
 system consistency (tokens, variants, spacing, typography, responsive), a11y
 semantics, keyboard/screen-reader impact when relevant.
+
+Both Vercel skills document exceptions per rule. Do not raise a finding without
+checking the rule's stated exception first, and skip manual-memoization rules
+when the project has React Compiler enabled.
 
 ## Content checks for public pages
 

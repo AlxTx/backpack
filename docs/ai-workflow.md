@@ -111,6 +111,33 @@ adapter updates.
 - Use plugins for external capabilities or independently maintained workflows,
   not as the default distribution mechanism for personal instructions.
 
+## Vendored third-party skills
+
+Most skills in `cockpit/portable/skills/` are personal doctrine. Two are vendored
+upstream content from Vercel's official collection, kept because performance and
+composition rules are factual, measurable, and already better maintained
+elsewhere than they would be here:
+
+| Skill | Upstream | Licence |
+|---|---|---|
+| `vercel-react-best-practices` | `vercel-labs/agent-skills` · `skills/react-best-practices` | MIT |
+| `vercel-composition-patterns` | `vercel-labs/agent-skills` · `skills/composition-patterns` | MIT |
+
+Rules for vendored skills:
+
+- Pin the upstream commit in the skill's own `SKILL.md` provenance section, so a
+  refresh is a reviewable diff rather than a silent drift.
+- Do not vendor an upstream `AGENTS.md` compiled bundle. It duplicates the whole
+  `rules/` directory in one always-expanded document and defeats progressive
+  disclosure; the per-rule files are the payload.
+- Do not edit rule bodies locally. Fix upstream, or add the local delta to
+  `AGENTS.md` doctrine instead, so refreshes stay lossless.
+- Vendor a skill only when the domain has a credible upstream maintainer.
+  Architecture doctrine — boundaries, ports and adapters, dependency direction —
+  has none, because no vendor owns that surface. Write those here instead.
+- The upstream `npx skills add` installer writes into each host's own skill
+  directory. That bypasses the single portable catalogue, so it is not used.
+
 ## Compound Engineering decision
 
 Compound Engineering is useful as an off-the-shelf, batteries-included workflow,
