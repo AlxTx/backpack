@@ -116,6 +116,32 @@ Paste the result in GitHub Copilot App → Settings → General → Global
 instructions. OpenCode adds its modes, commands, permissions, and defaults;
 Claude adds its subagents; Codex maps the portable files to its native location.
 
+## Choosing a skill set
+
+Skills are one shared catalogue, so the choice is made once and applies to every
+selected host. An interactive install asks for it after the target; a
+non-interactive install defaults to `all`.
+
+```sh
+bootstrap/install.sh --skills all --apply    # everything (default)
+bootstrap/install.sh --skills core --apply   # personal doctrine only
+bootstrap/install.sh --skills none --apply   # instructions and agents, no skill
+```
+
+`core` skips the skills listed in `cockpit/portable/skills.optional`. That file
+holds the vendored third-party rule sets, which are worth installing on a machine
+that writes React and are dead weight on one that does not. Anything absent from
+the manifest is core and is always installed, so adding a skill never requires
+touching the installer.
+
+Each selected skill is linked individually into `~/.agents/skills` for Codex,
+Copilot, and OpenCode, and into `~/.claude/skills` for Claude Code. Earlier
+releases linked the whole catalogue as a single symlink; the installer detects
+that layout, backs it up, and replaces it with a directory of per-skill links.
+
+Reinstall with a different set at any time — it relinks what is selected and
+backs up whatever it replaces.
+
 RTK is installed by default for the `ai`, `codex`, `claude`, `opencode`, and
 `all` targets. The explicit complete-AI-stack command is:
 

@@ -15,8 +15,14 @@ the workflow to semantic Frontier, Balanced, and Fast tiers. Codex, GitHub
 Copilot, OpenCode, and Claude Code consume this same core.
 
 Skills follow the open agent-skills directory format and are installed once at
-`~/.agents/skills`. Hosts advertise metadata and load a skill body only when
-the request matches.
+`~/.agents/skills`, plus `~/.claude/skills` for Claude Code. Hosts advertise
+metadata and load a skill body only when the request matches.
+
+The catalogue is host-agnostic: the installer links each selected skill
+individually into every host catalogue, so `--skills all|core|none` produces the
+same set for Codex, Claude Code, Copilot, and OpenCode. `core` skips the skills
+listed in `cockpit/portable/skills.optional`; anything unlisted is core, so a new
+skill is installed by default rather than silently dropped.
 
 ## Host adapters
 

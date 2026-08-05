@@ -58,6 +58,8 @@ to a numbered menu. Uppercase `~/Dev` casing is also tolerated on macOS.
 | Copy instructions for GitHub Copilot App again | `sh bootstrap/copilot-app-instructions.sh --copy` |
 | Replace an existing OpenCode install | `bootstrap/install.sh --only opencode --replace --apply` |
 | Refresh OpenCode without replacing local providers | `bootstrap/install.sh --only opencode --update --apply` |
+| Install personal skills without third-party rule sets | `bootstrap/install.sh --skills core --apply` |
+| Install instructions and agents without any skill | `bootstrap/install.sh --skills none --apply` |
 
 `--apply` skips the confirmation prompt. The `ai`, `codex`, `claude`,
 `opencode`, and `all` targets install [`rtk`](https://github.com/rtk-ai/rtk)
@@ -69,6 +71,14 @@ target does not install RTK.
 The canonical rules and skills live in `cockpit/portable/`. Host-specific files
 live under `cockpit/adapters/<host>/`. The installer combines the selected
 adapter with the portable core.
+
+An interactive install asks which skill set to install, and the answer applies to
+every selected host: Codex, Claude Code, GitHub Copilot, and OpenCode all receive
+the same set. `all` installs everything, `core` installs personal doctrine only
+and skips the vendored third-party rule sets listed in
+`cockpit/portable/skills.optional`, and `none` installs instructions and agents
+without any skill. Use `--skills` to choose non-interactively; it defaults to
+`all`.
 
 | Host | CLI | Desktop app |
 |---|---|---|

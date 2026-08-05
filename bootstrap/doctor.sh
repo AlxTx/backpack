@@ -109,6 +109,33 @@ done
 test -x "$BACKPACK_ROOT/cockpit/portable/skills/pattern-capture/scripts/capture.sh" || fail "portable pattern capture script is not executable"
 ok "pattern learning skills exist"
 
+for skill in vercel-react-best-practices vercel-composition-patterns; do
+  test -f "$BACKPACK_ROOT/cockpit/portable/skills/$skill/SKILL.md" || fail "missing vendored $skill skill"
+  test -d "$BACKPACK_ROOT/cockpit/portable/skills/$skill/rules" || fail "missing rules directory for $skill"
+done
+ok "vendored Vercel skills exist"
+
+optional_manifest="$BACKPACK_ROOT/cockpit/portable/skills.optional"
+test -f "$optional_manifest" || fail "missing cockpit/portable/skills.optional"
+while IFS= read -r manifest_line || [ -n "$manifest_line" ]; do
+  manifest_entry=${manifest_line%%#*}
+  manifest_entry=$(printf '%s' "$manifest_entry" | tr -d ' \t')
+  [ -n "$manifest_entry" ] || continue
+  test -d "$BACKPACK_ROOT/cockpit/portable/skills/$manifest_entry" ||
+    fail "skills.optional lists a skill that does not exist: $manifest_entry"
+done < "$optional_manifest"
+ok "optional skill manifest resolves"
+
+for skill_dir in "$BACKPACK_ROOT/cockpit/portable/skills"/*; do
+  test -d "$skill_dir" || continue
+  skill_name=$(basename "$skill_dir")
+  test -f "$skill_dir/SKILL.md" || fail "missing SKILL.md for $skill_name"
+  frontmatter_name=$(awk '/^name:/{print $2; exit}' "$skill_dir/SKILL.md")
+  [ "$frontmatter_name" = "$skill_name" ] ||
+    fail "skill $skill_name declares name: $frontmatter_name; hosts resolve skills by directory name"
+done
+ok "skill frontmatter names match their directories"
+
 test -f "$BACKPACK_ROOT/memory/index.md" || fail "missing memory/index.md"
 ok "memory index exists"
 

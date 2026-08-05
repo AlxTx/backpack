@@ -21,6 +21,9 @@ TARGET_SET=0
 REPLACE_EXISTING=0
 UPDATE_EXISTING=0
 WITH_RTK=1
+SKILLS_SET=all
+SKILLS_SET_SET=0
+USAGE="Usage: $0 [--personal|--client] [--only ai|codex|claude|copilot|opencode|shell|editor|terminal|all] [--skills all|core|none] [--with-rtk|--without-rtk] [--replace] [--update] [--apply]"
 
 while [ "${1:-}" != "" ]; do
   case "$1" in
@@ -42,7 +45,20 @@ while [ "${1:-}" != "" ]; do
           TARGET_SET=1
           ;;
         *)
-          printf 'Usage: %s [--personal|--client] [--only ai|codex|claude|copilot|opencode|shell|editor|terminal|all] [--with-rtk|--without-rtk] [--replace] [--update] [--apply]\n' "$0" >&2
+          printf '%s\n' "$USAGE" >&2
+          exit 2
+          ;;
+      esac
+      ;;
+    --skills)
+      shift
+      case "${1:-}" in
+        all|core|none)
+          SKILLS_SET=$1
+          SKILLS_SET_SET=1
+          ;;
+        *)
+          printf '%s\n' "$USAGE" >&2
           exit 2
           ;;
       esac
@@ -60,7 +76,7 @@ while [ "${1:-}" != "" ]; do
       WITH_RTK=0
       ;;
     *)
-      printf 'Usage: %s [--personal|--client] [--only ai|codex|claude|copilot|opencode|shell|editor|terminal|all] [--with-rtk|--without-rtk] [--replace] [--update] [--apply]\n' "$0" >&2
+      printf '%s\n' "$USAGE" >&2
       exit 2
       ;;
   esac
@@ -347,6 +363,75 @@ EOF
   esac
 }
 
+gum_choose_skills() {
+  gum style --foreground 39 \
+    'Skill catalogue: one shared set for Codex, Claude Code, Copilot, and OpenCode.'
+
+  skills_choice=$(gum choose \
+    --header 'Which skills do you want to install?' \
+    "All — personal doctrine + optional rule sets ($(count_skills all) skills)" \
+    "Core only — personal doctrine ($(count_skills core) skills)" \
+    'None — instructions and agents only') || return 1
+
+  case "$skills_choice" in
+    All*) SKILLS_SET=all ;;
+    Core*) SKILLS_SET=core ;;
+    None*) SKILLS_SET=none ;;
+  esac
+}
+
+ask_skills_set() {
+  target_uses_skills || return 0
+  [ "$SKILLS_SET_SET" -eq 1 ] && return 0
+  { [ -t 0 ] && [ -t 1 ]; } || return 0
+
+  if use_gum; then
+    gum_choose_skills
+    return 0
+  fi
+
+  cat <<EOF
+
+$(section 'Skills')
+One shared catalogue, installed for whichever hosts you selected.
+
+  1  All        personal doctrine + optional rule sets ($(count_skills all) skills)
+  2  Core only  personal doctrine only ($(count_skills core) skills)
+  3  None       instructions and agents only
+
+Optional today ($(count_skills optional)): $(list_optional_skills)
+
+EOF
+
+  choice_prompt 'Select a skill set (default: 1 All): '
+  read skills_choice
+
+  case "${skills_choice:-1}" in
+    1) SKILLS_SET=all ;;
+    2) SKILLS_SET=core ;;
+    3) SKILLS_SET=none ;;
+    *)
+      printf '✗ invalid choice: %s\n' "$skills_choice" >&2
+      exit 2
+      ;;
+  esac
+}
+
+list_optional_skills() {
+  optional_list=
+  for optional_path in "$(skills_source_dir)"/*; do
+    [ -d "$optional_path" ] || continue
+    optional_name=$(basename "$optional_path")
+    skill_is_optional "$optional_name" || continue
+    if [ -z "$optional_list" ]; then
+      optional_list=$optional_name
+    else
+      optional_list="$optional_list, $optional_name"
+    fi
+  done
+  printf '%s' "${optional_list:-none}"
+}
+
 backup_existing() {
   target_path=$1
 
@@ -396,6 +481,99 @@ install_opencode_rtk_plugin() {
   copy_path_replace "$source_path" "$target_path"
 }
 
+skills_source_dir() {
+  printf '%s' "$BACKPACK_ROOT/cockpit/portable/skills"
+}
+
+skill_is_optional() {
+  optional_candidate=$1
+  optional_manifest="$BACKPACK_ROOT/cockpit/portable/skills.optional"
+
+  [ -f "$optional_manifest" ] || return 1
+
+  while IFS= read -r manifest_line || [ -n "$manifest_line" ]; do
+    manifest_entry=${manifest_line%%#*}
+    manifest_entry=$(printf '%s' "$manifest_entry" | tr -d ' \t')
+    [ -n "$manifest_entry" ] || continue
+    [ "$manifest_entry" = "$optional_candidate" ] && return 0
+  done < "$optional_manifest"
+
+  return 1
+}
+
+count_skills() {
+  count_kind=$1
+  count_total=0
+
+  if [ "$count_kind" = none ]; then
+    printf '0'
+    return 0
+  fi
+
+  for count_path in "$(skills_source_dir)"/*; do
+    [ -d "$count_path" ] || continue
+    count_name=$(basename "$count_path")
+    case "$count_kind" in
+      optional) skill_is_optional "$count_name" || continue ;;
+      core) skill_is_optional "$count_name" && continue ;;
+    esac
+    count_total=$((count_total + 1))
+  done
+
+  printf '%s' "$count_total"
+}
+
+target_uses_skills() {
+  case "$INSTALL_TARGET" in
+    ai|all|codex|claude|copilot|opencode) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+# Link the selected skills one by one into a host catalogue. Per-skill links are
+# what make the selection host-agnostic: the same set lands in ~/.agents/skills
+# for Codex, Copilot, and OpenCode, and in ~/.claude/skills for Claude Code.
+install_portable_skills() {
+  skills_dest=$1
+  skills_dir=$(skills_source_dir)
+
+  if [ ! -d "$skills_dir" ]; then
+    printf '✗ missing portable skills: %s\n' "$skills_dir" >&2
+    exit 1
+  fi
+
+  if [ "$SKILLS_SET" = none ]; then
+    info "skip skills for $skills_dest"
+    return 0
+  fi
+
+  # Earlier Backpack releases linked the whole catalogue as one symlink. Writing
+  # per-skill links through it would create entries inside the repository, so
+  # replace it with a real directory first.
+  if [ -L "$skills_dest" ]; then
+    if [ "$APPLY" -eq 0 ]; then
+      info "replace catalogue symlink $skills_dest with a directory"
+    else
+      mkdir -p "$backup_dir"
+      backup_existing "$skills_dest"
+    fi
+  fi
+
+  [ "$APPLY" -eq 1 ] && mkdir -p "$skills_dest"
+
+  for skill_path in "$skills_dir"/*; do
+    [ -d "$skill_path" ] || continue
+    skill_name=$(basename "$skill_path")
+
+    if [ "$SKILLS_SET" = core ] && skill_is_optional "$skill_name"; then
+      info "skip optional skill $skill_name"
+      continue
+    fi
+
+    link_entry "$skill_path" "$skills_dest/$skill_name"
+  done
+}
+
 install_claude_adapter() {
   source_root=$BACKPACK_ROOT/cockpit/adapters/claude
 
@@ -405,17 +583,14 @@ install_claude_adapter() {
   fi
 
   if [ "$APPLY" -eq 0 ]; then
-    info "link Claude rules, skills, and agents into $BACKPACK_CLAUDE_DIR"
+    info "link Claude rules, agents, and the $SKILLS_SET skill set into $BACKPACK_CLAUDE_DIR"
     return
   fi
 
-  mkdir -p "$BACKPACK_CLAUDE_DIR/rules" "$BACKPACK_CLAUDE_DIR/skills" "$BACKPACK_CLAUDE_DIR/agents"
+  mkdir -p "$BACKPACK_CLAUDE_DIR/rules" "$BACKPACK_CLAUDE_DIR/agents"
   link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_CLAUDE_DIR/rules/backpack.md"
 
-  for skill_path in "$BACKPACK_ROOT/cockpit/portable/skills"/*; do
-    skill_name=$(basename "$skill_path")
-    link_entry "$skill_path" "$BACKPACK_CLAUDE_DIR/skills/$skill_name"
-  done
+  install_portable_skills "$BACKPACK_CLAUDE_DIR/skills"
 
   for agent_path in "$source_root/agents"/*.md; do
     agent_name=$(basename "$agent_path")
@@ -688,6 +863,7 @@ $(section 'Install plan')
   Backpack  $BACKPACK_ROOT
   Config    $CONFIG_DIR
   Target    $INSTALL_TARGET
+  Skills    $(if target_uses_skills; then printf '%s (%s of %s)' "$SKILLS_SET" "$(count_skills "$SKILLS_SET")" "$(count_skills all)"; else printf 'not applicable'; fi)
   Mode      $(if [ "$APPLY" -eq 1 ]; then printf 'apply'; else printf 'preview'; fi)
 
 EOF
@@ -729,27 +905,27 @@ EOF
   case "$INSTALL_TARGET" in
     opencode)
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$CONFIG_DIR/opencode/AGENTS.md"
-      link_entry "$BACKPACK_ROOT/cockpit/portable/skills" "$BACKPACK_AGENTS_DIR/skills"
+      install_portable_skills "$BACKPACK_AGENTS_DIR/skills"
       ;;
     codex)
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_CODEX_DIR/AGENTS.md"
-      link_entry "$BACKPACK_ROOT/cockpit/portable/skills" "$BACKPACK_AGENTS_DIR/skills"
+      install_portable_skills "$BACKPACK_AGENTS_DIR/skills"
       ;;
     claude)
-      link_entry "$BACKPACK_ROOT/cockpit/portable/skills" "$BACKPACK_AGENTS_DIR/skills"
+      install_portable_skills "$BACKPACK_AGENTS_DIR/skills"
       install_claude_adapter
       ;;
     copilot)
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_COPILOT_DIR/copilot-instructions.md"
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_COPILOT_DIR/instructions/backpack.instructions.md"
-      link_entry "$BACKPACK_ROOT/cockpit/portable/skills" "$BACKPACK_AGENTS_DIR/skills"
+      install_portable_skills "$BACKPACK_AGENTS_DIR/skills"
       ;;
     ai|all)
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$CONFIG_DIR/opencode/AGENTS.md"
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_CODEX_DIR/AGENTS.md"
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_COPILOT_DIR/copilot-instructions.md"
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_COPILOT_DIR/instructions/backpack.instructions.md"
-      link_entry "$BACKPACK_ROOT/cockpit/portable/skills" "$BACKPACK_AGENTS_DIR/skills"
+      install_portable_skills "$BACKPACK_AGENTS_DIR/skills"
       install_claude_adapter
       ;;
   esac
@@ -781,10 +957,13 @@ EOF
   print_copilot_app_reminder
 }
 
-if [ "$DIRECT_APPLY" -eq 0 ] && [ "$TARGET_SET" -eq 0 ]; then
-  offer_gum_install
-  ask_install_target
-  printf '\n'
+if [ "$DIRECT_APPLY" -eq 0 ]; then
+  if [ "$TARGET_SET" -eq 0 ]; then
+    offer_gum_install
+    ask_install_target
+    printf '\n'
+  fi
+  ask_skills_set
 fi
 
 if [ "$DIRECT_APPLY" -eq 1 ]; then

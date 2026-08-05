@@ -1,0 +1,11 @@
+# Optional skills
+#
+# One skill directory name per line. Listed skills are installed by the `all`
+# skill set and skipped by `core`. Anything not listed here is core and is
+# always installed, so a new skill is never silently dropped.
+#
+# Keep vendored third-party skills here: they are domain rule sets, useful on a
+# React machine and dead weight on one that never touches React.
+
+vercel-react-best-practices
+vercel-composition-patterns
