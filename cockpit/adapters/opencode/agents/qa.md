@@ -41,8 +41,9 @@ Plan. Never invent missing acceptance criteria to manufacture a pass.
 
 Audit applicable user journeys, states, responsive behavior, visual fidelity,
 content, data and integration behavior, permissions, mocks, and user-visible
-regressions. For meaningful UI, load `design-quality-standards` and apply its
-accessibility and interaction checks.
+regressions. For meaningful UI, use the installed Impeccable skill for the
+relevant audit and apply its accessibility and interaction checks alongside
+browser evidence.
 
 For public pages, also verify that the page purpose, audience, primary action,
 navigation, claims, content readiness, labels, and “what happens next” microcopy

@@ -1,0 +1,7 @@
+# Backpack-owned skills that are part of the always-available Cockpit workflow.
+# Specialized skills are deliberately excluded and are added per project with
+# `backpack add <skill>`.
+
+prompt-refinement
+pattern-scan
+pattern-capture

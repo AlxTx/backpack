@@ -31,6 +31,10 @@ backpack install machine        # choose machine configuration
 backpack install everything --personal
 backpack doctor                  # validate the repository
 backpack status                  # show what is installed
+backpack skills                  # manage project skills interactively
+backpack find design             # find a curated project skill
+backpack add impeccable          # add the UX/UI skill to this project
+backpack list                    # list every curated skill and its project status
 ```
 
 Select a Cockpit host directly when no menu is wanted:
@@ -78,31 +82,31 @@ and desktop app. Backpack also installs RTK's user-level hook under
 `~/.copilot/hooks/`, so compatible shell commands are rewritten before they run.
 No in-app copy-paste is required.
 
-## Choosing a skill set
+## Choosing project skills
 
-Skills are one shared catalogue, so the choice is made once and applies to every
-selected host. An interactive install asks for it after the target; a
-non-interactive install defaults to `all`.
+Cockpit installs only the workflow skills listed in
+`cockpit/portable/skills.core`. Specialized skills are project-local:
+
+Run `backpack skills` for the interactive menu, or use the direct commands:
 
 ```sh
-backpack install cockpit --all-hosts --skills all   # everything (default)
-backpack install cockpit --all-hosts --skills core  # personal doctrine only
-backpack install cockpit --all-hosts --skills none  # instructions and agents only
+backpack find frontend               # search the curated catalogue
+backpack info react-best-practices   # inspect scope, trigger, boundary, and source
+backpack add react-best-practices    # add it to the current project
+backpack list                        # see all curated skills with available/installed status
+backpack remove react-best-practices # remove it from the current project
 ```
 
-`core` skips the skills listed in `cockpit/portable/skills.optional`. That file
-holds the vendored third-party rule sets, which are worth installing on a machine
-that writes React and are dead weight on one that does not. Anything absent from
-the manifest is core and is always installed, so adding a skill never requires
-touching the installer.
+`backpack add` and `backpack remove` delegate the open skill installation format to the
+Skills CLI while Backpack owns the curated names and boundaries. The default is
+always the current Git project; the commands never modify Backpack's global core.
+Installed skills activate through their descriptions when the request matches.
+Adding Impeccable installs its portable skill but does not silently enable its
+project hooks; hook activation remains a separate, explicit Impeccable action.
 
-Each selected skill is linked individually into `~/.agents/skills` for Codex,
-Copilot, and OpenCode, and into `~/.claude/skills` for Claude Code. Earlier
-releases linked the whole catalogue as a single symlink; the installer detects
-that layout, backs it up, and replaces it with a directory of per-skill links.
-
-Reinstall with a different set at any time — it relinks what is selected and
-backs up whatever it replaces.
+The Cockpit installer removes legacy Backpack-owned global specialized-skill links during
+an update, but preserves real directories and links owned by other installers.
+Earlier whole-catalogue symlinks are still backed up before migration.
 
 ## What is installed
 

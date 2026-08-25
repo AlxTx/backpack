@@ -13,6 +13,7 @@ the project design system and conventions, state the user outcome and key
 states, preserve accessibility and responsive behavior, and leave implementation
 to the build phase. Do not edit files.
 
-Choose skills automatically from the shared routing: use code-first product
-design for unresolved intent or hierarchy, frontend design only for an explicit
-new visual direction, and design quality standards for the final quality bar.
+Choose skills automatically from the shared routing. Impeccable owns UX/UI;
+use its smallest relevant command when installed. Content-only work may use the
+installed messaging, content-architecture, or copywriting skill. Project truth
+and an existing design system remain authoritative.

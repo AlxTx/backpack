@@ -153,10 +153,7 @@ Deux niveaux, séparés exprès :
 | Skill(s) | Rôle |
 |---|---|
 | `brand-messaging`, `website-content-architecture`, `website-copywriting` | **content design** : audience, promesse, navigation, section narrative, CTA, copy et readiness |
-| `code-first-product-design` | **cadrer** une UI sans maquette : besoin métier → contrat content/UX/UI prêt pour `build` |
-| `design-quality-standards` | **qualité design** : hiérarchie, typo, spacing, couleur, a11y, responsive, anti-slop |
-| `frontend-design` | **produire** de l'UI visuelle distinctive (skill Anthropic) |
-| `style-refined-product`, `style-editorial-saas`, `style-bento-dashboard`, `style-developer-minimal`, `style-friendly-consumer` | **directions visuelles optionnelles** — une seule à la fois, jamais par défaut en brownfield |
+| `impeccable` | **skill UX/UI unique** : shape, critique, direction visuelle, audit, polish, hardening et itération live |
 | `pattern-scan`, `pattern-capture` | **apprentissage portable** : cartographier puis conserver les patterns établis |
 | `prompt-refinement` | **préparer automatiquement** un prompt : bypass s'il est clair, flow-through éditorial, validation si le sens peut changer |
 
@@ -164,9 +161,8 @@ Ordre d'autorité : **conventions du projet → comportement officiel du framewo
 skills installés**. Jamais forcer un skill si une simple inspection suffit.
 
 Dans le menu `/`, utilise **`/design`** comme entrée utilisateur pour contenu,
-parcours, UX et UI. Les skills content/design peuvent apparaître dans la liste,
-mais ce sont des outils internes du workflow `design`, pas des commandes à lancer
-directement.
+parcours, UX et UI. Backpack orchestre; Impeccable prend l'UX/UI lorsqu'il est
+installé dans le projet avec `backpack add impeccable`.
 
 ---
 

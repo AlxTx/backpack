@@ -179,8 +179,10 @@ sandbox failure as such rather than treating it as a product regression.
 For UI work, reuse the existing design system, tokens, components, and variants;
 preserve accessibility and responsive behavior. Treat content, interaction
 states, and copy as part of the user experience. Before handing off a meaningful
-UI change, apply `design-quality-standards` for the detailed quality and
-accessibility checks.
+UI change, use the installed `impeccable` skill for the relevant audit or
+polish pass, then verify the rendered behavior with browser tooling. Impeccable
+provides design guidance, not evidence by itself; Code Review and Product QA remain
+independent delivery gates.
 
 ## Validate
 
@@ -263,26 +265,36 @@ Do not force a skill when ordinary inspection is enough. Prefer primary and
 official sources for technical claims. Verify current or unstable facts rather
 than relying on memory.
 
-### Product and UI routing
+### Skills and product/UI routing
 
-For product, content, UX, or UI work, select the smallest relevant design lens
-automatically; the user should not need to know skill names.
+Backpack orchestrates the work; installed skills provide specialized guidance. Skills
+are selected per project with `backpack find`, inspected with `backpack info`, and managed
+with `backpack add`, `backpack remove`, and `backpack list`. Once installed, select a skill
+automatically when its description matches the request. The user should not
+need to name it. Do not install a skill merely because a task could use one;
+if it is missing, continue with project evidence when safe and mention
+`backpack add <skill>` as the focused setup path.
 
-- Use `code-first-product-design` when a product need, user flow, page, section,
-  or UI has to be defined without a validated mockup. Start with the user job,
-  primary action, hierarchy, and states.
-- Use `design-quality-standards` when auditing or validating an existing UI, or
-  before handing off any meaningful UI change. It is a quality bar, not a visual
-  direction.
-- Use `frontend-design` only when the user explicitly asks for a stronger or new
-  visual direction. In an existing product, inspect and reuse the design system
-  first; do not replace it with a style exercise.
-- For a section or page redesign, inspect the existing implementation first,
-  then use `code-first-product-design` only if its intent, hierarchy, or flow is
-  unresolved; add `frontend-design` only for an intentional aesthetic change;
-  finish with `design-quality-standards`.
-- Use at most one optional style-pack skill, and only after a visual direction is
-  needed and compatible with the product context.
+`impeccable` is Backpack's single UX/UI skill. Use it when a task defines,
+changes, audits, adapts, hardens, or polishes an interface, including greenfield
+surfaces and brownfield redesigns. Route to the smallest applicable Impeccable
+command instead of maintaining a parallel Backpack design method. In
+brownfield work, inspect the existing implementation and design system first;
+project requirements, validated mockups, tokens, components, and established
+behavior override Impeccable's generic preferences.
+
+Keep adjacent content skills separate:
+
+- `brand-messaging` owns audience, positioning, promise, voice, and objections.
+- `website-content-architecture` owns public-site navigation, page hierarchy,
+  section order, and narrative structure.
+- `website-copywriting` owns headings, body copy, CTAs, labels, and microcopy.
+
+Use these only when installed and when their domain is genuinely in scope. For a
+mixed public-page task, establish content truth first, then let Impeccable shape
+the interface around it. A validated Figma design remains the visual contract;
+use the relevant Figma implementation workflow rather than asking Impeccable to
+reinterpret it, then use Impeccable only for a compatible quality pass.
 
 For a request that only asks for discussion, audit, or a plan, stop at the
 relevant handoff. Implement only when the user asks to build or change the UI.

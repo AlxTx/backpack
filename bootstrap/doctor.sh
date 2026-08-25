@@ -35,6 +35,10 @@ ok "backpack root exists"
 
 test -x "$BACKPACK_ROOT/backpack" || fail "missing executable backpack command"
 test -x "$BACKPACK_ROOT/bootstrap/status.sh" || fail "missing executable status command"
+test -x "$BACKPACK_ROOT/bootstrap/skills.sh" || fail "missing executable skill manager"
+test -x "$BACKPACK_ROOT/tests/skills.test.sh" || fail "missing executable skill CLI test"
+test -x "$BACKPACK_ROOT/tests/install.test.sh" || fail "missing executable interactive install test"
+grep -q 'BACKPACK_BIN_DIR/backpack' "$BACKPACK_ROOT/bootstrap/install.sh" || fail "installer must expose the backpack command"
 ok "Backpack CLI exists"
 
 if [ "$(uname -s)" = "Darwin" ]; then
@@ -92,24 +96,15 @@ for capability in qa validate learn; do
 done
 ok "OpenCode validate and learn capabilities exist"
 
-test -f "$BACKPACK_ROOT/cockpit/portable/skills/code-first-product-design/SKILL.md" || fail "missing portable code-first-product-design skill"
-ok "code-first product design skill exists"
-
-test -f "$BACKPACK_ROOT/cockpit/portable/skills/frontend-design/SKILL.md" || fail "missing portable frontend-design skill"
-ok "frontend design skill exists"
-
-test -f "$BACKPACK_ROOT/cockpit/portable/skills/design-quality-standards/SKILL.md" || fail "missing portable design-quality-standards skill"
-ok "design quality standards skill exists"
-
 for skill in brand-messaging website-content-architecture website-copywriting; do
   test -f "$BACKPACK_ROOT/cockpit/portable/skills/$skill/SKILL.md" || fail "missing portable $skill skill"
 done
 ok "content design skills exist"
 
-for skill in style-refined-product style-editorial-saas style-bento-dashboard style-developer-minimal style-friendly-consumer; do
-  test -f "$BACKPACK_ROOT/cockpit/portable/skills/$skill/SKILL.md" || fail "missing portable $skill skill"
+for retired_skill in code-first-product-design frontend-design design-quality-standards style-refined-product style-editorial-saas style-bento-dashboard style-developer-minimal style-friendly-consumer; do
+  test ! -e "$BACKPACK_ROOT/cockpit/portable/skills/$retired_skill" || fail "retired UX/UI skill still exists: $retired_skill"
 done
-ok "design style pack skills exist"
+ok "Impeccable has no competing Backpack UX/UI skills"
 
 for skill in pattern-scan pattern-capture; do
   test -f "$BACKPACK_ROOT/cockpit/portable/skills/$skill/SKILL.md" || fail "missing portable $skill skill"
@@ -123,16 +118,37 @@ for skill in vercel-react-best-practices vercel-composition-patterns; do
 done
 ok "vendored Vercel skills exist"
 
-optional_manifest="$BACKPACK_ROOT/cockpit/portable/skills.optional"
-test -f "$optional_manifest" || fail "missing cockpit/portable/skills.optional"
+core_manifest="$BACKPACK_ROOT/cockpit/portable/skills.core"
+test -f "$core_manifest" || fail "missing cockpit/portable/skills.core"
 while IFS= read -r manifest_line || [ -n "$manifest_line" ]; do
   manifest_entry=${manifest_line%%#*}
   manifest_entry=$(printf '%s' "$manifest_entry" | tr -d ' \t')
   [ -n "$manifest_entry" ] || continue
   test -d "$BACKPACK_ROOT/cockpit/portable/skills/$manifest_entry" ||
-    fail "skills.optional lists a skill that does not exist: $manifest_entry"
-done < "$optional_manifest"
-ok "optional skill manifest resolves"
+    fail "skills.core lists a skill that does not exist: $manifest_entry"
+done < "$core_manifest"
+ok "Cockpit core manifest resolves"
+
+skill_catalog="$BACKPACK_ROOT/cockpit/portable/skills.tsv"
+test -f "$skill_catalog" || fail "missing cockpit/portable/skills.tsv"
+awk -F '|' '
+  $0 !~ /^#/ && NF != 7 { exit 1 }
+  $0 !~ /^#/ && seen[$1]++ { exit 1 }
+' "$skill_catalog" || fail "skill catalog must contain unique seven-field entries"
+grep -q '^impeccable|ux-ui|github:pbakaus/impeccable|impeccable|' "$skill_catalog" || fail "Impeccable must be the curated UX/UI skill"
+while IFS='|' read -r skill_id skill_category skill_source skill_name skill_summary skill_when skill_boundary; do
+  case "$skill_id" in ''|\#*) continue ;; esac
+  case "$skill_source" in
+    local:*)
+      local_skill=${skill_source#local:}
+      test -f "$BACKPACK_ROOT/cockpit/portable/skills/$local_skill/SKILL.md" ||
+        fail "catalog entry $skill_id references missing local skill: $local_skill"
+      ;;
+    github:*) test -n "${skill_source#github:}" || fail "catalog entry $skill_id has an empty GitHub source" ;;
+    *) fail "catalog entry $skill_id has unsupported source: $skill_source" ;;
+  esac
+done < "$skill_catalog"
+ok "curated skill catalog resolves"
 
 for skill_dir in "$BACKPACK_ROOT/cockpit/portable/skills"/*; do
   test -d "$skill_dir" || continue

@@ -7,22 +7,25 @@ limited to capabilities the common standards cannot express.
 ## Canonical sources
 
 See `cockpit/portable/AGENTS.md`, `cockpit/portable/MODELS.md`,
-`cockpit/portable/skills/`, and `cockpit/adapters/`.
+`cockpit/portable/skills.core`, `cockpit/portable/skills.tsv`, and
+`cockpit/adapters/`.
 
 `AGENTS.md` defines classification, request routing, scope control, validation,
 review priorities, pattern learning, and communication style. `MODELS.md` maps
 the workflow to semantic Frontier, Balanced, and Fast tiers. Codex, GitHub
 Copilot, OpenCode, and Claude Code consume this same core.
 
-Skills follow the open agent-skills directory format and are installed once at
-`~/.agents/skills`, plus `~/.claude/skills` for Claude Code. Hosts advertise
-metadata and load a skill body only when the request matches.
+Skills follow the open agent-skills directory format. The machine-level Cockpit
+install links only `skills.core` into `~/.agents/skills` and
+`~/.claude/skills`. Specialized skills are selected per project from
+`skills.tsv` with `backpack find`, `backpack info`, `backpack add`, `backpack remove`, and `backpack list`.
+Hosts advertise installed project skill metadata and load a body only when the
+request matches.
 
-The catalogue is host-agnostic: the installer links each selected skill
-individually into every host catalogue, so `--skills all|core|none` produces the
-same set for Codex, Claude Code, Copilot, and OpenCode. `core` skips the skills
-listed in `cockpit/portable/skills.optional`; anything unlisted is core, so a new
-skill is installed by default rather than silently dropped.
+This split is intentional: Backpack owns orchestration and a minimal universal
+core; installed skills provide specialized execution guidance. A skill is not activated because it
+exists in the catalogue, only because it is installed in the project and the
+task matches its description.
 
 ## Host adapters
 
@@ -30,7 +33,7 @@ All host-specific payloads live under `cockpit/adapters/<host>/`. An adapter may
 contain a full local configuration template, a small set of subagents, or only
 the installation mapping when the host directly consumes the portable files.
 
-| Host | CLI/Desktop coverage | Shared guidance | Shared skills | Adapter-only concerns |
+| Host | CLI/Desktop coverage | Shared guidance | Cockpit core | Adapter-only concerns |
 |---|---|---|---|---|
 | Codex | Same portable files in CLI and desktop app | `~/.codex/AGENTS.md` | `~/.agents/skills` | models, plugins, MCP |
 | GitHub Copilot | CLI and desktop app use the same personal instructions and RTK hook | `~/.copilot/copilot-instructions.md` | `~/.agents/skills` | account, organization policies, repository instructions |
@@ -125,11 +128,12 @@ expected proof, and recorded decisions. Product QA closes that ledger criterion 
 criterion. The ledger stays conversational by default so Backpack does not
 pollute client repositories with personal process artifacts.
 
-Build inspects project patterns and design-system primitives before inventing UI,
-uses faithful and discriminating mocks, and favors narrow tests during
+Build inspects project patterns and design-system primitives before changing UI,
+uses the installed Impeccable skill for UX/UI work, uses faithful and
+discriminating mocks, and favors narrow tests during
 iteration. A proportionate broad suite runs once at the end of the delivery
-slice. Detailed UI and accessibility checks stay in the
-`design-quality-standards` skill and load only for meaningful UI work.
+slice. Impeccable's audit or polish pass complements, but never replaces,
+browser evidence, Code Review, or Product QA.
 
 Validate reports `READY TO SHIP` only when Code Review approves and Product QA
 passes. RTS is not permission to commit or push: Cockpit stops with the evidence,
@@ -169,10 +173,10 @@ adapter updates.
 
 ## Vendored third-party skills
 
-Most skills in `cockpit/portable/skills/` are personal doctrine. Two are vendored
-upstream content from Vercel's official collection, kept because performance and
-composition rules are factual, measurable, and already better maintained
-elsewhere than they would be here:
+Some curated skills remain vendored from Vercel's official collection because
+their performance and composition rules are factual, measurable, and useful
+offline. They are no longer installed globally; `backpack add` exposes them only to a
+project that needs them:
 
 | Skill | Upstream | Licence |
 |---|---|---|
@@ -191,8 +195,9 @@ Rules for vendored skills:
 - Vendor a skill only when the domain has a credible upstream maintainer.
   Architecture doctrine — boundaries, ports and adapters, dependency direction —
   has none, because no vendor owns that surface. Write those here instead.
-- The upstream `npx skills add` installer writes into each host's own skill
-  directory. That bypasses the single portable catalogue, so it is not used.
+- `backpack add` is the supported installation boundary. It delegates project-folder
+wiring to the upstream Skills CLI while preserving Backpack's curated skill
+  names and limits.
 
 ## Compound Engineering decision
 

@@ -44,8 +44,9 @@ Use `vercel-react-best-practices` as the final performance checklist for
 performance-sensitive or Next.js changes; its rules are impact-ranked, so report
 `async-` and `bundle-` findings before `js-` ones. Use
 `vercel-composition-patterns` when the diff adds boolean props, grows a component
-API, or reshapes component architecture. Use `design-quality-standards` for
-technical accessibility and design-system implementation risks.
+API, or reshapes component architecture. When installed, use Impeccable's audit
+guidance for technical accessibility and design-system implementation risks;
+do not treat its detector as a substitute for browser evidence.
 
 Both Vercel skills document exceptions per rule. Do not raise a finding without
 checking the rule's stated exception first, and skip manual-memoization rules

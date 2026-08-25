@@ -18,6 +18,12 @@ Usage:
   backpack install [cockpit|machine|everything] [options]
   backpack doctor
   backpack status
+  backpack skills
+  backpack list
+  backpack find <need>
+  backpack info <skill>
+  backpack add <skill>
+  backpack remove <skill>
 
 Examples:
   backpack install cockpit
@@ -25,6 +31,8 @@ Examples:
   backpack install cockpit --all-hosts
   backpack install machine
   backpack install everything --personal
+  backpack find design
+  backpack add impeccable
 EOF
 }
 
@@ -37,6 +45,10 @@ dispatch_main_choice() {
     cockpit) exec "$SCRIPT_DIR/bootstrap/install.sh" cockpit ;;
     machine) exec "$SCRIPT_DIR/bootstrap/install.sh" machine ;;
     everything) exec "$SCRIPT_DIR/bootstrap/install.sh" everything ;;
+    skills)
+      "$SCRIPT_DIR/bootstrap/skills.sh" menu
+      exec "$SCRIPT_DIR/backpack"
+      ;;
     doctor) exec "$SCRIPT_DIR/bootstrap/doctor.sh" ;;
     status) exec "$SCRIPT_DIR/bootstrap/status.sh" ;;
     quit) exit 0 ;;
@@ -60,6 +72,7 @@ gum_main_menu() {
     'Install or update Cockpit' \
     'Install or update this Mac' \
     'Install everything' \
+    'Manage project skills' \
     'Check installation' \
     'Show status' \
     'Quit') || exit 0
@@ -68,6 +81,7 @@ gum_main_menu() {
     'Install or update Cockpit') dispatch_main_choice cockpit ;;
     'Install or update this Mac') dispatch_main_choice machine ;;
     'Install everything') dispatch_main_choice everything ;;
+    'Manage project skills') dispatch_main_choice skills ;;
     'Check installation') dispatch_main_choice doctor ;;
     'Show status') dispatch_main_choice status ;;
     'Quit') dispatch_main_choice quit ;;
@@ -84,8 +98,9 @@ What do you want to do?
   1  Install or update Cockpit
   2  Install or update this Mac
   3  Install everything
-  4  Check installation
-  5  Show status
+  4  Manage project skills
+  5  Check installation
+  6  Show status
   q  Quit
 
 EOF
@@ -96,8 +111,9 @@ EOF
     1) dispatch_main_choice cockpit ;;
     2) dispatch_main_choice machine ;;
     3) dispatch_main_choice everything ;;
-    4) dispatch_main_choice doctor ;;
-    5) dispatch_main_choice status ;;
+    4) dispatch_main_choice skills ;;
+    5) dispatch_main_choice doctor ;;
+    6) dispatch_main_choice status ;;
     q|Q) dispatch_main_choice quit ;;
     *)
       printf '✗ invalid choice: %s\n' "$choice" >&2
@@ -129,6 +145,14 @@ case "${1:-}" in
     shift
     [ "$#" -eq 0 ] || { usage >&2; exit 2; }
     exec "$SCRIPT_DIR/bootstrap/status.sh"
+    ;;
+  skills)
+    shift
+    [ "$#" -eq 0 ] || { usage >&2; exit 2; }
+    exec "$SCRIPT_DIR/bootstrap/skills.sh" menu
+    ;;
+  list|find|info|add|remove)
+    exec "$SCRIPT_DIR/bootstrap/skills.sh" "$@"
     ;;
   help|-h|--help) usage ;;
   *) usage >&2; exit 2 ;;

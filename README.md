@@ -7,7 +7,7 @@ learning memory.
 
 ```txt
 bootstrap/           setup and validation scripts
-cockpit/portable/    host-agnostic AI workflow and skills
+cockpit/portable/    host-agnostic workflow, core skills, and curated skill catalogue
 cockpit/adapters/    thin Codex, Claude, Copilot, and OpenCode adapters
 memory/              durable personal learning: craft, AI, concepts, books, playbooks
 ```
@@ -32,8 +32,8 @@ cd backpack
 ```
 
 `./backpack` means “run the `backpack` file from this folder”. The first
-installation links the command into `~/.local/bin`; afterward, when that folder
-is on `PATH`, use `backpack` from anywhere.
+installation links `backpack` into `~/.local/bin`;
+afterward, when that folder is on `PATH`, use either from anywhere.
 
 The menu validates the repository, previews interactive plans, and asks before
 changing local configuration.
@@ -47,9 +47,15 @@ uses arrow-key menus when `gum` is available and falls back to a numbered menu.
 | Need | Command |
 |---|---|
 | Open the main menu | `backpack` |
+| Open the project-skill menu | `backpack skills` |
 | Choose what to install | `backpack install` |
 | Validate the repository only | `backpack doctor` |
 | Show installed components | `backpack status` |
+| List curated skills with project status | `backpack list` |
+| Find a curated skill by need | `backpack find design` |
+| Inspect a skill | `backpack info impeccable` |
+| Add the UX/UI skill to this project | `backpack add impeccable` |
+| Remove a skill from this project | `backpack remove impeccable` |
 | Install everything on a personal Mac | `backpack install everything --personal` |
 | Install everything on a client Mac | `backpack install everything --client` |
 | Install Cockpit for every AI tool | `backpack install cockpit --all-hosts` |
@@ -58,8 +64,6 @@ uses arrow-key menus when `gum` is available and falls back to a numbered menu.
 | Install Cockpit for GitHub Copilot | `backpack install cockpit --copilot` |
 | Update Cockpit for OpenCode | `backpack install cockpit --opencode` |
 | Replace an existing OpenCode adapter | `backpack install cockpit --opencode --replace` |
-| Install personal skills without optional rule sets | `backpack install cockpit --all-hosts --skills core` |
-| Install instructions and agents without skills | `backpack install cockpit --all-hosts --skills none` |
 
 A direct target applies immediately; use `--dry-run` for a read-only preview.
 Applicable Cockpit targets install [`rtk`](https://github.com/rtk-ai/rtk)
@@ -71,13 +75,17 @@ The canonical rules and skills live in `cockpit/portable/`. Host-specific files
 live under `cockpit/adapters/<host>/`. The installer combines the selected
 adapter with the portable core.
 
-An interactive install asks which skill set to install, and the answer applies to
-every selected host: Codex, Claude Code, GitHub Copilot, and OpenCode all receive
-the same set. `all` installs everything, `core` installs personal doctrine only
-and skips the vendored third-party rule sets listed in
-`cockpit/portable/skills.optional`, and `none` installs instructions and agents
-without any skill. Use `--skills` to choose non-interactively; it defaults to
-`all`.
+Cockpit installs only the small workflow core required everywhere. Specialized
+skills are chosen per project instead of being injected globally. Use the
+interactive `backpack skills` menu, or `backpack find`
+to search Backpack's curated catalogue, `backpack info` to inspect scope and limits,
+and `backpack add` or `backpack remove` to change the current project. `backpack list` shows the
+whole curated catalogue with an `available` or `installed` status for the current project.
+
+Backpack orchestrates; installed skills provide specialized guidance. Skill metadata
+activates them automatically when the request matches. Impeccable is the single
+curated UX/UI skill; project requirements and design-system conventions remain
+authoritative.
 
 | Host | CLI | Desktop app |
 |---|---|---|
@@ -98,7 +106,7 @@ constraints. Backpack never creates or commits them automatically.
 For a non-trivial task, Cockpit-compatible hosts expose the active Cockpit phase,
 then any skill, agent, plugin, or integration actually activated. Native host
 events are preferred; otherwise Backpack emits a compact one-line fallback such
-as `Cockpit › Design · [Skill] code-first-product-design`. The hierarchy stays
+as `Cockpit › Build · [Skill] impeccable`. The hierarchy stays
 visible on every line: Cockpit, then the active phase; the bracketed label makes
 the capability type immediately scannable. It never duplicates an activation
 the host already displays. This makes the workflow visible without exposing
