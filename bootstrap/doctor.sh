@@ -33,6 +33,10 @@ info() {
 test -d "$BACKPACK_ROOT" || fail "missing backpack root: $BACKPACK_ROOT"
 ok "backpack root exists"
 
+test -x "$BACKPACK_ROOT/backpack" || fail "missing executable backpack command"
+test -x "$BACKPACK_ROOT/bootstrap/status.sh" || fail "missing executable status command"
+ok "Backpack CLI exists"
+
 case "$BACKPACK_ROOT" in
   */Dev/perso/backpack)
     if [ "$QUIET" -eq 0 ]; then
@@ -59,6 +63,11 @@ ok "Copilot App instructions helper exists"
 grep -q '^applyTo: "\*\*"$' "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "portable AGENTS.md must apply to all files when loaded by Copilot"
 ok "portable AGENTS.md is compatible with Copilot personal instructions"
 
+grep -q 'Plan → Build → Validate → Learn' "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "portable workflow must expose the canonical delivery loop"
+grep -q 'Cockpit · <phase>' "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "portable workflow must expose Cockpit activity"
+grep -q 'Never commit, push' "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "portable workflow must protect Git delivery actions"
+ok "canonical Cockpit flow and Git gate exist"
+
 for adapter in codex claude copilot opencode; do
   test -d "$BACKPACK_ROOT/cockpit/adapters/$adapter" || fail "missing $adapter adapter"
 done
@@ -70,7 +79,7 @@ done
 ok "all host adapters are documented"
 
 test -d "$BACKPACK_ROOT/cockpit/adapters/claude/agents" || fail "missing Claude adapter agents"
-for agent in plan build review design pattern-scan; do
+for agent in plan build review qa validate learn design pattern-scan; do
   test -f "$BACKPACK_ROOT/cockpit/adapters/claude/agents/$agent.md" || fail "missing Claude $agent agent"
 done
 ok "Claude adapter agents exist"
@@ -83,6 +92,12 @@ ok "design command exists"
 
 test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/prompts/product-design.md" || fail "missing OpenCode design primary prompt"
 ok "design primary prompt exists"
+
+for capability in qa validate learn; do
+  test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/agents/$capability.md" || fail "missing OpenCode $capability agent"
+  test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/$capability.md" || fail "missing OpenCode /$capability command"
+done
+ok "OpenCode validate and learn capabilities exist"
 
 test -f "$BACKPACK_ROOT/cockpit/portable/skills/code-first-product-design/SKILL.md" || fail "missing portable code-first-product-design skill"
 ok "code-first product design skill exists"

@@ -13,42 +13,76 @@ BACKPACK_AGENTS_DIR=${BACKPACK_AGENTS_DIR:-"$HOME/.agents"}
 BACKPACK_CODEX_DIR=${CODEX_HOME:-"$HOME/.codex"}
 BACKPACK_CLAUDE_DIR=${CLAUDE_CONFIG_DIR:-"$HOME/.claude"}
 BACKPACK_COPILOT_DIR=${COPILOT_HOME:-"$HOME/.copilot"}
+BACKPACK_BIN_DIR=${BACKPACK_BIN_DIR:-"$HOME/.local/bin"}
 APPLY=0
 DIRECT_APPLY=0
 PROFILE_MODE=personal
-INSTALL_TARGET=opencode
+INSTALL_COMPONENT=
+INSTALL_TARGET=
 TARGET_SET=0
 REPLACE_EXISTING=0
-UPDATE_EXISTING=0
+DRY_RUN=0
 WITH_RTK=1
 SKILLS_SET=all
 SKILLS_SET_SET=0
-USAGE="Usage: $0 [--personal|--client] [--only ai|codex|claude|copilot|opencode|shell|editor|terminal|all] [--skills all|core|none] [--with-rtk|--without-rtk] [--replace] [--update] [--apply]"
+TARGET_FLAG_COUNT=0
+PROFILE_FLAG_COUNT=0
+USAGE='Usage: backpack install [cockpit|machine|everything] [target] [--skills all|core|none] [--personal|--client] [--replace] [--dry-run]'
+
+case "${1:-}" in
+  cockpit|machine|everything)
+    INSTALL_COMPONENT=$1
+    shift
+    ;;
+esac
 
 while [ "${1:-}" != "" ]; do
   case "$1" in
-    --apply)
-      APPLY=1
-      DIRECT_APPLY=1
-      ;;
     --personal)
+      PROFILE_FLAG_COUNT=$((PROFILE_FLAG_COUNT + 1))
       PROFILE_MODE=personal
       ;;
     --client)
+      PROFILE_FLAG_COUNT=$((PROFILE_FLAG_COUNT + 1))
       PROFILE_MODE=client
       ;;
-    --only)
-      shift
-      case "${1:-}" in
-        ai|codex|claude|copilot|opencode|shell|editor|terminal|all)
-          INSTALL_TARGET=$1
-          TARGET_SET=1
-          ;;
-        *)
-          printf '%s\n' "$USAGE" >&2
-          exit 2
-          ;;
-      esac
+    --codex|--claude|--copilot|--opencode)
+      TARGET_FLAG_COUNT=$((TARGET_FLAG_COUNT + 1))
+      target=${1#--}
+      if [ "$INSTALL_COMPONENT" != cockpit ]; then
+        printf '✗ %s requires: backpack install cockpit %s\n' "$1" "$1" >&2
+        exit 2
+      fi
+      INSTALL_TARGET=$target
+      TARGET_SET=1
+      ;;
+    --all-hosts)
+      TARGET_FLAG_COUNT=$((TARGET_FLAG_COUNT + 1))
+      if [ "$INSTALL_COMPONENT" != cockpit ]; then
+        printf '✗ --all-hosts requires: backpack install cockpit --all-hosts\n' >&2
+        exit 2
+      fi
+      INSTALL_TARGET=ai
+      TARGET_SET=1
+      ;;
+    --shell|--editor|--terminal)
+      TARGET_FLAG_COUNT=$((TARGET_FLAG_COUNT + 1))
+      target=${1#--}
+      if [ "$INSTALL_COMPONENT" != machine ]; then
+        printf '✗ %s requires: backpack install machine %s\n' "$1" "$1" >&2
+        exit 2
+      fi
+      INSTALL_TARGET=$target
+      TARGET_SET=1
+      ;;
+    --all-machine)
+      TARGET_FLAG_COUNT=$((TARGET_FLAG_COUNT + 1))
+      if [ "$INSTALL_COMPONENT" != machine ]; then
+        printf '✗ --all-machine requires: backpack install machine --all-machine\n' >&2
+        exit 2
+      fi
+      INSTALL_TARGET=machine
+      TARGET_SET=1
       ;;
     --skills)
       shift
@@ -66,8 +100,8 @@ while [ "${1:-}" != "" ]; do
     --replace)
       REPLACE_EXISTING=1
       ;;
-    --update)
-      UPDATE_EXISTING=1
+    --dry-run)
+      DRY_RUN=1
       ;;
     --with-rtk)
       WITH_RTK=1
@@ -82,6 +116,36 @@ while [ "${1:-}" != "" ]; do
   esac
   shift
 done
+
+if [ "$TARGET_FLAG_COUNT" -gt 1 ]; then
+  printf '✗ choose exactly one installation target\n' >&2
+  exit 2
+fi
+
+if [ "$PROFILE_FLAG_COUNT" -gt 1 ]; then
+  printf '✗ choose either --personal or --client\n' >&2
+  exit 2
+fi
+
+if [ "$INSTALL_COMPONENT" = everything ]; then
+  INSTALL_TARGET=all
+  TARGET_SET=1
+fi
+
+if [ "$REPLACE_EXISTING" -eq 1 ]; then
+  case "$INSTALL_TARGET" in
+    opencode|ai|all) ;;
+    *)
+      printf '✗ --replace only applies when installing Cockpit for OpenCode\n' >&2
+      exit 2
+      ;;
+  esac
+fi
+
+if [ "$TARGET_SET" -eq 1 ] && [ "$DRY_RUN" -eq 0 ]; then
+  APPLY=1
+  DIRECT_APPLY=1
+fi
 
 backup_dir="$HOME/.config.backup.$(date +%Y%m%d-%H%M%S)"
 
@@ -124,6 +188,18 @@ info() {
 
 warn() {
   printf '%s!%s %s\n' "$YELLOW" "$RESET" "$1"
+}
+
+detail() {
+  if [ "${BACKPACK_DETAILS:-0}" -eq 1 ]; then
+    info "$1"
+  fi
+}
+
+detail_success() {
+  if [ "${BACKPACK_DETAILS:-0}" -eq 1 ]; then
+    success "$1"
+  fi
 }
 
 choice_prompt() {
@@ -210,41 +286,30 @@ gum_header() {
     '◆ Backpack' 'Portable setup for a fresh machine.'
 }
 
-gum_choose_target() {
+gum_choose_component() {
   gum_header
-
-  gum style --foreground 39 'Cockpit: portable engineering workflow and host adapters.'
-  gum style --foreground 245 'Tools: shell, editor, and terminal configuration.'
 
   selection=$(gum choose \
     --header 'What do you want to install?' \
     --cursor '→ ' \
     --selected-prefix '✓ ' \
     --unselected-prefix '  ' \
-    'Cockpit · OpenCode     Host adapter + shared workflow (default)' \
-    'Cockpit · Codex        CLI + Desktop instructions and skills' \
-    'Cockpit · Claude Code  CLI + Desktop rules, agents, and skills' \
-    'Cockpit · Copilot      CLI instructions, skills, and App setup guide' \
-    'Cockpit · AI stack     All four host adapters + RTK' \
-    'Tools · Shell           Fish + Starship' \
-    'Tools · Editor          Neovim' \
-    'Tools · Terminal UI     Ghostty + Karabiner' \
-    'Everything   All Backpack config' \
+    'Cockpit      AI workflow for supported assistants' \
+    'This Mac     Shell, editor, terminal, and personal tools' \
+    'Everything   Cockpit and this Mac' \
     'Quit') || {
       warn 'Install cancelled. No changes were made.'
       exit 0
     }
 
   case $selection in
-    'Cockpit · OpenCode'*) INSTALL_TARGET=opencode ;;
-    'Cockpit · Codex'*) INSTALL_TARGET=codex ;;
-    'Cockpit · Claude'*) INSTALL_TARGET=claude ;;
-    'Cockpit · Copilot'*) INSTALL_TARGET=copilot ;;
-    'Cockpit · AI'*) INSTALL_TARGET=ai ;;
-    'Tools · Shell'*) INSTALL_TARGET=shell ;;
-    'Tools · Editor'*) INSTALL_TARGET=editor ;;
-    'Tools · Terminal'*) INSTALL_TARGET=terminal ;;
-    Everything*) INSTALL_TARGET=all ;;
+    Cockpit*) INSTALL_COMPONENT=cockpit ;;
+    'This Mac'*) INSTALL_COMPONENT=machine ;;
+    Everything*)
+      INSTALL_COMPONENT=everything
+      INSTALL_TARGET=all
+      TARGET_SET=1
+      ;;
     Quit)
       warn 'Install cancelled. No changes were made.'
       exit 0
@@ -252,42 +317,62 @@ gum_choose_target() {
   esac
 }
 
-gum_choose_existing_opencode() {
-  target_path=$1
-
-  gum style \
-    --foreground 214 \
-    --border-foreground 214 \
-    --border rounded \
-    --padding '1 2' \
-    --margin '1 0' \
-    'OpenCode config already exists' "$target_path"
-
+gum_choose_cockpit_target() {
   selection=$(gum choose \
-    --header 'What do you want to do?' \
+    --header 'Where do you want to use Cockpit?' \
     --cursor '→ ' \
     --selected-prefix '✓ ' \
     --unselected-prefix '  ' \
-    'Keep existing config' \
-    'Backup existing and install fresh from Backpack' \
-    'Cancel') || {
+    'OpenCode        Terminal · Desktop app · GitHub Action' \
+    'Codex           Terminal · Desktop app' \
+    'Claude Code     Terminal · Desktop app (Code tab)' \
+    'GitHub Copilot  Terminal · Desktop app (one manual step)' \
+    'All supported tools' \
+    'Back') || {
       warn 'Install cancelled. No changes were made.'
       exit 0
     }
 
   case $selection in
-    Keep*)
-      success "kept existing $target_path"
+    OpenCode*) INSTALL_TARGET=opencode ;;
+    Codex*) INSTALL_TARGET=codex ;;
+    'Claude Code'*) INSTALL_TARGET=claude ;;
+    'GitHub Copilot'*) INSTALL_TARGET=copilot ;;
+    'All supported'*) INSTALL_TARGET=ai ;;
+    Back)
+      INSTALL_COMPONENT=
       return 1
       ;;
-    Backup*)
-      return 0
-      ;;
-    Cancel)
+  esac
+  TARGET_SET=1
+}
+
+gum_choose_machine_target() {
+  selection=$(gum choose \
+    --header 'What do you want to configure on this Mac?' \
+    --cursor '→ ' \
+    --selected-prefix '✓ ' \
+    --unselected-prefix '  ' \
+    'Shell      Fish · Starship' \
+    'Editor     Neovim' \
+    'Terminal   Ghostty · Karabiner' \
+    'All machine configuration' \
+    'Back') || {
       warn 'Install cancelled. No changes were made.'
       exit 0
+    }
+
+  case $selection in
+    Shell*) INSTALL_TARGET=shell ;;
+    Editor*) INSTALL_TARGET=editor ;;
+    Terminal*) INSTALL_TARGET=terminal ;;
+    'All machine'*) INSTALL_TARGET=machine ;;
+    Back)
+      INSTALL_COMPONENT=
+      return 1
       ;;
   esac
+  TARGET_SET=1
 }
 
 confirm_apply() {
@@ -304,53 +389,31 @@ confirm_apply() {
   esac
 }
 
-ask_install_target() {
-  if use_gum; then
-    gum_choose_target
-    return
-  fi
-
+ask_component() {
   cat <<EOF
 $(title)
 Portable setup for a fresh machine.
 
 What do you want to install?
 
-
-Cockpit — portable workflow and host adapters
-
-  1  OpenCode     CLI + Desktop adapter (default)
-  2  Codex        CLI + Desktop instructions and skills
-  3  Claude Code  CLI + Desktop rules, agents, and skills
-  4  Copilot      CLI instructions, skills, and App setup guide
-  5  AI stack     All four host adapters + RTK
-
-Tools — machine and interface configuration
-
-  6  Shell        Fish + Starship
-  7  Editor       Neovim
-  8  Terminal UI  Ghostty + Karabiner
-
-Everything
-
-  9  Everything   All Backpack config
+  1  Cockpit      AI workflow for supported assistants
+  2  This Mac     Shell, editor, terminal, and personal tools
+  3  Everything   Cockpit and this Mac
   q  Quit
 
 EOF
 
-  choice_prompt 'Select an option (default: 1 OpenCode): '
+  choice_prompt 'Select an option: '
   read choice
 
-  case "${choice:-1}" in
-    1) INSTALL_TARGET=opencode ;;
-    2) INSTALL_TARGET=codex ;;
-    3) INSTALL_TARGET=claude ;;
-    4) INSTALL_TARGET=copilot ;;
-    5) INSTALL_TARGET=ai ;;
-    6) INSTALL_TARGET=shell ;;
-    7) INSTALL_TARGET=editor ;;
-    8) INSTALL_TARGET=terminal ;;
-    9) INSTALL_TARGET=all ;;
+  case "$choice" in
+    1) INSTALL_COMPONENT=cockpit ;;
+    2) INSTALL_COMPONENT=machine ;;
+    3)
+      INSTALL_COMPONENT=everything
+      INSTALL_TARGET=all
+      TARGET_SET=1
+      ;;
     q|Q)
       printf '\n'
       warn 'Install cancelled. No changes were made.'
@@ -432,6 +495,107 @@ list_optional_skills() {
   printf '%s' "${optional_list:-none}"
 }
 
+ask_cockpit_target() {
+  cat <<EOF
+
+Where do you want to use Cockpit?
+
+  1  OpenCode        Terminal · Desktop app · GitHub Action
+  2  Codex           Terminal · Desktop app
+  3  Claude Code     Terminal · Desktop app (Code tab)
+  4  GitHub Copilot  Terminal · Desktop app (one manual step)
+  5  All supported tools
+  b  Back
+
+EOF
+
+  choice_prompt 'Select an option: '
+  read choice
+
+  case "$choice" in
+    1) INSTALL_TARGET=opencode ;;
+    2) INSTALL_TARGET=codex ;;
+    3) INSTALL_TARGET=claude ;;
+    4) INSTALL_TARGET=copilot ;;
+    5) INSTALL_TARGET=ai ;;
+    b|B)
+      INSTALL_COMPONENT=
+      return 1
+      ;;
+    *)
+      printf '✗ invalid choice: %s\n' "$choice" >&2
+      exit 2
+      ;;
+  esac
+  TARGET_SET=1
+}
+
+ask_machine_target() {
+  cat <<EOF
+
+What do you want to configure on this Mac?
+
+  1  Shell      Fish · Starship
+  2  Editor     Neovim
+  3  Terminal   Ghostty · Karabiner
+  4  All machine configuration
+  b  Back
+
+EOF
+
+  choice_prompt 'Select an option: '
+  read choice
+
+  case "$choice" in
+    1) INSTALL_TARGET=shell ;;
+    2) INSTALL_TARGET=editor ;;
+    3) INSTALL_TARGET=terminal ;;
+    4) INSTALL_TARGET=machine ;;
+    b|B)
+      INSTALL_COMPONENT=
+      return 1
+      ;;
+    *)
+      printf '✗ invalid choice: %s\n' "$choice" >&2
+      exit 2
+      ;;
+  esac
+  TARGET_SET=1
+}
+
+ask_install_target() {
+  while [ "$TARGET_SET" -eq 0 ]; do
+    if [ -z "$INSTALL_COMPONENT" ]; then
+      if use_gum; then
+        gum_choose_component
+      else
+        ask_component
+      fi
+    fi
+
+    case "$INSTALL_COMPONENT" in
+      cockpit)
+        if use_gum; then
+          gum_choose_cockpit_target || continue
+        else
+          ask_cockpit_target || continue
+        fi
+        ;;
+      machine)
+        if use_gum; then
+          gum_choose_machine_target || continue
+        else
+          ask_machine_target || continue
+        fi
+        ;;
+      everything)
+        INSTALL_TARGET=all
+        TARGET_SET=1
+        ;;
+    esac
+  done
+}
+
 backup_existing() {
   target_path=$1
 
@@ -442,7 +606,7 @@ backup_existing() {
   mkdir -p "$(dirname "$backup_path")"
   mv "$target_path" "$backup_path"
   LAST_BACKUP_PATH=$backup_path
-  info "backup $target_path -> $backup_path"
+  detail "backup $target_path -> $backup_path"
 }
 
 copy_dir() {
@@ -451,7 +615,7 @@ copy_dir() {
 
   mkdir -p "$(dirname "$target_path")"
   cp -R "$source_path" "$target_path"
-  success "copied $target_path"
+  detail_success "copied $target_path"
 }
 
 copy_path_replace() {
@@ -461,7 +625,7 @@ copy_path_replace() {
   rm -rf "$target_path"
   mkdir -p "$(dirname "$target_path")"
   cp -R "$source_path" "$target_path"
-  success "updated $target_path"
+  detail_success "updated $target_path"
 }
 
 install_opencode_rtk_plugin() {
@@ -474,7 +638,7 @@ install_opencode_rtk_plugin() {
   fi
 
   if [ "$APPLY" -eq 0 ]; then
-    info "install OpenCode rtk plugin at $target_path"
+    detail "install OpenCode rtk plugin at $target_path"
     return
   fi
 
@@ -543,7 +707,7 @@ install_portable_skills() {
   fi
 
   if [ "$SKILLS_SET" = none ]; then
-    info "skip skills for $skills_dest"
+    detail "skip skills for $skills_dest"
     return 0
   fi
 
@@ -552,7 +716,7 @@ install_portable_skills() {
   # replace it with a real directory first.
   if [ -L "$skills_dest" ]; then
     if [ "$APPLY" -eq 0 ]; then
-      info "replace catalogue symlink $skills_dest with a directory"
+      detail "replace catalogue symlink $skills_dest with a directory"
     else
       mkdir -p "$backup_dir"
       backup_existing "$skills_dest"
@@ -566,7 +730,7 @@ install_portable_skills() {
     skill_name=$(basename "$skill_path")
 
     if [ "$SKILLS_SET" = core ] && skill_is_optional "$skill_name"; then
-      info "skip optional skill $skill_name"
+      detail "skip optional skill $skill_name"
       continue
     fi
 
@@ -583,7 +747,7 @@ install_claude_adapter() {
   fi
 
   if [ "$APPLY" -eq 0 ]; then
-    info "link Claude rules, agents, and the $SKILLS_SET skill set into $BACKPACK_CLAUDE_DIR"
+    detail "link Claude rules, agents, and the $SKILLS_SET skill set into $BACKPACK_CLAUDE_DIR"
     return
   fi
 
@@ -596,19 +760,19 @@ install_claude_adapter() {
     agent_name=$(basename "$agent_path")
     link_entry "$agent_path" "$BACKPACK_CLAUDE_DIR/agents/$agent_name"
   done
-  success "Claude adapter linked at $BACKPACK_CLAUDE_DIR"
+  detail_success "Claude adapter linked at $BACKPACK_CLAUDE_DIR"
 }
 
 configure_rtk_claude() {
   if [ "$APPLY" -eq 0 ]; then
-    info 'configure RTK Claude Code hook'
+    detail 'configure RTK Claude Code hook'
     return
   fi
 
   mkdir -p "$BACKPACK_CLAUDE_DIR"
 
   if rtk init -g --hook-only --auto-patch; then
-    success 'RTK Claude Code hook configured'
+    detail_success 'RTK Claude Code hook configured'
   else
     warn 'could not configure the RTK Claude Code hook; shared rules remain active'
   fi
@@ -625,7 +789,7 @@ update_opencode_core() {
 
   if [ ! -d "$target_root" ]; then
     if [ "$APPLY" -eq 0 ]; then
-      info "copy $source_root -> $target_root"
+      detail "copy $source_root -> $target_root"
       return
     fi
 
@@ -634,8 +798,8 @@ update_opencode_core() {
   fi
 
   if [ "$APPLY" -eq 0 ]; then
-    info "backup $target_root"
-    info "update OpenCode core files without touching $target_root/opencode.json"
+    detail "backup $target_root"
+    detail "update OpenCode core files without touching $target_root/opencode.json"
     return
   fi
 
@@ -644,14 +808,14 @@ update_opencode_core() {
 
   if [ -f "$LAST_BACKUP_PATH/opencode.json" ]; then
     cp "$LAST_BACKUP_PATH/opencode.json" "$target_root/opencode.json"
-    success "kept $target_root/opencode.json"
+    detail_success "kept $target_root/opencode.json"
   fi
 
   # Keep machine-local extensions and dependencies that Backpack does not own.
   for entry in package.json package-lock.json node_modules .claude; do
     if [ -e "$LAST_BACKUP_PATH/$entry" ]; then
       cp -R "$LAST_BACKUP_PATH/$entry" "$target_root/$entry"
-      success "kept $target_root/$entry"
+      detail_success "kept $target_root/$entry"
     fi
   done
 
@@ -661,60 +825,6 @@ update_opencode_core() {
     fi
   done
 
-  cat <<EOF
-
-Kept local config:
-  $target_root/opencode.json
-  package.json / package-lock.json / node_modules / .claude (when present)
-
-If Backpack agents or permissions changed, manually merge:
-  from: $source_root/opencode.json
-  to:   $target_root/opencode.json
-EOF
-}
-
-ask_replace_existing_dir() {
-  target_path=$1
-
-  if use_gum; then
-    gum_choose_existing_opencode "$target_path"
-    return $?
-  fi
-
-  cat <<EOF
-
-$(section 'Existing OpenCode config')
-$target_path
-
-What do you want to do?
-
-  1  Keep existing config
-  2  Backup existing and install fresh from Backpack
-  q  Cancel
-
-EOF
-
-  choice_prompt 'Select an option: '
-  read choice
-
-  case $choice in
-    1)
-      success "kept existing $target_path"
-      return 1
-      ;;
-    2)
-      return 0
-      ;;
-    q|Q)
-      printf '\n'
-      warn 'Install cancelled. No changes were made.'
-      exit 0
-      ;;
-    *)
-      printf '✗ invalid choice: %s\n' "$choice" >&2
-      exit 2
-      ;;
-  esac
 }
 
 link_entry() {
@@ -727,7 +837,7 @@ link_entry() {
   fi
 
   if [ "$APPLY" -eq 0 ]; then
-    info "link $target_path -> $source_path"
+    detail "link $target_path -> $source_path"
     return
   fi
 
@@ -736,7 +846,7 @@ link_entry() {
   if [ -L "$target_path" ]; then
     current=$(readlink "$target_path")
     if [ "$current" = "$source_path" ]; then
-      success "already linked $target_path"
+      detail_success "already linked $target_path"
       return
     fi
   fi
@@ -747,7 +857,7 @@ link_entry() {
   fi
 
   ln -s "$source_path" "$target_path"
-  success "linked $target_path"
+  detail_success "linked $target_path"
 }
 
 copy_dir_once() {
@@ -761,23 +871,8 @@ copy_dir_once() {
 
   if [ -e "$target_path" ] || [ -L "$target_path" ]; then
     if [ "$APPLY" -eq 0 ]; then
-      if [ "$REPLACE_EXISTING" -eq 1 ]; then
-        info "replace existing $target_path"
-      else
-        info "ask keep or replace $target_path"
-      fi
+      detail "replace existing $target_path"
       return
-    fi
-
-    if [ "$REPLACE_EXISTING" -eq 0 ]; then
-      if [ "$DIRECT_APPLY" -eq 1 ]; then
-        success "kept existing $target_path"
-        return
-      fi
-
-      if ! ask_replace_existing_dir "$target_path"; then
-        return
-      fi
     fi
 
     backup_existing "$target_path"
@@ -786,7 +881,7 @@ copy_dir_once() {
   fi
 
   if [ "$APPLY" -eq 0 ]; then
-    info "copy $source_path -> $target_path"
+    detail "copy $source_path -> $target_path"
     return
   fi
 
@@ -856,17 +951,71 @@ run_doctor() {
   success 'Backpack health check passed'
 }
 
+target_description() {
+  case "$INSTALL_TARGET" in
+    opencode) printf 'Cockpit for OpenCode' ;;
+    codex) printf 'Cockpit for Codex' ;;
+    claude) printf 'Cockpit for Claude Code' ;;
+    copilot) printf 'Cockpit for GitHub Copilot' ;;
+    ai) printf 'Cockpit for all supported tools' ;;
+    shell) printf 'Shell configuration' ;;
+    editor) printf 'Editor configuration' ;;
+    terminal) printf 'Terminal configuration' ;;
+    machine) printf 'All machine configuration' ;;
+    all) printf 'Everything in Backpack' ;;
+  esac
+}
+
+target_surface() {
+  case "$INSTALL_TARGET" in
+    opencode) printf 'Terminal · Desktop app · GitHub Action' ;;
+    codex) printf 'Terminal · Desktop app' ;;
+    claude) printf 'Terminal · Desktop app (Code tab)' ;;
+    copilot) printf 'Terminal · Desktop app (one manual step)' ;;
+    ai) printf 'All supported terminal and desktop surfaces' ;;
+    shell) printf 'Fish · Starship' ;;
+    editor) printf 'Neovim' ;;
+    terminal) printf 'Ghostty · Karabiner' ;;
+    machine) printf 'Shell · Editor · Terminal' ;;
+    all) printf 'Cockpit · Shell · Editor · Terminal' ;;
+  esac
+}
+
+print_completion() {
+  case "$INSTALL_TARGET" in
+    opencode|codex|claude)
+      success "$(target_description) installed"
+      printf 'Restart the app to activate it.\n'
+      ;;
+    copilot)
+      success 'Cockpit for GitHub Copilot installed'
+      printf 'Restart the CLI; complete the manual app step below.\n'
+      ;;
+    ai)
+      success 'Cockpit installed for all supported tools'
+      printf 'Restart the apps to activate it.\n'
+      ;;
+    *) success "$(target_description) installed" ;;
+  esac
+
+  case ":$PATH:" in
+    *":$BACKPACK_BIN_DIR:"*) ;;
+    *) printf 'To run backpack from anywhere, add %s to PATH.\n' "$BACKPACK_BIN_DIR" ;;
+  esac
+}
+
 run_plan() {
   cat <<EOF
 $(section 'Install plan')
 
-  Backpack  $BACKPACK_ROOT
-  Config    $CONFIG_DIR
-  Target    $INSTALL_TARGET
+  Install   $(target_description)
+  Surfaces  $(target_surface)
   Skills    $(if target_uses_skills; then printf '%s (%s of %s)' "$SKILLS_SET" "$(count_skills "$SKILLS_SET")" "$(count_skills all)"; else printf 'not applicable'; fi)
   Mode      $(if [ "$APPLY" -eq 1 ]; then printf 'apply'; else printf 'preview'; fi)
 
 EOF
+
+  link_entry "$BACKPACK_ROOT/backpack" "$BACKPACK_BIN_DIR/backpack"
 
   if [ "$WITH_RTK" -eq 1 ]; then
     case "$INSTALL_TARGET" in
@@ -890,14 +1039,11 @@ EOF
   fi
 
   case "$INSTALL_TARGET" in
-    ai)
-      update_opencode_core "$BACKPACK_ROOT/cockpit/adapters/opencode" "$CONFIG_DIR/opencode"
-      ;;
-    opencode|all)
-      if [ "$UPDATE_EXISTING" -eq 1 ]; then
-        update_opencode_core "$BACKPACK_ROOT/cockpit/adapters/opencode" "$CONFIG_DIR/opencode"
-      else
+    ai|opencode|all)
+      if [ "$REPLACE_EXISTING" -eq 1 ]; then
         copy_dir_once "$BACKPACK_ROOT/cockpit/adapters/opencode" "$CONFIG_DIR/opencode"
+      else
+        update_opencode_core "$BACKPACK_ROOT/cockpit/adapters/opencode" "$CONFIG_DIR/opencode"
       fi
       ;;
   esac
@@ -931,7 +1077,7 @@ EOF
   esac
 
   case "$INSTALL_TARGET" in
-    shell|all)
+    shell|machine|all)
       link_entry "$BACKPACK_ROOT/dotfiles/fish" "$CONFIG_DIR/fish"
       link_entry "$BACKPACK_ROOT/dotfiles/starship/starship.toml" "$CONFIG_DIR/starship.toml"
       link_entry "$BACKPACK_ROOT/dotfiles/starship/starship-catppuccin.toml" "$CONFIG_DIR/starship-catppuccin.toml"
@@ -941,13 +1087,13 @@ EOF
   esac
 
   case "$INSTALL_TARGET" in
-    editor|all)
+    editor|machine|all)
       link_entry "$BACKPACK_ROOT/dotfiles/nvim" "$CONFIG_DIR/nvim"
       ;;
   esac
 
   case "$INSTALL_TARGET" in
-    terminal|all)
+    terminal|machine|all)
       link_entry "$BACKPACK_ROOT/dotfiles/karabiner" "$CONFIG_DIR/karabiner"
       link_entry "$BACKPACK_ROOT/dotfiles/ghostty" "$CONFIG_DIR/ghostty"
       ;;
@@ -978,7 +1124,7 @@ if [ "$DIRECT_APPLY" -eq 1 ]; then
   section 'Applying changes'
   run_plan
   printf '\n'
-  success 'Install complete'
+  print_completion
   print_copilot_app_instructions
   if [ -d "$backup_dir" ]; then
     printf 'Backups: %s\n' "$backup_dir"
@@ -989,6 +1135,12 @@ fi
 section 'Preview'
 APPLY=0
 run_plan
+
+if [ "$DRY_RUN" -eq 1 ]; then
+  printf '\n'
+  success 'Dry run complete. No changes were made.'
+  exit 0
+fi
 
 cat <<EOF
 
@@ -1005,7 +1157,7 @@ else
 fi
 
 printf '\n'
-success 'Install complete'
+print_completion
 print_copilot_app_instructions
 if [ -d "$backup_dir" ]; then
   printf 'Backups: %s\n' "$backup_dir"

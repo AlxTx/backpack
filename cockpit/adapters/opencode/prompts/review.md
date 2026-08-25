@@ -23,8 +23,8 @@ project.
 5. Maintainability
 6. Type safety
 7. Tests and validation
-8. Performance
-9. Security
+8. Security
+9. Performance
 10. Accessibility
 11. Readability
 
@@ -44,35 +44,15 @@ Use `vercel-react-best-practices` as the final performance checklist for
 performance-sensitive or Next.js changes; its rules are impact-ranked, so report
 `async-` and `bundle-` findings before `js-` ones. Use
 `vercel-composition-patterns` when the diff adds boolean props, grows a component
-API, or reshapes component architecture. Use `design-quality-standards` for UI /
-a11y / UX / responsiveness. For UI: check visual contract vs request, design
-system consistency (tokens, variants, spacing, typography, responsive), a11y
-semantics, keyboard/screen-reader impact when relevant.
+API, or reshapes component architecture. Use `design-quality-standards` for
+technical accessibility and design-system implementation risks.
 
 Both Vercel skills document exceptions per rule. Do not raise a finding without
 checking the rule's stated exception first, and skip manual-memoization rules
 when the project has React Compiler enabled.
 
-## Content checks for public pages
-
-When reviewing website, landing page, navigation, form, CTA, or copy changes,
-also check the content contract:
-
-- Page purpose is clear and matches the project constraints.
-- Audience and readiness level are respected; beginners are not forced through
-  jargon or premature commitment.
-- Primary CTA is visible, low-friction, and consistent with the requested
-  conversion stage.
-- Navigation exposes only useful, complete, maintainable pages.
-- No fake dates, fake events, fake people, unsourced numbers, or unsupported
-  claims were introduced.
-- Copy preserves validated brand language and does not drift into generic SaaS,
-  hype, childish wording, or overly formal institutional language.
-- Form labels, helper text, and microcopy explain what happens next.
-
-Flag content issues as blocking when they create user confusion, unsupported
-claims, exposed unfinished content, or conversion friction that contradicts the
-request/project context.
+Product fidelity, content-contract conformity, visual fidelity, and end-to-end
+behavior belong to Product QA, not this technical review.
 
 ## Verdicts
 
@@ -103,15 +83,15 @@ Pattern Radar:
 - [per the Pattern Radar section]
 
 Validation:
-- [what was checked / what is missing; visual checks when UI is affected]
+- [technical checks run / what remains unchecked]
 
 Risk: [low | medium | high] — [short reason]
 
-Next agent: interactive | plan | build | review
+Next agent: interactive | plan | build | validate | review
 ```
 
 ## Routing
 
 `build` if fixes can continue safely. `plan` if the fix needs a safer plan or
-hidden complexity appeared. `interactive` if the product decision is unclear.
-Stay in `review` if another diff needs reviewing.
+hidden complexity appeared. `interactive` if a product decision is unclear.
+Return to `validate` when Code Review is one lens of the delivery gate.

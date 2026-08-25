@@ -9,8 +9,9 @@ provider/modèle restent dans `~/.config/opencode/opencode.json`, préservé lor
 des updates. Les extensions locales (`package.json`, lockfile, `node_modules`,
 `.claude`) sont également préservées lorsqu'elles existent.
 
-Le système : collaborer → planifier → exécuter → reviewer, avec en fil rouge la
-**reconnaissance des patterns/anti-patterns** pour monter en autonomie.
+Le système : **Plan → Build → Validate → Learn**. Validate combine une Code
+Review et une Product QA indépendantes ; Learn capitalise uniquement les
+enseignements réutilisables.
 
 ---
 
@@ -23,7 +24,10 @@ Le système : collaborer → planifier → exécuter → reviewer, avec en fil r
 | Je débarque sur un codebase inconnu, je veux la carte des patterns existants | **/pattern-scan** | tape `/pattern-scan` (ou `/pattern-scan src/`) |
 | Préparer un changement sûr : inspecter, comparer, plan d'exécution | **plan** | `Tab` → plan |
 | Implémenter le changement validé | **build** | `Tab` → build |
-| Valider un diff / PR avant livraison | **/review** | tape `/review` |
+| Vérifier tout le changement avant livraison | **/validate** | tape `/validate` |
+| Faire uniquement une Code Review | **/review** | tape `/review` |
+| Faire uniquement la Product QA fonctionnelle | **/qa** | tape `/qa` |
+| Tirer les leçons d'une tranche terminée | **/learn** | tape `/learn` |
 | Un pattern/anti-pattern croisé m'intéresse, je veux le garder pour l'étudier plus tard | **/capture** | tape `/capture` |
 | On me propose plein de texte, je veux juste choisir | les agents proposent A/B/C | réponds par la lettre |
 
@@ -41,12 +45,13 @@ Le système : collaborer → planifier → exécuter → reviewer, avec en fil r
 | Type | Ce que c'est | Comment j'y accède | Contexte |
 |---|---|---|---|
 | **Agent primaire** | une *phase* que je pilote | `Tab` pour switcher | partagé (ma conversation) |
-| **Command vers agent primaire** | une *action* contextuelle | `/nom` | partagé (ma conversation) |
-| **Subagent** | une *tâche* isolée occasionnelle | `/nom` épinglé, ou délégation | isolé (jetable) |
+| **Command contextuelle** | une *action* qui doit garder le contrat courant | `/nom` | partagé (ma conversation) |
+| **Subagent** | une *lentille* isolée à laquelle l'orchestrateur transmet un contrat explicite | délégation | isolé (jetable) |
 
-Règle : **phase récurrente que je conduis = agent primaire**. **Action dans le
-contexte courant = command vers agent primaire**. **Tâche lourde/isolée
-occasionnelle = subagent.**
+Règle : **phase récurrente que je conduis = agent primaire**. **Porte de
+livraison ou apprentissage qui dépend de la conversation = command contextuelle**.
+**Lentille indépendante = subagent avec un contrat explicite transmis par son
+parent.**
 
 ---
 
@@ -61,13 +66,14 @@ occasionnelle = subagent.**
 | **plan** | Inspecter en read-only, produire un plan d'exécution. Pattern Radar obligatoire. | Profil local | ❌ read-only |
 | **build** | Implémenter le plan, diffs minimaux, validation ciblée. | Profil local | ✅ edit autorisé |
 
-Flux par défaut : **interactive → plan → build → /review**. Pour du contenu,
-parcours, page, UX/UI ou une UI sans maquette : **design → build → /review**.
+Flux par défaut : **interactive → plan → build → /validate**. Pour du contenu,
+parcours, page, UX/UI ou une UI sans maquette : **design → build → /validate**.
 `/design` est un raccourci vers l'agent primaire `design`, donc il garde le
 contexte de la conversation courante. Chaque agent recommande le suivant.
-Greenfield *et* brownfield sont gérés ; pour un projet perso où je veux
-**apprendre** une archi, je l'annonce explicitement pour débrayer le réflexe
-« fais simple ».
+Greenfield et brownfield suivent le même cycle, avec une stratégie différente.
+En greenfield solo, Cockpit établit progressivement le contrat produit/design et
+les premières conventions sans simuler une équipe absente. En brownfield, il
+inspecte et préserve les contrats existants.
 
 Note : `build` peut éditer les fichiers, mais les commandes shell restent en
 validation `ask` par défaut. C'est volontaire : moins de friction sur les diffs,
@@ -78,7 +84,10 @@ garde-fou sur l'exécution.
 | Command / subagent | Rôle | Modèle | Écrit ? |
 |---|---|---|---|
 | **/design** → `design` | Façade content/UX/UI contextuelle : classe la demande en content-led, UI-led ou mixed, puis produit le bon contrat read-only. | Profil local | ❌ read-only |
-| **/review** | Reviewer un diff strictement. Verdicts APPROVE / REQUEST CHANGES / ESCALATE. Pattern Radar obligatoire. | Profil local | ❌ read-only |
+| **/review** | Code Review stricte. Verdicts APPROVE / REQUEST CHANGES / ESCALATE. | Profil local | ❌ read-only |
+| **/qa** | Product QA contextuelle contre les exigences, parcours, états et comportements visibles. | Profil local | ❌ read-only |
+| **/validate** | Conserve le contrat courant, délègue `/review` et `/qa`, puis produit le statut RTS consolidé. | Profil local | ❌ read-only |
+| **/learn** | Conserve le contexte de la tranche, puis réfléchit, extrait et codifie les connaissances réutilisables. | Profil local | ❌ produit read-only |
 
 ### Subagent (à la demande)
 
@@ -86,8 +95,9 @@ garde-fou sur l'exécution.
 |---|---|---|---|
 | **pattern-scan** | Cartographier les patterns (archi / JS / framework) d'un codebase inconnu. Contexte isolé. | Profil local | ❌ read-only |
 
-Lancé via `/pattern-scan`. Le mode courant n'a aucune importance : la command est
-épinglée au subagent (modèle cheap, read-only, contexte vierge garantis).
+Lancé via `/pattern-scan`, le spécialiste devient l'agent actif de la session
+courante et reste read-only. Une délégation ou une invocation `@pattern-scan`
+crée, elle, une session enfant isolée.
 
 ---
 
@@ -97,8 +107,16 @@ Lancé via `/pattern-scan`. Le mode courant n'a aucune importance : la command e
 |---|---|---|
 | **/design** `[besoin]` | Produit le bon contrat content/UX/UI : audit contenu, architecture narrative, parcours, page ou UI code-first. Garde le contexte courant. | Non (agent primaire `design`) |
 | **/pattern-scan** `[scope]` | Lance le subagent pattern-scan sur un dossier (défaut : tout le projet). | Non (épinglé) |
-| **/review** `[scope]` | Lance l'agent review sur le diff courant ou un scope donné. | Non (épinglé) |
+| **/review** `[scope]` | Lance uniquement la Code Review technique en gardant le contexte courant. | Non (contextuel) |
+| **/qa** `[scope]` | Lance uniquement la Product QA fonctionnelle en gardant le contexte courant. | Non (contextuel) |
+| **/validate** `[scope]` | Garde le contrat courant, lance les deux lentilles et consolide `READY TO SHIP`, `CHANGES REQUIRED` ou `DEPENDENCY PENDING`. | Non (contextuel) |
+| **/learn** `[scope]` | Analyse la tranche courante et route les connaissances utiles. | Non (contextuel) |
 | **/capture** `[texte]` | Append les patterns discutés (ou le texte donné) au journal perso. Sortie 1 ligne. | Non (autorisé partout) |
+
+`READY TO SHIP` n'autorise aucune action Git. Après RTS, Cockpit affiche le diff,
+les preuves, les risques et l'état Git, puis attend une instruction exacte :
+`commit`, `push`, ou `commit and push`. Un simple « OK » n'est pas une
+autorisation Git. `/learn` reste optionnel avant ou après cette instruction.
 
 ### Le journal de capture
 - Emplacement : **`~/dev/ai/pattern-captures/<projet>.md`** — **un fichier par
@@ -119,7 +137,10 @@ Deux niveaux, séparés exprès :
    `/review` et `pattern-scan`. Il **nomme** chaque pattern avec son nom canonique
    (le nom est le but : c'est ce que je retiens et vais chercher). Il juge sa
    propre pertinence (« rien de notable » plutôt qu'inventer).
-2. **Capture (volontaire)** — quand un nom m'intrigue, `/capture` le met de côté.
+2. **Learn (volontaire)** — `/learn` fait la rétrospective et décide si une
+   connaissance mérite d'être codifiée.
+3. **Capture (primitive)** — `/capture` enregistre un pattern déjà établi lorsque
+   `/learn` ou l'utilisateur décide de le conserver.
 
 ---
 
@@ -153,6 +174,8 @@ directement.
 opencode.json            # agents, permissions, modèles locaux
 agents/
   product-design.md      # subagent isolé optionnel pour briefs design explicites
+  qa.md validate.md      # Product QA et porte de livraison RTS
+  learn.md                # rétrospective et capitalisation
 prompts/
   pattern-radar.md       # bloc Pattern Radar partagé (plan / review / pattern-scan)
   interactive.md product-design.md plan.md build.md review.md pattern-scan.md
@@ -160,6 +183,8 @@ prompts/
 commands/
   design.md              # /design → agent primaire design (contexte partagé)
   capture.md             # /capture
+  qa.md validate.md       # Product QA et porte de livraison RTS
+  learn.md                # rétrospective et capitalisation
   pattern-scan.md        # /pattern-scan (épinglé au subagent pattern-scan)
   review.md              # /review (épinglé au subagent review)
 plugins/
@@ -170,11 +195,13 @@ plugins/
 
 ## 🔭 Reporté (assumé)
 
-- **Apprentissage actif** (drill, répétition espacée) — capture suffit pour l'instant.
+- **Apprentissage actif** (drill, répétition espacée) — Learn et capture suffisent
+  pour l'instant.
 - **Adaptateurs supplémentaires** — seulement lorsqu'un outil ne sait lire ni
   `AGENTS.md` ni le standard `.agents/skills`.
 - **Parallélisation** — utile surtout pour du fan-out de review sur gros diff.
-- **Subagent dédié** au-delà de pattern-scan — seulement si un besoin devient récurrent.
+- **Automatisation du déploiement** — RTS reste volontairement séparé des actions
+  Git et de déploiement.
 
 ---
 

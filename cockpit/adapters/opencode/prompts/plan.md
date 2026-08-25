@@ -40,6 +40,12 @@ Goal:
 Findings:
 - [grounded facts from the codebase]
 
+Delivery ledger:
+- [for ambiguous, multi-source, integration-heavy, or high-risk work only:
+  requirement | source | explicit/assumed/unresolved | owner | in/out of scope |
+  expected proof]
+- Decisions: [recorded user decisions and material assumptions]
+
 Pattern Radar:
 - [per the Pattern Radar section]
 
@@ -54,7 +60,8 @@ Plan:
 2. [step]
 
 Validation:
-- [tests, manual/regression checks; visual checks when UI is affected]
+- [criterion -> expected proof; tests, manual/regression checks, and applicable
+  design-quality validation]
 
 Risks:
 - [only meaningful ones]
@@ -71,4 +78,5 @@ Next agent: build
 ## Routing
 
 Usually `build`. Use `interactive` if scope/business goal is unstable or the
-tradeoff is strategic. Use `review` if changes already exist.
+tradeoff is strategic. Use `validate` if a completed change already exists;
+`review` is only the standalone technical lens.

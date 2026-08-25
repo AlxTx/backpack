@@ -60,11 +60,11 @@ Pattern note:
 Notes:
 - [constraint, tradeoff, or follow-up — only if useful]
 
-Next step: /review
+Next step: /validate
 ```
 
 ## Routing
 
-Usually run `/review` after build. Use `plan` if the task grew, the path is
+Usually run `/validate` after build. Use `plan` if the task grew, the path is
 unclear, or hidden complexity appeared. Use `interactive` if a product decision
 is unresolved.

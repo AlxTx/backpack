@@ -1,0 +1,81 @@
+#!/usr/bin/env sh
+set -eu
+
+SCRIPT_PATH=$0
+if [ -L "$SCRIPT_PATH" ]; then
+  LINK_TARGET=$(readlink "$SCRIPT_PATH")
+  case "$LINK_TARGET" in
+    /*) SCRIPT_PATH=$LINK_TARGET ;;
+    *) SCRIPT_PATH=$(dirname "$SCRIPT_PATH")/$LINK_TARGET ;;
+  esac
+fi
+SCRIPT_DIR=$(CDPATH= cd "$(dirname "$SCRIPT_PATH")" && pwd -P)
+
+usage() {
+  cat <<'EOF'
+Usage:
+  backpack
+  backpack install [cockpit|machine|everything] [options]
+  backpack doctor
+  backpack status
+
+Examples:
+  backpack install cockpit
+  backpack install cockpit --codex
+  backpack install cockpit --all-hosts
+  backpack install machine
+  backpack install everything --personal
+EOF
+}
+
+main_menu() {
+  cat <<'EOF'
+
+◆ Backpack
+
+What do you want to do?
+
+  1  Install or update Cockpit
+  2  Install or update this Mac
+  3  Install everything
+  4  Check installation
+  5  Show status
+  q  Quit
+
+EOF
+  printf '? Select an option: '
+  read choice
+
+  case "$choice" in
+    1) exec "$SCRIPT_DIR/bootstrap/install.sh" cockpit ;;
+    2) exec "$SCRIPT_DIR/bootstrap/install.sh" machine ;;
+    3) exec "$SCRIPT_DIR/bootstrap/install.sh" everything ;;
+    4) exec "$SCRIPT_DIR/bootstrap/doctor.sh" ;;
+    5) exec "$SCRIPT_DIR/bootstrap/status.sh" ;;
+    q|Q) exit 0 ;;
+    *)
+      printf '✗ invalid choice: %s\n' "$choice" >&2
+      exit 2
+      ;;
+  esac
+}
+
+case "${1:-}" in
+  '') main_menu ;;
+  install)
+    shift
+    exec "$SCRIPT_DIR/bootstrap/install.sh" "$@"
+    ;;
+  doctor)
+    shift
+    [ "$#" -eq 0 ] || { usage >&2; exit 2; }
+    exec "$SCRIPT_DIR/bootstrap/doctor.sh"
+    ;;
+  status)
+    shift
+    [ "$#" -eq 0 ] || { usage >&2; exit 2; }
+    exec "$SCRIPT_DIR/bootstrap/status.sh"
+    ;;
+  help|-h|--help) usage ;;
+  *) usage >&2; exit 2 ;;
+esac

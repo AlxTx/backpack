@@ -30,41 +30,41 @@ git clone git@github.com:AlxTx/backpack.git ~/dev/perso/backpack
 cd ~/dev/perso/backpack
 ```
 
-Run the interactive installer. It validates the repository, previews the plan,
+Run the Backpack menu. It validates the repository, previews interactive plans,
 and asks before changing local configuration:
 
 ```sh
-bootstrap/install.sh
+./backpack
 ```
 
-OpenCode is selected by default. The menu first presents the **Cockpit** — the
-portable workflow and its host adapters — then the machine **Tools**: shell,
-editor, and terminal UI. The installer uses `gum` when available and falls back
-to a numbered menu. Uppercase `~/Dev` casing is also tolerated on macOS.
+The menu clearly separates **Cockpit** — the portable workflow used inside AI
+tools — from this Mac's shell, editor, and terminal configuration. The installer
+uses `gum` when available and falls back to a numbered menu. Uppercase `~/Dev`
+casing is also tolerated on macOS.
 
 ## Common commands
 
 | Need | Command |
 |---|---|
-| Validate the repository only | `bootstrap/doctor.sh` |
-| Preview and choose interactively | `bootstrap/install.sh` |
-| Install OpenCode directly (default target) | `bootstrap/install.sh --apply` |
-| Install everything on a personal Mac | `bootstrap/install.sh --only all --personal --apply` |
-| Install everything on a client Mac | `bootstrap/install.sh --only all --client --apply` |
-| Install the complete AI stack | `bootstrap/install.sh --only ai --apply` |
-| Install Codex only | `bootstrap/install.sh --only codex --apply` |
-| Install Claude Code only | `bootstrap/install.sh --only claude --apply` |
-| Install GitHub Copilot instructions only | `bootstrap/install.sh --only copilot --apply` |
+| Open the main menu | `backpack` |
+| Choose what to install | `backpack install` |
+| Validate the repository only | `backpack doctor` |
+| Show installed components | `backpack status` |
+| Install everything on a personal Mac | `backpack install everything --personal` |
+| Install everything on a client Mac | `backpack install everything --client` |
+| Install Cockpit for every AI tool | `backpack install cockpit --all-hosts` |
+| Install Cockpit for Codex | `backpack install cockpit --codex` |
+| Install Cockpit for Claude Code | `backpack install cockpit --claude` |
+| Install Cockpit for GitHub Copilot | `backpack install cockpit --copilot` |
 | Copy instructions for GitHub Copilot App again | `sh bootstrap/copilot-app-instructions.sh --copy` |
-| Replace an existing OpenCode install | `bootstrap/install.sh --only opencode --replace --apply` |
-| Refresh OpenCode without replacing local providers | `bootstrap/install.sh --only opencode --update --apply` |
-| Install personal skills without third-party rule sets | `bootstrap/install.sh --skills core --apply` |
-| Install instructions and agents without any skill | `bootstrap/install.sh --skills none --apply` |
+| Update Cockpit for OpenCode | `backpack install cockpit --opencode` |
+| Replace an existing OpenCode adapter | `backpack install cockpit --opencode --replace` |
+| Install personal skills without optional rule sets | `backpack install cockpit --all-hosts --skills core` |
+| Install instructions and agents without skills | `backpack install cockpit --all-hosts --skills none` |
 
-`--apply` skips the confirmation prompt. The `ai`, `codex`, `claude`,
-`opencode`, and `all` targets install [`rtk`](https://github.com/rtk-ai/rtk)
-through Homebrew when needed; use `--without-rtk` to opt out. The Copilot-only
-target does not install RTK.
+A direct target applies immediately; use `--dry-run` for a read-only preview.
+Applicable Cockpit targets install [`rtk`](https://github.com/rtk-ai/rtk)
+through Homebrew when needed; use `--without-rtk` to opt out.
 
 ## Shared AI workflow
 
@@ -99,27 +99,27 @@ sh bootstrap/copilot-app-instructions.sh --copy
 Repository-level instructions remain project truth and can add client-specific
 constraints. Backpack never creates or commits them automatically.
 
-## Visible Backpack activity
+## Visible Cockpit activity
 
-For a non-trivial task, Backpack-compatible hosts announce the selected phase,
+For a non-trivial task, Cockpit-compatible hosts expose the active Cockpit phase,
 then any skill, agent, plugin, or integration actually activated. Native host
 events are preferred; otherwise Backpack emits a compact one-line fallback such
-as `Backpack · skill loaded · code-first-product-design`. It never duplicates an
+as `Cockpit · skill loaded · code-first-product-design`. It never duplicates an
 activation the host already displays. This makes the workflow visible without
 exposing private model reasoning or producing a log for every shell command.
 After updating Backpack, restart the host; for GitHub Copilot App, copy the
 refreshed global-instructions block again.
 
-OpenCode is the default target and the exception to the symlink-only model: its
-adapter is copied once to `~/.config/opencode/`. Local provider and model choices
-stay in `~/.config/opencode/opencode.json` and are preserved by `--update`.
+OpenCode is the exception to the symlink-only model: Backpack updates its adapter
+in `~/.config/opencode/`. Local provider and model choices stay in
+`~/.config/opencode/opencode.json` and are preserved by normal updates.
 
 ## Safety and profiles
 
-Installation is non-destructive by default: it previews first, backs up replaced
-entries under `~/.config.backup.<timestamp>/`, and leaves matching links alone.
-Interactive installation asks whether an existing OpenCode configuration should
-be kept or replaced; direct apply keeps it unless `--replace` is passed.
+Interactive installation previews first; direct targets apply immediately.
+Backpack backs up replaced entries under `~/.config.backup.<timestamp>/`, leaves
+matching links alone, and preserves local OpenCode configuration during normal
+updates. `--replace` requests a fresh OpenCode adapter explicitly.
 On client machines, use `--client` and keep providers, tokens, endpoints,
 policies, and mission notes outside Backpack.
 

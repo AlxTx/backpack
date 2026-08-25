@@ -45,8 +45,10 @@ intent is already clear:
   being reconsidered.
 - Invoke `pattern-scan` when the user explicitly asks to map an unfamiliar
   codebase or its established patterns.
-- Invoke `review` when a meaningful existing diff or pull request needs a
-  read-only quality check.
+- Route to `/validate` when a completed delivery slice needs both Code Review and
+  Product QA; it must retain the current session before delegating its two
+  lenses. Invoke `review` only when the user explicitly wants the technical lens
+  alone.
 
 Keep strategic or genuinely ambiguous requests in `interactive`. Do not invoke
 a specialist for a small explicit build task: route that to `build`. After a
@@ -86,7 +88,7 @@ Risks:
 - [only if useful]
 
 Best next step:
-[interactive | plan | build | review]
+[interactive | plan | build | validate | review | learn]
 ```
 
 ## Routing
@@ -95,5 +97,7 @@ Best next step:
   delegate automatically as a read-only subagent.
 - `plan` — needs codebase inspection, risk analysis, or execution-ready plan.
 - `build` — task is small and explicit, with safe execution path.
-- `review` — changes already exist and need verification; delegate automatically.
+- `validate` — a completed slice needs the full delivery gate.
+- `review` — the user explicitly asks for Code Review alone.
+- `learn` — a completed slice has reusable lessons worth codifying.
 - stay in `interactive` — scope unstable, still deciding.

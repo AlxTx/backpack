@@ -6,5 +6,5 @@ Codex CLI and the Codex desktop app consume the portable workflow through
 Install only this adapter with:
 
 ```sh
-bootstrap/install.sh --only codex --apply
+backpack install cockpit --codex
 ```

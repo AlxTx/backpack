@@ -1,6 +1,7 @@
 ---
 description: Review the current diff or existing changes in strict read-only mode.
 agent: review
+subtask: false
 ---
 
 Review the current changes: $ARGUMENTS

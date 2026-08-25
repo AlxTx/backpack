@@ -10,6 +10,8 @@ model families without rewriting the engineering contract.
 | Product/content/UX design judgment | Frontier | `gpt-5.6-sol` | `high` |
 | Implement an approved, well-specified change | Fast | `gpt-5.6-luna` | `medium` |
 | Review correctness or meaningful regression risk | Frontier | `gpt-5.6-sol` | `high` |
+| Consolidate Code Review and Product QA | Frontier | `gpt-5.6-sol` | `high` |
+| Product QA or knowledge codification | Balanced | `gpt-5.6-terra` | `medium` |
 | Pattern scan / unfamiliar-code orientation | Balanced | `gpt-5.6-terra` | `medium` |
 | Classification, extraction, routing, background automation | Fast | `gpt-5.6-luna` | `low` or `medium` |
 

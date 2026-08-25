@@ -7,7 +7,7 @@ instructions are stored in the app settings rather than a documented local file.
 Install only this adapter with:
 
 ```sh
-bootstrap/install.sh --only copilot --apply
+backpack install cockpit --copilot
 ```
 
 After a successful install, Backpack prints the portable workflow ready to paste

@@ -16,9 +16,38 @@ Interactive -> clarify, challenge, decide next step
 Design      -> frame content, journeys, UX/UI, or no-mockup ideas
 Plan        -> inspect read-only and prepare execution
 Build       -> execute scoped changes end-to-end
-Review      -> /review existing changes in read-only mode
-Learn       -> /pattern-scan, /capture
+Validate    -> /validate runs Code Review + Product QA in read-only mode
+Learn       -> /learn reflects, extracts, and codifies reusable knowledge
 ```
+
+These controls implement one delivery lifecycle rather than separate competing
+workflows:
+
+```txt
+Plan     -> interactive + design + plan
+Build    -> build with narrow iteration checks
+Validate -> /review + /qa -> consolidated RTS status
+Learn    -> /learn; /capture remains the low-level persistence primitive
+```
+
+`/review` and `/qa` remain independently callable. `/validate` is the default
+delivery gate and reports `READY TO SHIP`, `CHANGES REQUIRED`, or
+`DEPENDENCY PENDING`. RTS never commits or pushes; it waits for an explicit Git
+instruction. `/learn` is optional at RTS and does not modify the product by
+default.
+
+For uncertain or integration-heavy features, Plan also maintains a task-local
+requirements/decisions ledger. It separates frontend-deliverable work, backend
+or external evidence still needed, and out-of-scope items. Small explicit work
+does not need this extra artifact.
+
+The lifecycle stays stable across contexts, while phase behavior changes:
+
+- BROWNFIELD preserves established contracts and regression surfaces.
+- GREENFIELD establishes the smallest coherent product, design, and technical
+  contract for a vertical slice.
+- SOLO work accepts narrow reversible defaults without fake stakeholder
+  ceremony; TEAM and CLIENT work retain shared decisions and approval boundaries.
 
 Backpack provides the portable cockpit core. The updater preserves provider/model
 choices edited locally in `~/.config/opencode/opencode.json` on each machine.

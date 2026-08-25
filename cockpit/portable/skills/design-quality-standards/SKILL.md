@@ -33,6 +33,10 @@ style direction. It is the standard that every direction must satisfy.
 - Meet WCAG 2.2 AA expectations for contrast, focus visibility, labels, target
   size, and keyboard navigation where applicable.
 - Preserve semantic HTML and accessible component primitives.
+- For composite widgets such as listboxes, menus, grids, and dialogs, verify the
+  permitted child roles and avoid incompatible nested interactive controls.
+- Verify the applicable keyboard model explicitly: focus entry and restoration,
+  Tab, arrow keys, Enter or Space, Escape, and accessible names or announcements.
 - Specify responsive behavior, not only desktop layout.
 - Motion must respect clarity and should be disable-friendly.
 

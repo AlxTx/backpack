@@ -63,45 +63,71 @@ source of doctrine.
 - Route shell output through `rtk` when it is installed. It is an execution
   filter, not a second instruction corpus: OpenCode rewrites compatible commands
   automatically, while every other host inherits the portable shell rule.
-- Use `bootstrap/install.sh --only ai --apply` to install RTK and activate the
+- Use `backpack install cockpit --all-hosts` to install RTK and activate the
   shared workflow for Codex, Copilot, OpenCode, and Claude Code on a new Mac.
 
 ## Visible execution context
 
-Backpack does not expose private model reasoning. For non-trivial work it emits
+Cockpit does not expose private model reasoning. For non-trivial work it emits
 a short public status before acting, then announces any selected skill, subagent,
 plugin, or integration when it is actually activated. This is a portable
 semantic event: use the host's native rendering when available, otherwise fall
-back to a compact `Backpack · <event> · <name>` line. Never show both for the
+back to a compact `Cockpit · <event> · <name>` line. Never show both for the
 same activation. This is an audit trail of the workflow, not a transcript of
 every command or internal thought.
 
 Hosts with a dedicated progress surface show it there; other hosts send the same
 status in the conversation.
 
-## Default loop
+## Delivery loop
 
 ```txt
-discuss/decide -> plan -> build -> review -> learn when reusable
+Plan -> Build -> Validate -> Learn
+                  /      \
+        Code Review      Product QA
 ```
 
-Small explicit changes can go directly to build and targeted validation.
-Planning and review depth scale with uncertainty, blast radius, and risk.
+This lifecycle sits above host modes: discussion and design can contribute to
+Plan, implementation happens in Build, Code Review and Product QA supply
+Validate, and knowledge codification supplies Learn. Small explicit changes can compress the loop into
+inspection, one safe change, targeted validation, and a short handoff. Planning
+and validation depth scale with uncertainty, evidence count, blast radius, and
+risk.
+
+For ambiguous, multi-source, integration-heavy, or high-risk features, Plan
+creates a task-local delivery ledger before edits: requirements and their
+sources, explicit versus assumed status, frontend/backend/external ownership,
+expected proof, and recorded decisions. Product QA closes that ledger criterion by
+criterion. The ledger stays conversational by default so Backpack does not
+pollute client repositories with personal process artifacts.
+
+Build inspects project patterns and design-system primitives before inventing UI,
+uses faithful and discriminating mocks, and favors narrow tests during
+iteration. A proportionate broad suite runs once at the end of the delivery
+slice. Detailed UI and accessibility checks stay in the
+`design-quality-standards` skill and load only for meaningful UI work.
+
+Validate reports `READY TO SHIP` only when Code Review approves and Product QA
+passes. RTS is not permission to commit or push: Cockpit stops with the evidence,
+risk, and Git state until the user explicitly authorizes the exact Git action.
+
+Learn is optional at RTS and may run before or after Git delivery. It reflects,
+extracts, and codifies only evidenced reusable knowledge. Project truth stays in
+the project, personal patterns stay in personal memory, and a measured workflow
+failure may update the smallest effective Backpack enforcement point without
+copying doctrine into every host adapter.
 
 ## Installation
 
 ```sh
 # shared workflow
-bootstrap/install.sh --only ai --apply
+backpack install cockpit --all-hosts
 
 # one adapter only
-bootstrap/install.sh --only codex --apply
-bootstrap/install.sh --only claude --apply
-bootstrap/install.sh --only copilot --apply
-bootstrap/install.sh --only opencode --apply
-
-# refresh the local OpenCode adapter without replacing providers/models
-bootstrap/install.sh --only opencode --update --apply
+backpack install cockpit --codex
+backpack install cockpit --claude
+backpack install cockpit --copilot
+backpack install cockpit --opencode
 ```
 
 The installer links canonical files, so edits in Backpack become visible after
