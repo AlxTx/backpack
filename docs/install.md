@@ -8,9 +8,8 @@ configuration; Cockpit is the workflow used inside supported AI tools.
 Clone the repository, then start the Backpack menu:
 
 ```sh
-mkdir -p ~/dev/perso
-git clone git@github.com:AlxTx/backpack.git ~/dev/perso/backpack
-cd ~/dev/perso/backpack
+git clone git@github.com:AlxTx/backpack.git
+cd backpack
 ./backpack
 ```
 

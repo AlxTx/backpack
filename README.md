@@ -22,25 +22,25 @@ memory/              durable personal learning: craft, AI, concepts, books, play
 
 ## Quick start
 
-Clone the repository wherever you keep personal projects:
+Clone the repository wherever you keep your projects, enter it, then launch the
+menu:
 
 ```sh
-mkdir -p ~/dev/perso
-git clone git@github.com:AlxTx/backpack.git ~/dev/perso/backpack
-cd ~/dev/perso/backpack
-```
-
-Run the Backpack menu. It validates the repository, previews interactive plans,
-and asks before changing local configuration:
-
-```sh
+git clone git@github.com:AlxTx/backpack.git
+cd backpack
 ./backpack
 ```
 
+`./backpack` means “run the `backpack` file from this folder”. The first
+installation links the command into `~/.local/bin`; afterward, when that folder
+is on `PATH`, use `backpack` from anywhere.
+
+The menu validates the repository, previews interactive plans, and asks before
+changing local configuration.
+
 The menu clearly separates **Cockpit** — the portable workflow used inside AI
 tools — from this Mac's shell, editor, and terminal configuration. The installer
-uses `gum` when available and falls back to a numbered menu. Uppercase `~/Dev`
-casing is also tolerated on macOS.
+uses arrow-key menus when `gum` is available and falls back to a numbered menu.
 
 ## Common commands
 

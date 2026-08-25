@@ -37,14 +37,6 @@ test -x "$BACKPACK_ROOT/backpack" || fail "missing executable backpack command"
 test -x "$BACKPACK_ROOT/bootstrap/status.sh" || fail "missing executable status command"
 ok "Backpack CLI exists"
 
-case "$BACKPACK_ROOT" in
-  */Dev/perso/backpack)
-    if [ "$QUIET" -eq 0 ]; then
-      printf 'i path casing: repo is under ~/Dev/perso/backpack; docs use ~/dev/perso/backpack as canonical, both are tolerated on macOS\n'
-    fi
-    ;;
-esac
-
 if [ "$(uname -s)" = "Darwin" ]; then
   ok "macOS detected"
 else

@@ -28,7 +28,53 @@ Examples:
 EOF
 }
 
-main_menu() {
+use_gum() {
+  [ -t 0 ] && [ -t 1 ] && command -v gum >/dev/null 2>&1
+}
+
+dispatch_main_choice() {
+  case "$1" in
+    cockpit) exec "$SCRIPT_DIR/bootstrap/install.sh" cockpit ;;
+    machine) exec "$SCRIPT_DIR/bootstrap/install.sh" machine ;;
+    everything) exec "$SCRIPT_DIR/bootstrap/install.sh" everything ;;
+    doctor) exec "$SCRIPT_DIR/bootstrap/doctor.sh" ;;
+    status) exec "$SCRIPT_DIR/bootstrap/status.sh" ;;
+    quit) exit 0 ;;
+  esac
+}
+
+gum_main_menu() {
+  gum style \
+    --foreground 39 \
+    --border-foreground 39 \
+    --border rounded \
+    --padding '1 2' \
+    --margin '1 0' \
+    '◆ Backpack' 'Cockpit and machine setup.'
+
+  selection=$(gum choose \
+    --header 'What do you want to do?' \
+    --cursor '→ ' \
+    --selected-prefix '✓ ' \
+    --unselected-prefix '  ' \
+    'Install or update Cockpit' \
+    'Install or update this Mac' \
+    'Install everything' \
+    'Check installation' \
+    'Show status' \
+    'Quit') || exit 0
+
+  case "$selection" in
+    'Install or update Cockpit') dispatch_main_choice cockpit ;;
+    'Install or update this Mac') dispatch_main_choice machine ;;
+    'Install everything') dispatch_main_choice everything ;;
+    'Check installation') dispatch_main_choice doctor ;;
+    'Show status') dispatch_main_choice status ;;
+    'Quit') dispatch_main_choice quit ;;
+  esac
+}
+
+numbered_main_menu() {
   cat <<'EOF'
 
 ◆ Backpack
@@ -47,17 +93,25 @@ EOF
   read choice
 
   case "$choice" in
-    1) exec "$SCRIPT_DIR/bootstrap/install.sh" cockpit ;;
-    2) exec "$SCRIPT_DIR/bootstrap/install.sh" machine ;;
-    3) exec "$SCRIPT_DIR/bootstrap/install.sh" everything ;;
-    4) exec "$SCRIPT_DIR/bootstrap/doctor.sh" ;;
-    5) exec "$SCRIPT_DIR/bootstrap/status.sh" ;;
-    q|Q) exit 0 ;;
+    1) dispatch_main_choice cockpit ;;
+    2) dispatch_main_choice machine ;;
+    3) dispatch_main_choice everything ;;
+    4) dispatch_main_choice doctor ;;
+    5) dispatch_main_choice status ;;
+    q|Q) dispatch_main_choice quit ;;
     *)
       printf '✗ invalid choice: %s\n' "$choice" >&2
       exit 2
       ;;
   esac
+}
+
+main_menu() {
+  if use_gum; then
+    gum_main_menu
+  else
+    numbered_main_menu
+  fi
 }
 
 case "${1:-}" in
