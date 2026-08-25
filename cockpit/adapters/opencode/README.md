@@ -20,6 +20,8 @@ enseignements réutilisables.
 | Ma situation | J'utilise | Comment |
 |---|---|---|
 | Une idée floue, un arbitrage, choisir une archi (perso ou client), décider quoi faire | **interactive** | `Tab` → interactive |
+| Mon prompt est long, ambigu ou répétitif | automatique | Cockpit laisse passer les prompts clairs, normalise sans risque, ou demande validation si le sens peut changer |
+| Je veux voir et contrôler explicitement la reformulation | **/refine** | tape `/refine ...`, vérifie la proposition, puis valide-la explicitement |
 | Besoin de contenu, parcours, page, UX/UI ou idée sans maquette | **design** ou **/design** | `Tab` → design, ou tape `/design ...` |
 | Je débarque sur un codebase inconnu, je veux la carte des patterns existants | **/pattern-scan** | tape `/pattern-scan` (ou `/pattern-scan src/`) |
 | Préparer un changement sûr : inspecter, comparer, plan d'exécution | **plan** | `Tab` → plan |
@@ -83,6 +85,7 @@ garde-fou sur l'exécution.
 
 | Command / subagent | Rôle | Modèle | Écrit ? |
 |---|---|---|---|
+| **/refine** | Prépare une version clarifiée du prompt, montre l'original et les changements, puis s'arrête avant exécution. | Profil local | ❌ read-only |
 | **/design** → `design` | Façade content/UX/UI contextuelle : classe la demande en content-led, UI-led ou mixed, puis produit le bon contrat read-only. | Profil local | ❌ read-only |
 | **/review** | Code Review stricte. Verdicts APPROVE / REQUEST CHANGES / ESCALATE. | Profil local | ❌ read-only |
 | **/qa** | Product QA contextuelle contre les exigences, parcours, états et comportements visibles. | Profil local | ❌ read-only |
@@ -105,6 +108,7 @@ crée, elle, une session enfant isolée.
 
 | Command | Fait quoi | Dépend du mode ? |
 |---|---|---|
+| **/refine** `[brouillon]` | Raffine le prompt en mode Safe, expose les changements et attend une validation explicite sans l'exécuter. | Non (contextuel) |
 | **/design** `[besoin]` | Produit le bon contrat content/UX/UI : audit contenu, architecture narrative, parcours, page ou UI code-first. Garde le contexte courant. | Non (agent primaire `design`) |
 | **/pattern-scan** `[scope]` | Lance le subagent pattern-scan sur un dossier (défaut : tout le projet). | Non (épinglé) |
 | **/review** `[scope]` | Lance uniquement la Code Review technique en gardant le contexte courant. | Non (contextuel) |
@@ -154,6 +158,7 @@ Deux niveaux, séparés exprès :
 | `frontend-design` | **produire** de l'UI visuelle distinctive (skill Anthropic) |
 | `style-refined-product`, `style-editorial-saas`, `style-bento-dashboard`, `style-developer-minimal`, `style-friendly-consumer` | **directions visuelles optionnelles** — une seule à la fois, jamais par défaut en brownfield |
 | `pattern-scan`, `pattern-capture` | **apprentissage portable** : cartographier puis conserver les patterns établis |
+| `prompt-refinement` | **préparer automatiquement** un prompt : bypass s'il est clair, flow-through éditorial, validation si le sens peut changer |
 
 Ordre d'autorité : **conventions du projet → comportement officiel du framework →
 skills installés**. Jamais forcer un skill si une simple inspection suffit.
@@ -182,6 +187,7 @@ prompts/
                          # rôle de chaque agent primaire/subagent
 commands/
   design.md              # /design → agent primaire design (contexte partagé)
+  refine.md              # /refine → prépare un prompt et attend validation
   capture.md             # /capture
   qa.md validate.md       # Product QA et porte de livraison RTS
   learn.md                # rétrospective et capitalisation
@@ -202,6 +208,9 @@ plugins/
 - **Parallélisation** — utile surtout pour du fan-out de review sur gros diff.
 - **Automatisation du déploiement** — RTS reste volontairement séparé des actions
   Git et de déploiement.
+- **Optimisation mesurée de prompts** — nécessite un dataset représentatif, des
+  critères de succès et des évaluations comparatives ; `/refine` reste un
+  raffinement one-shot sans prétendre mesurer un optimum.
 
 ---
 

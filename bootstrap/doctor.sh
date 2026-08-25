@@ -79,6 +79,10 @@ ok "product-design agent exists"
 test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/design.md" || fail "missing OpenCode design command"
 ok "design command exists"
 
+test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/refine.md" || fail "missing OpenCode refine command"
+test -f "$BACKPACK_ROOT/cockpit/portable/skills/prompt-refinement/SKILL.md" || fail "missing portable prompt-refinement skill"
+ok "safe prompt refinement capability exists"
+
 test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/prompts/product-design.md" || fail "missing OpenCode design primary prompt"
 ok "design primary prompt exists"
 

@@ -60,6 +60,14 @@ diagnose, plan, validate, review, or learn is not permission to modify product
 files. A request to build, fix, align, migrate, or remove does include the normal
 in-scope changes and validation needed to complete it.
 
+Before routing, apply the portable `prompt-refinement` skill automatically only
+when a request is long, materially ambiguous, internally conflicting, or
+repetitive. Clear actionable prompts pass through unchanged. Meaning-preserving
+editorial normalization may flow directly into the requested work; any proposed
+change to meaning, scope, requirements, acceptance criteria, or permissions must
+be shown to the user and validated before execution. An explicit refinement
+request always stops at the proposed prompt.
+
 ## Run the delivery loop
 
 Use a proportionate Plan → Build → Validate → Learn loop. These are lifecycle

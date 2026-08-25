@@ -65,6 +65,28 @@ source of doctrine.
 - Use `backpack install cockpit --all-hosts` to install RTK and activate the
   shared workflow for Codex, Copilot, OpenCode, and Claude Code on a new Mac.
 
+## Prompt refinement
+
+`prompt-refinement` is a hybrid automatic preflight for long, ambiguous,
+conflicting, or repetitive prompts. Clear actionable prompts bypass it.
+Meaning-preserving cleanup can flow directly into execution without adding a
+conversation turn. If a rewrite could change intent, scope, requirements,
+acceptance criteria, or permissions, Cockpit preserves the original, shows the
+proposal and changes, then waits for explicit validation. An explicit `/refine`
+request always uses this review path. Safe mode preserves detail by default;
+compact mode is opt-in.
+
+The agent-level preflight does not guarantee token savings because the original
+message remains in model context and the skill itself adds instructions. Its
+value is measured across the whole task: fewer retries and clarification turns,
+better output relevance, latency, and total input/output tokens. The bypass gate
+prevents short clear prompts from paying this overhead.
+
+This is not measured prompt optimization. Calling a prompt “optimized” requires
+representative cases, explicit success criteria, and comparative evaluation.
+OpenCode exposes `/refine` as a shortcut; other hosts use the shared skill
+directly.
+
 ## Visible execution context
 
 Cockpit does not expose private model reasoning. For non-trivial work it emits

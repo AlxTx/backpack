@@ -2,26 +2,44 @@
 
 ## Safe prompt refinement
 
-Future feature — not part of the current Cockpit workflow.
+First slice implemented as the portable `prompt-refinement` skill, with an
+OpenCode `/refine` shortcut. Codex, Claude Code, and GitHub Copilot consume the
+same skill through their normal skill discovery.
 
-Add an explicitly invoked, host-agnostic `Refine` capability for long or
-ambiguous prompts. It should improve clarity and optionally reduce repetition
-without executing the request.
+Cockpit automatically preflights long, ambiguous, conflicting, or repetitive
+prompts while letting clear actionable prompts pass unchanged. It improves
+clarity and optionally reduces repetition through a hybrid flow.
 
 Safety and UX requirements:
 
-- preserve and display the original prompt;
+- preserve the original prompt as the authority;
+- allow only meaning-preserving editorial changes to flow into execution;
+- display the original prompt when a proposed change could alter meaning;
 - never invent product decisions, constraints, or missing evidence;
 - show the proposed prompt and a compact change summary before use;
-- require explicit user validation before the refined prompt is executed;
+- require explicit user validation before any meaning-changing refinement is
+  executed;
 - provide a safe default mode and an opt-in compact mode;
-- remain optional because refining short prompts can cost more tokens than it
-  saves;
+- bypass clear prompts because agent-level refinement cannot remove the original
+  message from context and may otherwise cost more tokens than it saves;
 - work through the portable Cockpit skill model rather than a provider-specific
   integration where possible.
 
-Before implementation, validate how each host can separate refinement from
-execution and choose whether `Refine` should be a skill, command, or both.
+The portable skill is the safety boundary. It either performs editorial-only
+normalization and flows through, or returns a review surface and stops before a
+meaning-changing rewrite is executed. OpenCode also gets a command because it
+has an established command adapter; the other hosts do not need
+provider-specific duplication.
+
+Future slice — measured prompt optimization:
+
+- collect representative prompt cases and expected outcomes;
+- define success criteria, human annotations, or graders;
+- compare the original and candidate prompts across the evaluation set;
+- record quality, latency, and token/cost trade-offs before recommending a
+  winner.
+
+This eval-driven workflow is intentionally distinct from one-shot refinement.
 
 ## Shareable Backpack with private profiles
 
