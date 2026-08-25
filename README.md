@@ -98,10 +98,12 @@ constraints. Backpack never creates or commits them automatically.
 For a non-trivial task, Cockpit-compatible hosts expose the active Cockpit phase,
 then any skill, agent, plugin, or integration actually activated. Native host
 events are preferred; otherwise Backpack emits a compact one-line fallback such
-as `Cockpit · skill loaded · code-first-product-design`. It never duplicates an
-activation the host already displays. This makes the workflow visible without
-exposing private model reasoning or producing a log for every shell command.
-After updating Backpack, restart the host.
+as `Cockpit › Design · [Skill] code-first-product-design`. The hierarchy stays
+visible on every line: Cockpit, then the active phase; the bracketed label makes
+the capability type immediately scannable. It never duplicates an activation
+the host already displays. This makes the workflow visible without exposing
+private model reasoning or producing a log for every shell command. After
+updating Backpack, restart the host.
 
 OpenCode is the exception to the symlink-only model: Backpack updates its adapter
 in `~/.config/opencode/`. Local provider and model choices stay in

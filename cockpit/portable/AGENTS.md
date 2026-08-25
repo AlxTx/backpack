@@ -347,22 +347,27 @@ files, or perform a multi-step action, send one short status before the first
 action:
 
 ```txt
-Cockpit · <phase> · <immediate next action>
+Cockpit › <phase> · <immediate next action>
 ```
 
 - When a named capability is activated and the host does not already show it,
-  emit one additional compact event using the applicable form:
+  emit one additional compact event. Repeat the active phase so the capability
+  remains visibly attached to the work that activated it:
 
   ```txt
-  Cockpit · skill loaded · <name>
-  Cockpit · agent delegated · <name>
-  Cockpit · plugin activated · <name>
-  Cockpit · integration connected · <name>
+  Cockpit › <phase> · [Skill] <name>
+  Cockpit › <phase> · [Agent] <name>
+  Cockpit › <phase> · [Plugin] <name>
+  Cockpit › <phase> · [Integration] <name>
   ```
 
 - Never duplicate an activation already rendered natively by the host.
-- Keep the stable Cockpit prefix and the canonical capability name across
-  hosts; localize the short phase/action description to the user's language.
+- Use `›` only for hierarchy (`Cockpit → phase`) and `·` to introduce the current
+  action or capability event. Put capability types in square brackets so they
+  remain scannable without adding another hierarchy level.
+- Keep the stable `Cockpit` prefix, capability labels, and canonical capability
+  name across hosts; localize the phase and short action description to the
+  user's language.
 - Name only capabilities that are truly in use; do not claim an adapter, skill,
   or plugin is active merely because it is installed.
 - Keep updates concise and event-based: at task start, when a specialized

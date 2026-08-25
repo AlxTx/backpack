@@ -93,9 +93,12 @@ Cockpit does not expose private model reasoning. For non-trivial work it emits
 a short public status before acting, then announces any selected skill, subagent,
 plugin, or integration when it is actually activated. This is a portable
 semantic event: use the host's native rendering when available, otherwise fall
-back to a compact `Cockpit · <event> · <name>` line. Never show both for the
-same activation. This is an audit trail of the workflow, not a transcript of
-every command or internal thought.
+back to a compact hierarchical line: `Cockpit › <phase> · <action>` for phase
+status, then `Cockpit › <phase> · [<capability>] <name>` for an activation. The
+repeated phase keeps each capability attached to the work that caused it, while
+the bracketed label stays easy to scan. Never show both native and fallback
+rendering for the same activation. This is an audit trail of the workflow, not a
+transcript of every command or internal thought.
 
 Hosts with a dedicated progress surface show it there; other hosts send the same
 status in the conversation.
