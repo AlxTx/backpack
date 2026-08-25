@@ -88,9 +88,9 @@ without any skill. Use `--skills` to choose non-interactively; it defaults to
 | GitHub Copilot | `~/.copilot/copilot-instructions.md` and `~/.agents/skills` | Skills are shared; paste the workflow into App global instructions |
 
 GitHub Copilot App is the one exception: its global instructions have no
-documented local file. A successful Copilot install prints the complete block to
-paste in `Settings → General → Global instructions`. If the portable workflow is
-updated later, recopy it with:
+documented local file. A successful Copilot install copies the instructions to
+the clipboard and shows where to paste them. If the portable workflow is updated
+later, recopy it with:
 
 ```sh
 sh bootstrap/copilot-app-instructions.sh --copy

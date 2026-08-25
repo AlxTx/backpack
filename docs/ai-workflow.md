@@ -39,8 +39,8 @@ the installation mapping when the host directly consumes the portable files.
 | Other compatible hosts | Varies by host | global or repo `AGENTS.md` | `.agents/skills` | host permissions and UI |
 
 Copilot CLI uses Backpack's personal instructions locally. After a successful
-Copilot install, Backpack prints the canonical global-instructions block for the
-GitHub Copilot App. `bootstrap/copilot-app-instructions.sh --copy` remains
+Copilot install, Backpack copies the canonical global instructions for the
+GitHub Copilot App to the clipboard. `bootstrap/copilot-app-instructions.sh --copy` remains
 available to recopy it later. Copilot cloud agents and code review use
 repository-level `AGENTS.md` or
 `.github/copilot-instructions.md`; Backpack deliberately leaves those files to

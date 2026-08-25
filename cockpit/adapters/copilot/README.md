@@ -10,9 +10,9 @@ Install only this adapter with:
 backpack install cockpit --copilot
 ```
 
-After a successful install, Backpack prints the portable workflow ready to paste
-in GitHub Copilot App → Settings → General → Global instructions. To recopy it
-after a later Backpack update:
+After a successful install, Backpack copies the portable workflow to the
+clipboard and shows where to paste it in GitHub Copilot App. To recopy it after a
+later Backpack update:
 
 ```sh
 sh bootstrap/copilot-app-instructions.sh --copy

@@ -75,8 +75,8 @@ machine-local OpenCode configuration and must not be committed to Backpack.
 
 Copilot CLI instructions and shared skills are installed automatically. The
 desktop app requires one manual step because its global instructions are stored
-in the app. Backpack prints the block and destination after installation. Show
-it again with:
+in the app. Backpack copies the instructions to the clipboard and shows the
+destination after installation. Copy them again with:
 
 ```sh
 sh bootstrap/copilot-app-instructions.sh --copy

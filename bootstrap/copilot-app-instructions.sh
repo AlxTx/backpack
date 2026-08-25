@@ -18,7 +18,8 @@ case "${1:-}" in
     fi
 
     sed '1,4d' "$INSTRUCTIONS_PATH" | pbcopy
-    printf '✓ Backpack instructions copied to the clipboard. Paste them in GitHub Copilot App → Settings → General → Global instructions.\n'
+    printf '✓ Copilot App instructions copied\n'
+    printf 'Paste in: GitHub Copilot App → Settings → General → Global instructions\n'
     ;;
   '')
     sed '1,4d' "$INSTRUCTIONS_PATH"

@@ -911,15 +911,13 @@ print_client_reminder() {
 }
 
 print_copilot_app_reminder() {
+  [ "$APPLY" -eq 0 ] || return 0
+
   case "$INSTALL_TARGET" in
     ai|copilot|all)
       cat <<EOF
 
-GitHub Copilot App setup:
-- Copilot CLI instructions and personal skills are installed automatically.
-- The desktop app stores global instructions in its own settings and has no
-  documented file-based configuration.
-- After a successful install, Backpack prints the exact instruction block to paste.
+GitHub Copilot App: one manual paste remains after installation.
 EOF
       ;;
   esac
@@ -928,20 +926,14 @@ EOF
 print_copilot_app_instructions() {
   case "$INSTALL_TARGET" in
     ai|copilot|all)
-      cat <<EOF
-
-GitHub Copilot App — one final step
-
-Copy the complete block below, then paste it in:
-  GitHub Copilot App → Settings → General → Global instructions
-
------ COPY FROM HERE -----
-EOF
-      "$SCRIPT_DIR/copilot-app-instructions.sh"
-      cat <<EOF
------ COPY UNTIL HERE -----
-
-EOF
+      printf '\n'
+      if command -v pbcopy >/dev/null 2>&1; then
+        "$SCRIPT_DIR/copilot-app-instructions.sh" --copy
+      else
+        warn 'pbcopy is unavailable; Copilot App instructions were not copied.'
+        printf 'Run this command on macOS, then paste the result manually:\n'
+        printf '  sh %s\n' "$SCRIPT_DIR/copilot-app-instructions.sh"
+      fi
       ;;
   esac
 }
