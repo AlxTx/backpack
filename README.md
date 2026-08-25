@@ -56,7 +56,6 @@ uses arrow-key menus when `gum` is available and falls back to a numbered menu.
 | Install Cockpit for Codex | `backpack install cockpit --codex` |
 | Install Cockpit for Claude Code | `backpack install cockpit --claude` |
 | Install Cockpit for GitHub Copilot | `backpack install cockpit --copilot` |
-| Copy instructions for GitHub Copilot App again | `sh bootstrap/copilot-app-instructions.sh --copy` |
 | Update Cockpit for OpenCode | `backpack install cockpit --opencode` |
 | Replace an existing OpenCode adapter | `backpack install cockpit --opencode --replace` |
 | Install personal skills without optional rule sets | `backpack install cockpit --all-hosts --skills core` |
@@ -85,16 +84,11 @@ without any skill. Use `--skills` to choose non-interactively; it defaults to
 | Codex | `~/.codex/AGENTS.md` | Uses the same instruction source |
 | Claude Code | `~/.claude/rules/backpack.md`, agents, and skills | Code tab shares the same local configuration |
 | OpenCode | `~/.config/opencode/` | Uses the same configuration as CLI and TUI |
-| GitHub Copilot | `~/.copilot/copilot-instructions.md` and `~/.agents/skills` | Skills are shared; paste the workflow into App global instructions |
+| GitHub Copilot | `~/.copilot/copilot-instructions.md`, RTK hook, and `~/.agents/skills` | Uses the same local configuration |
 
-GitHub Copilot App is the one exception: its global instructions have no
-documented local file. A successful Copilot install copies the instructions to
-the clipboard and shows where to paste them. If the portable workflow is updated
-later, recopy it with:
-
-```sh
-sh bootstrap/copilot-app-instructions.sh --copy
-```
+GitHub Copilot discovers the personal instruction file automatically. Backpack
+also installs RTK's user-level Copilot hook so compatible shell commands are
+rewritten before execution. No copy-paste into app settings is required.
 
 Repository-level instructions remain project truth and can add client-specific
 constraints. Backpack never creates or commits them automatically.
@@ -107,8 +101,7 @@ events are preferred; otherwise Backpack emits a compact one-line fallback such
 as `Cockpit · skill loaded · code-first-product-design`. It never duplicates an
 activation the host already displays. This makes the workflow visible without
 exposing private model reasoning or producing a log for every shell command.
-After updating Backpack, restart the host; for GitHub Copilot App, copy the
-refreshed global-instructions block again.
+After updating Backpack, restart the host.
 
 OpenCode is the exception to the symlink-only model: Backpack updates its adapter
 in `~/.config/opencode/`. Local provider and model choices stay in

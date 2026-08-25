@@ -48,7 +48,7 @@ The host menu describes the affected surfaces:
 - OpenCode — Terminal · Desktop app · GitHub Action
 - Codex — Terminal · Desktop app
 - Claude Code — Terminal · Desktop app (Code tab)
-- GitHub Copilot — Terminal · Desktop app (one manual step)
+- GitHub Copilot — Terminal · Desktop app
 
 Select machine configuration directly with `--shell`, `--editor`, `--terminal`,
 or `--all-machine`. A direct target applies immediately; add `--dry-run` for a
@@ -71,18 +71,12 @@ backpack install cockpit --opencode --replace
 Local providers, models, tokens, endpoints, and client policies belong in the
 machine-local OpenCode configuration and must not be committed to Backpack.
 
-## GitHub Copilot App
+## GitHub Copilot
 
-Copilot CLI instructions and shared skills are installed automatically. The
-desktop app requires one manual step because its global instructions are stored
-in the app. Backpack copies the instructions to the clipboard and shows the
-destination after installation. Copy them again with:
-
-```sh
-sh bootstrap/copilot-app-instructions.sh --copy
-```
-
-Paste it in GitHub Copilot App → Settings → General → Global instructions.
+Copilot discovers `~/.copilot/copilot-instructions.md` automatically in the CLI
+and desktop app. Backpack also installs RTK's user-level hook under
+`~/.copilot/hooks/`, so compatible shell commands are rewritten before they run.
+No in-app copy-paste is required.
 
 ## Choosing a skill set
 
@@ -117,7 +111,7 @@ Cockpit uses shared workflow and skill sources with thin host adapters:
 ```txt
 ~/.codex/AGENTS.md
 ~/.copilot/copilot-instructions.md
-~/.copilot/instructions/backpack.instructions.md
+~/.copilot/hooks/rtk-rewrite.json
 ~/.config/opencode/AGENTS.md
 ~/.claude/rules/backpack.md
 ~/.agents/skills/

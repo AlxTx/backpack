@@ -26,6 +26,7 @@ state 'OpenCode' "$CONFIG_DIR/opencode/AGENTS.md"
 state 'Codex' "$BACKPACK_CODEX_DIR/AGENTS.md"
 state 'Claude Code' "$BACKPACK_CLAUDE_DIR/rules/backpack.md"
 state 'GitHub Copilot' "$BACKPACK_COPILOT_DIR/copilot-instructions.md"
+state 'Copilot RTK hook' "$BACKPACK_COPILOT_DIR/hooks/rtk-rewrite.json"
 state 'Shared skills' "$BACKPACK_AGENTS_DIR/skills"
 
 printf '\nThis Mac\n'

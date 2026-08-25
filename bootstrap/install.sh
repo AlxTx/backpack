@@ -326,7 +326,7 @@ gum_choose_cockpit_target() {
     'OpenCode        Terminal · Desktop app · GitHub Action' \
     'Codex           Terminal · Desktop app' \
     'Claude Code     Terminal · Desktop app (Code tab)' \
-    'GitHub Copilot  Terminal · Desktop app (one manual step)' \
+    'GitHub Copilot  Terminal · Desktop app' \
     'All supported tools' \
     'Back') || {
       warn 'Install cancelled. No changes were made.'
@@ -503,7 +503,7 @@ Where do you want to use Cockpit?
   1  OpenCode        Terminal · Desktop app · GitHub Action
   2  Codex           Terminal · Desktop app
   3  Claude Code     Terminal · Desktop app (Code tab)
-  4  GitHub Copilot  Terminal · Desktop app (one manual step)
+  4  GitHub Copilot  Terminal · Desktop app
   5  All supported tools
   b  Back
 
@@ -778,6 +778,52 @@ configure_rtk_claude() {
   fi
 }
 
+configure_rtk_copilot() {
+  if [ "$APPLY" -eq 0 ]; then
+    detail 'configure RTK GitHub Copilot hook'
+    return
+  fi
+
+  rtk_temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/backpack-rtk-copilot.XXXXXX") || {
+    warn 'could not create a temporary directory for the RTK Copilot hook'
+    return
+  }
+
+  if HOME="$rtk_temp_dir" COPILOT_HOME="$rtk_temp_dir/.copilot" \
+    rtk init -g --copilot --auto-patch >/dev/null 2>&1 && \
+    [ -f "$rtk_temp_dir/.copilot/hooks/rtk-rewrite.json" ]; then
+    if mkdir -p "$BACKPACK_COPILOT_DIR/hooks" && \
+      cp "$rtk_temp_dir/.copilot/hooks/rtk-rewrite.json" \
+        "$BACKPACK_COPILOT_DIR/hooks/rtk-rewrite.json"; then
+      detail_success 'RTK GitHub Copilot hook configured'
+    else
+      warn 'could not write the RTK GitHub Copilot hook; shared shell rules remain active'
+    fi
+  else
+    warn 'could not configure the RTK GitHub Copilot hook; shared shell rules remain active'
+  fi
+
+  rm -rf "$rtk_temp_dir"
+}
+
+remove_legacy_copilot_instruction() {
+  legacy_path="$BACKPACK_COPILOT_DIR/instructions/backpack.instructions.md"
+  canonical_source="$BACKPACK_ROOT/cockpit/portable/AGENTS.md"
+
+  if [ "$APPLY" -eq 0 ]; then
+    [ -e "$legacy_path" ] || [ -L "$legacy_path" ] || return 0
+    detail "remove duplicate Copilot instructions at $legacy_path"
+    return
+  fi
+
+  if [ -L "$legacy_path" ] && [ "$(readlink "$legacy_path")" = "$canonical_source" ]; then
+    rm "$legacy_path"
+    detail_success "removed duplicate Copilot instructions at $legacy_path"
+  elif [ -e "$legacy_path" ] || [ -L "$legacy_path" ]; then
+    warn "preserving non-Backpack Copilot instructions at $legacy_path"
+  fi
+}
+
 update_opencode_core() {
   source_root=$1
   target_root=$2
@@ -910,34 +956,6 @@ print_client_reminder() {
   fi
 }
 
-print_copilot_app_reminder() {
-  [ "$APPLY" -eq 0 ] || return 0
-
-  case "$INSTALL_TARGET" in
-    ai|copilot|all)
-      cat <<EOF
-
-GitHub Copilot App: one manual paste remains after installation.
-EOF
-      ;;
-  esac
-}
-
-print_copilot_app_instructions() {
-  case "$INSTALL_TARGET" in
-    ai|copilot|all)
-      printf '\n'
-      if command -v pbcopy >/dev/null 2>&1; then
-        "$SCRIPT_DIR/copilot-app-instructions.sh" --copy
-      else
-        warn 'pbcopy is unavailable; Copilot App instructions were not copied.'
-        printf 'Run this command on macOS, then paste the result manually:\n'
-        printf '  sh %s\n' "$SCRIPT_DIR/copilot-app-instructions.sh"
-      fi
-      ;;
-  esac
-}
-
 run_doctor() {
   BACKPACK_DOCTOR_QUIET=1 BACKPACK_ROOT=$BACKPACK_ROOT "$SCRIPT_DIR/doctor.sh"
   success 'Backpack health check passed'
@@ -963,7 +981,7 @@ target_surface() {
     opencode) printf 'Terminal · Desktop app · GitHub Action' ;;
     codex) printf 'Terminal · Desktop app' ;;
     claude) printf 'Terminal · Desktop app (Code tab)' ;;
-    copilot) printf 'Terminal · Desktop app (one manual step)' ;;
+    copilot) printf 'Terminal · Desktop app' ;;
     ai) printf 'All supported terminal and desktop surfaces' ;;
     shell) printf 'Fish · Starship' ;;
     editor) printf 'Neovim' ;;
@@ -981,7 +999,7 @@ print_completion() {
       ;;
     copilot)
       success 'Cockpit for GitHub Copilot installed'
-      printf 'Restart the CLI; complete the manual app step below.\n'
+      printf 'Restart GitHub Copilot to activate it.\n'
       ;;
     ai)
       success 'Cockpit installed for all supported tools'
@@ -1015,6 +1033,7 @@ EOF
         install_rtk
         install_opencode_rtk_plugin
         configure_rtk_claude
+        configure_rtk_copilot
         ;;
       codex)
         install_rtk
@@ -1022,6 +1041,10 @@ EOF
       claude)
         install_rtk
         configure_rtk_claude
+        ;;
+      copilot)
+        install_rtk
+        configure_rtk_copilot
         ;;
       opencode)
         install_rtk
@@ -1055,14 +1078,14 @@ EOF
       ;;
     copilot)
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_COPILOT_DIR/copilot-instructions.md"
-      link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_COPILOT_DIR/instructions/backpack.instructions.md"
+      remove_legacy_copilot_instruction
       install_portable_skills "$BACKPACK_AGENTS_DIR/skills"
       ;;
     ai|all)
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$CONFIG_DIR/opencode/AGENTS.md"
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_CODEX_DIR/AGENTS.md"
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_COPILOT_DIR/copilot-instructions.md"
-      link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_COPILOT_DIR/instructions/backpack.instructions.md"
+      remove_legacy_copilot_instruction
       install_portable_skills "$BACKPACK_AGENTS_DIR/skills"
       install_claude_adapter
       ;;
@@ -1092,7 +1115,6 @@ EOF
   esac
 
   print_client_reminder
-  print_copilot_app_reminder
 }
 
 if [ "$DIRECT_APPLY" -eq 0 ]; then
@@ -1117,7 +1139,6 @@ if [ "$DIRECT_APPLY" -eq 1 ]; then
   run_plan
   printf '\n'
   print_completion
-  print_copilot_app_instructions
   if [ -d "$backup_dir" ]; then
     printf 'Backups: %s\n' "$backup_dir"
   fi
