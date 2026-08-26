@@ -2,7 +2,7 @@
 
 Adaptateur OpenCode du workflow IA personnel. La doctrine et les skills
 canoniques vivent dans `cockpit/portable/`; ce dossier ne contient que les
-modes, prompts, commandes, permissions et defaults propres à OpenCode. Sur une
+agents, prompts, commandes, permissions et defaults propres à OpenCode. Sur une
 nouvelle machine, l'adaptateur est copié dans `~/.config/opencode/`, tandis que
 `AGENTS.md` et les skills partagés sont liés depuis Backpack. Les overrides
 provider/modèle restent dans `~/.config/opencode/opencode.json`, préservé lors
@@ -19,10 +19,10 @@ enseignements réutilisables.
 
 | Ma situation | J'utilise | Comment |
 |---|---|---|
-| Une idée floue, un arbitrage, choisir une archi (perso ou client), décider quoi faire | **interactive** | `Tab` → interactive |
+| Une idée floue, un arbitrage, choisir une archi (perso ou client), décider quoi faire | **build** ou **/brainstorm** | demande directement, ou tape `/brainstorm ...` pour une exploration read-only |
 | Mon prompt est long, ambigu ou répétitif | automatique | Cockpit laisse passer les prompts clairs, normalise sans risque, ou demande validation si le sens peut changer |
 | Je veux voir et contrôler explicitement la reformulation | **/refine** | tape `/refine ...`, vérifie la proposition, puis valide-la explicitement |
-| Besoin de contenu, parcours, page, UX/UI ou idée sans maquette | **design** ou **/design** | `Tab` → design, ou tape `/design ...` |
+| Besoin de contenu, parcours, page, UX/UI ou idée sans maquette | **build** ou **/design** | demande directement, ou tape `/design ...` pour isoler le contrat design |
 | Je débarque sur un codebase inconnu, je veux la carte des patterns existants | **/pattern-scan** | tape `/pattern-scan` (ou `/pattern-scan src/`) |
 | Préparer un changement sûr : inspecter, comparer, plan d'exécution | **plan** | `Tab` → plan |
 | Implémenter le changement validé | **build** | `Tab` → build |
@@ -42,18 +42,19 @@ enseignements réutilisables.
 
 ---
 
-## 🧠 Le modèle mental : 3 types d'objets
+## 🧠 Le modèle mental
 
 | Type | Ce que c'est | Comment j'y accède | Contexte |
 |---|---|---|---|
-| **Agent primaire** | une *phase* que je pilote | `Tab` pour switcher | partagé (ma conversation) |
-| **Command contextuelle** | une *action* qui doit garder le contrat courant | `/nom` | partagé (ma conversation) |
-| **Subagent** | une *lentille* isolée à laquelle l'orchestrateur transmet un contrat explicite | délégation | isolé (jetable) |
+| **Agent primaire** | une posture durable et son enveloppe de permissions | `Tab` pour switcher | partagé (ma conversation) |
+| **Command** | une recette nommée et répétable | `/nom` | courant ou agent déclaré |
+| **Skill** | un savoir-faire chargé à la demande | automatique | ajouté à l'agent actif |
+| **Subagent** | un spécialiste auquel le primaire délègue un contrat borné | automatique ou `@nom` | enfant isolé |
+| **Auto** | l'approbation automatique des permissions `ask` | palette/CLI OpenCode | ne change ni agent ni workflow |
 
-Règle : **phase récurrente que je conduis = agent primaire**. **Porte de
-livraison ou apprentissage qui dépend de la conversation = command contextuelle**.
-**Lentille indépendante = subagent avec un contrat explicite transmis par son
-parent.**
+Règle : **posture durable ou permissions propres = agent primaire**. **Recette
+répétable = command**. **Expertise injectée = skill**. **Contexte ou verdict
+indépendant = subagent**. `auto` ne contourne jamais un `deny` explicite.
 
 ---
 
@@ -63,30 +64,29 @@ parent.**
 
 | Agent | Rôle | Modèle | Écrit ? |
 |---|---|---|---|
-| **interactive** | Cadrer, challenger, comparer, décider. Ne lit **pas** le code (c'est volontaire : altitude décision). | Profil local | ❌ read-only |
-| **design** | Cadrer contenu, parcours, UX/UI ou idée sans maquette dans le contexte courant. | Profil local | ❌ read-only |
 | **plan** | Inspecter en read-only, produire un plan d'exécution. Pattern Radar obligatoire. | Profil local | ❌ read-only |
-| **build** | Implémenter le plan, diffs minimaux, validation ciblée. | Profil local | ✅ edit autorisé |
+| **build** | Agent par défaut : discuter, diagnostiquer, planifier proportionnellement, implémenter si autorisé et valider. | Profil local | ✅ edit autorisé |
 
-Flux par défaut : **interactive → plan → build → /validate**. Pour du contenu,
-parcours, page, UX/UI ou une UI sans maquette : **design → build → /validate**.
-`/design` est un raccourci vers l'agent primaire `design`, donc il garde le
-contexte de la conversation courante. Chaque agent recommande le suivant.
+Rester dans **build** pour le travail quotidien. Passer à **plan** uniquement
+pour garantir une posture de planification durable sans modification. Pour du
+contenu, parcours, page, UX/UI ou une UI sans maquette, `build` charge les skills
+adaptés ou `/design` isole explicitement le contrat design.
 Greenfield et brownfield suivent le même cycle, avec une stratégie différente.
 En greenfield solo, Cockpit établit progressivement le contrat produit/design et
 les premières conventions sans simuler une équipe absente. En brownfield, il
 inspecte et préserve les contrats existants.
 
-Note : `build` peut éditer les fichiers, mais les commandes shell restent en
-validation `ask` par défaut. C'est volontaire : moins de friction sur les diffs,
-garde-fou sur l'exécution.
+`build` peut éditer les fichiers, mais les commandes shell restent en validation
+`ask` par défaut. `plan` refuse les edits et le shell : OpenCode `auto` ne peut
+donc pas transformer une session Plan en session d'implémentation.
 
 ### Actions et subagents internes
 
 | Command / subagent | Rôle | Modèle | Écrit ? |
 |---|---|---|---|
+| **/brainstorm** → `plan` | Explore plusieurs options et recommande une direction sans implémenter. | Profil local | ❌ read-only |
 | **/refine** | Prépare une version clarifiée du prompt, montre l'original et les changements, puis s'arrête avant exécution. | Profil local | ❌ read-only |
-| **/design** → `design` | Façade content/UX/UI contextuelle : classe la demande en content-led, UI-led ou mixed, puis produit le bon contrat read-only. | Profil local | ❌ read-only |
+| **/design** → `product-design` | Isole un contrat content/UX/UI : classe la demande en content-led, UI-led ou mixed. | Profil local | ❌ read-only |
 | **/review** | Code Review stricte. Verdicts APPROVE / REQUEST CHANGES / ESCALATE. | Profil local | ❌ read-only |
 | **/qa** | Product QA contextuelle contre les exigences, parcours, états et comportements visibles. | Profil local | ❌ read-only |
 | **/validate** | Conserve le contrat courant, délègue `/review` et `/qa`, puis produit le statut RTS consolidé. | Profil local | ❌ read-only |
@@ -98,9 +98,9 @@ garde-fou sur l'exécution.
 |---|---|---|---|
 | **pattern-scan** | Cartographier les patterns (archi / JS / framework) d'un codebase inconnu. Contexte isolé. | Profil local | ❌ read-only |
 
-Lancé via `/pattern-scan`, le spécialiste devient l'agent actif de la session
-courante et reste read-only. Une délégation ou une invocation `@pattern-scan`
-crée, elle, une session enfant isolée.
+Lancé via `/pattern-scan`, par délégation ou avec `@pattern-scan`, le spécialiste
+travaille dans une session enfant isolée et read-only, puis rend sa carte à
+l'agent principal.
 
 ---
 
@@ -108,8 +108,9 @@ crée, elle, une session enfant isolée.
 
 | Command | Fait quoi | Dépend du mode ? |
 |---|---|---|
+| **/brainstorm** `[sujet]` | Explore trois options, leurs compromis et une recommandation dans l'enveloppe read-only de `plan`. | Non (épinglé à `plan`) |
 | **/refine** `[brouillon]` | Raffine le prompt en mode Safe, expose les changements et attend une validation explicite sans l'exécuter. | Non (contextuel) |
-| **/design** `[besoin]` | Produit le bon contrat content/UX/UI : audit contenu, architecture narrative, parcours, page ou UI code-first. Garde le contexte courant. | Non (agent primaire `design`) |
+| **/design** `[besoin]` | Produit le bon contrat content/UX/UI dans un sous-agent isolé. | Non (épinglé à `product-design`) |
 | **/pattern-scan** `[scope]` | Lance le subagent pattern-scan sur un dossier (défaut : tout le projet). | Non (épinglé) |
 | **/review** `[scope]` | Lance uniquement la Code Review technique en gardant le contexte courant. | Non (contextuel) |
 | **/qa** `[scope]` | Lance uniquement la Product QA fonctionnelle en gardant le contexte courant. | Non (contextuel) |
@@ -137,10 +138,10 @@ autorisation Git. `/learn` reste optionnel avant ou après cette instruction.
 
 Deux niveaux, séparés exprès :
 
-1. **Lentille (gratuite, automatique)** — le **Pattern Radar** tourne dans `plan`,
-   `/review` et `pattern-scan`. Il **nomme** chaque pattern avec son nom canonique
-   (le nom est le but : c'est ce que je retiens et vais chercher). Il juge sa
-   propre pertinence (« rien de notable » plutôt qu'inventer).
+1. **Lentille (gratuite, automatique)** — le **Pattern Radar** tourne dans `plan`
+   et `/review`. Le subagent `pattern-scan` charge le skill portable du même nom,
+   qui possède son contrat de cartographie. Chaque lentille **nomme** les patterns
+   avec leur nom canonique et préfère « rien de notable » à une invention.
 2. **Learn (volontaire)** — `/learn` fait la rétrospective et décide si une
    connaissance mérite d'être codifiée.
 3. **Capture (primitive)** — `/capture` enregistre un pattern déjà établi lorsque
@@ -178,11 +179,13 @@ agents/
   qa.md validate.md      # Product QA et porte de livraison RTS
   learn.md                # rétrospective et capitalisation
 prompts/
-  pattern-radar.md       # bloc Pattern Radar partagé (plan / review / pattern-scan)
-  interactive.md product-design.md plan.md build.md review.md pattern-scan.md
-                         # rôle de chaque agent primaire/subagent
+  pattern-radar.md       # format plan/review; no-op explicite pour pattern-scan
+  plan.md build.md review.md
+                         # contrats minces des agents primaires et de review
+  pattern-scan.md        # wrapper isolé vers le skill portable pattern-scan
 commands/
-  design.md              # /design → agent primaire design (contexte partagé)
+  brainstorm.md          # /brainstorm → plan read-only divergent
+  design.md              # /design → subagent product-design isolé
   refine.md              # /refine → prépare un prompt et attend validation
   capture.md             # /capture
   qa.md validate.md       # Product QA et porte de livraison RTS
@@ -232,7 +235,7 @@ Sur un PC client, ajoute les providers/modèles client directement dans
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "default_agent": "interactive",
+  "default_agent": "build",
   "model": "github-copilot/...",
   "small_model": "github-copilot/..."
 }

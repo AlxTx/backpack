@@ -2,20 +2,19 @@
 
 Mental model:
 
-- `Tab` changes the current primary mode: interactive, design, plan,
-  build.
+- `Tab` changes the current primary agent: build or plan.
 - `/command` runs a prepared action.
 - A pinned command uses its declared agent and does not depend on the current mode.
 - A subagent is an isolated specialist used for one task.
-- Built-in agents are fallback tools, not the main cockpit.
+- OpenCode `auto` changes permission approval only; it is not an agent or phase.
 
 Current cockpit:
 
 ```txt
-Interactive -> clarify, challenge, decide next step
-Design      -> frame content, journeys, UX/UI, or no-mockup ideas
-Plan        -> inspect read-only and prepare execution
-Build       -> execute scoped changes end-to-end
+Build       -> default work: discuss, diagnose, plan proportionally, implement, validate
+Plan        -> sustained read-only planning with edits and shell denied
+Brainstorm  -> /brainstorm runs a divergent read-only recipe through Plan
+Design      -> /design delegates an isolated product-design contract
 Validate    -> /validate runs Code Review + Product QA in read-only mode
 Learn       -> /learn reflects, extracts, and codifies reusable knowledge
 ```
@@ -24,8 +23,8 @@ These controls implement one delivery lifecycle rather than separate competing
 workflows:
 
 ```txt
-Plan     -> interactive + design + plan
-Build    -> build with narrow iteration checks
+Plan     -> explicit primary posture, or /brainstorm for divergent exploration
+Build    -> default agent with automatic skill/subagent routing
 Validate -> /review + /qa -> consolidated RTS status
 Learn    -> /learn; /capture remains the low-level persistence primitive
 ```
@@ -58,3 +57,7 @@ implementation and routine execution.
 Future guardrail idea: show active agent permission badges in OpenCode UI, e.g.
 `NO-IO`, `READ · SH?`, or `WRITE · SH?`. See
 [`opencode-permission-badges.md`](opencode-permission-badges.md).
+
+Future progress UX: render Cockpit phase, current activity, and optional active
+skill as a compact terminal-style status block. See
+[`cockpit-progress-surface.md`](cockpit-progress-surface.md).

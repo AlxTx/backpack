@@ -83,12 +83,47 @@ ok "product-design agent exists"
 test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/design.md" || fail "missing OpenCode design command"
 ok "design command exists"
 
+test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/brainstorm.md" || fail "missing OpenCode brainstorm command"
+grep -q '^agent: plan$' "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/brainstorm.md" ||
+  fail "OpenCode brainstorm command must use the read-only plan agent"
+ok "brainstorm command uses plan"
+
+grep -A 2 '^agent: product-design$' "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/design.md" | grep -q '^subtask: true$' ||
+  fail "OpenCode design command must delegate an isolated product-design subtask"
+grep -A 2 '^agent: pattern-scan$' "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/pattern-scan.md" | grep -q '^subtask: true$' ||
+  fail "OpenCode pattern-scan command must delegate an isolated subtask"
+
 test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/refine.md" || fail "missing OpenCode refine command"
 test -f "$BACKPACK_ROOT/cockpit/portable/skills/prompt-refinement/SKILL.md" || fail "missing portable prompt-refinement skill"
 ok "safe prompt refinement capability exists"
 
-test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/prompts/product-design.md" || fail "missing OpenCode design primary prompt"
-ok "design primary prompt exists"
+for prompt in plan build review; do
+  grep -q 'global `AGENTS.md`' "$BACKPACK_ROOT/cockpit/adapters/opencode/prompts/$prompt.md" ||
+    fail "OpenCode $prompt prompt must delegate shared doctrine to global AGENTS.md"
+done
+grep -q '"default_agent": "build"' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" ||
+  fail "OpenCode build must be the default primary agent"
+grep -A 18 '"plan": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" | grep -q '"\*": "deny"' ||
+  fail "OpenCode plan must hard-deny shell so auto-approve remains read-only"
+if grep -q '"interactive": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" ||
+   grep -q '"design": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json"; then
+  fail "OpenCode must expose only build and plan as custom primary agents"
+fi
+grep -A 5 '"general": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" | grep -q 'openai/gpt-5.6-terra' ||
+  fail "OpenCode general subagent must use the balanced model tier"
+grep -A 5 '"explore": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" | grep -q 'openai/gpt-5.6-luna' ||
+  fail "OpenCode explore subagent must use the fast model tier"
+grep -A 6 '"general": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" | grep -q '"description":' ||
+  fail "OpenCode general subagent needs a delegation description"
+grep -A 6 '"explore": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" | grep -q '"description":' ||
+  fail "OpenCode explore subagent needs a delegation description"
+grep -q '^model: openai/gpt-5.6-sol$' "$BACKPACK_ROOT/cockpit/adapters/opencode/agents/product-design.md" ||
+  fail "OpenCode product-design must use the frontier model tier"
+grep -q 'portable `pattern-scan` skill' "$BACKPACK_ROOT/cockpit/adapters/opencode/prompts/pattern-scan.md" ||
+  fail "OpenCode pattern-scan must delegate its contract to the portable skill"
+grep -q 'portable `pattern-scan` skill is the' "$BACKPACK_ROOT/cockpit/adapters/opencode/prompts/pattern-radar.md" ||
+  fail "OpenCode Pattern Radar adapter must defer scans to the portable skill"
+ok "OpenCode prompts stay thin around portable doctrine"
 
 for capability in qa validate learn; do
   test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/agents/$capability.md" || fail "missing OpenCode $capability agent"

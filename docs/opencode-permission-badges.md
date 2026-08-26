@@ -8,8 +8,8 @@ OpenCode shows the active model, but the current agent's effective risk level is
 not visible enough. In this Backpack workflow, switching agent changes what the
 assistant can do:
 
-- `interactive` should not touch project files or shell;
-- `design`, `plan`, and `review` should inspect only;
+- `plan` should inspect only and deny shell so auto-approve remains safe;
+- `review` and other specialist lenses should inspect only;
 - `build` can edit files.
 
 The UI should make that difference visible at a glance.
@@ -22,10 +22,8 @@ GUI.
 Examples:
 
 ```txt
-interactive | gpt-5.6-terra | NO-IO
-design      | gpt-5.6-sol   | READ · SH?
-plan        | gpt-5.6-sol   | READ · SH?
-build       | gpt-5.6-luna  | WRITE · SH?
+plan        | gpt-5.6-sol   | READ
+build       | gpt-5.6-terra | WRITE · SH?
 review      | gpt-5.6-sol   | READ · SH?
 ```
 
@@ -92,12 +90,11 @@ Expected badges for the current Backpack agents:
 
 | Agent | Expected badge |
 |---|---|
-| `interactive` | `NO-IO` |
-| `design` | `READ · SH?` |
-| `plan` | `READ · SH?` |
+| `plan` | `READ` |
 | `build` | `WRITE · SH?` |
 | `review` | `READ · SH?` |
-| `pattern-scan` | `READ · SH?` |
+| `product-design` | `READ` |
+| `pattern-scan` | `READ` |
 
 ## Current feasibility
 
@@ -144,9 +141,7 @@ Reduction rules:
 - `bash=deny` is hidden in compact view.
 
 Examples:
-- `interactive | model | NO-IO`
-- `design | model | READ · SH?`
-- `plan | model | READ · SH?`
+- `plan | model | READ`
 - `build | model | WRITE · SH?`
 
 The feature should expose semantic data so each surface can render appropriately:

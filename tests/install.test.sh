@@ -30,4 +30,44 @@ test -L "$TEST_HOME/.local/bin/backpack" || {
   exit 1
 }
 
+test -L "$TEST_HOME/.config/opencode/AGENTS.md" || {
+  printf '✗ OpenCode install did not link the portable doctrine\n' >&2
+  exit 1
+}
+
+grep -q 'portable `pattern-scan` skill' "$TEST_HOME/.config/opencode/prompts/pattern-scan.md" || {
+  printf '✗ OpenCode pattern-scan did not delegate to the portable skill\n' >&2
+  exit 1
+}
+
+grep -q 'portable `pattern-scan` skill is the' "$TEST_HOME/.config/opencode/prompts/pattern-radar.md" || {
+  printf '✗ OpenCode Pattern Radar adapter does not defer to the portable scan contract\n' >&2
+  exit 1
+}
+
+grep -q '^agent: plan$' "$TEST_HOME/.config/opencode/commands/brainstorm.md" || {
+  printf '✗ OpenCode brainstorm command is not pinned to plan\n' >&2
+  exit 1
+}
+
+grep -q '^agent: product-design$' "$TEST_HOME/.config/opencode/commands/design.md" || {
+  printf '✗ OpenCode design command does not delegate to product-design\n' >&2
+  exit 1
+}
+
+grep -A 2 '^agent: product-design$' "$TEST_HOME/.config/opencode/commands/design.md" | grep -q '^subtask: true$' || {
+  printf '✗ OpenCode design command is not isolated as a subtask\n' >&2
+  exit 1
+}
+
+grep -A 2 '^agent: pattern-scan$' "$TEST_HOME/.config/opencode/commands/pattern-scan.md" | grep -q '^subtask: true$' || {
+  printf '✗ OpenCode pattern-scan command is not isolated as a subtask\n' >&2
+  exit 1
+}
+
+grep -q '^model: openai/gpt-5.6-sol$' "$TEST_HOME/.config/opencode/agents/product-design.md" || {
+  printf '✗ OpenCode product-design model routing is not explicit\n' >&2
+  exit 1
+}
+
 printf '✓ interactive Cockpit install contract\n'

@@ -1,6 +1,7 @@
 ---
 description: Map the existing patterns/anti-patterns of a codebase (architecture, JS, framework). Run at the start of a mission, on an unfamiliar project.
 agent: pattern-scan
+subtask: true
 ---
 
 Scan the patterns of: $ARGUMENTS
