@@ -35,7 +35,7 @@ the installation mapping when the host directly consumes the portable files.
 
 | Host | CLI/Desktop coverage | Shared guidance | Cockpit core | Adapter-only concerns |
 |---|---|---|---|---|
-| Codex | Same portable files in CLI and desktop app | `~/.codex/AGENTS.md` | `~/.agents/skills` | models, plugins, MCP |
+| Codex | Same portable files in CLI and desktop app | `~/.codex/AGENTS.md` | `~/.agents/skills` | read-only Review/QA agents; personal models, plugins, MCP |
 | GitHub Copilot | CLI and desktop app use the same personal instructions and RTK hook | `~/.copilot/copilot-instructions.md` | `~/.agents/skills` | account, organization policies, repository instructions |
 | OpenCode | Same configuration in CLI, TUI, desktop app, and GitHub Action | `~/.config/opencode/AGENTS.md` | `~/.agents/skills` | agents, commands, permissions, provider/model |
 | Claude Code | CLI and Desktop Code tab share local configuration | `~/.claude/rules/backpack.md` | `~/.claude/skills` | subagents, hooks, permissions, provider/model |
@@ -50,6 +50,15 @@ the client repository.
 OpenCode keeps richer phase switching because its primary-agent model makes it
 useful. Those modes are an interface over the common workflow, not a second
 source of doctrine.
+
+All compatible hosts expose portable skills as the single public surface for
+shared capabilities. They do not add aliases such as `/validate` or duplicate
+wrapper agents around `cockpit-validate`, `cockpit-learn`,
+`cockpit-start-work`, `pattern-scan`, `pattern-capture`, or `prompt-refinement`.
+The Codex adapter adds only the two read-only agents that
+make Code Review and Product QA independently inspectable in the native subagent
+UI. Plan and Build continue to use Codex's native mode and conversation instead
+of duplicating host controls.
 
 ## Token discipline
 
@@ -75,8 +84,8 @@ conflicting, or repetitive prompts. Clear actionable prompts bypass it.
 Meaning-preserving cleanup can flow directly into execution without adding a
 conversation turn. If a rewrite could change intent, scope, requirements,
 acceptance criteria, or permissions, Cockpit preserves the original, shows the
-proposal and changes, then waits for explicit validation. An explicit `/refine`
-request always uses this review path. Safe mode preserves detail by default;
+proposal and changes, then waits for explicit validation. An explicit
+`prompt-refinement` invocation always uses this review path. Safe mode preserves detail by default;
 compact mode is opt-in.
 
 The agent-level preflight does not guarantee token savings because the original
@@ -87,8 +96,8 @@ prevents short clear prompts from paying this overhead.
 
 This is not measured prompt optimization. Calling a prompt “optimized” requires
 representative cases, explicit success criteria, and comparative evaluation.
-OpenCode exposes `/refine` as a shortcut; other hosts use the shared skill
-directly.
+Every host uses the shared `prompt-refinement` skill directly; no adapter adds a
+second shortcut for it.
 
 ## Visible execution context
 
@@ -158,9 +167,10 @@ backpack install cockpit --copilot
 backpack install cockpit --opencode
 ```
 
-The installer links canonical files, so edits in Backpack become visible after
-starting a new host session. OpenCode's local `opencode.json` is preserved on
-adapter updates.
+The installer replaces every selected Backpack-managed path from its canonical
+source, so edits in Backpack become visible after starting a new host session.
+OpenCode is copied as one full adapter; other hosts use canonical links. Every
+replaced local path is moved into a recovery backup first.
 
 ## Boundaries
 

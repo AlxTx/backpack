@@ -87,6 +87,15 @@ Small, explicit, low-risk work may compress the loop into inspect, change,
 targeted validation, and a short handoff. Add structure only when uncertainty,
 multiple evidence sources, dependencies, or risk justify it.
 
+Keep planning depth separate from reporting length. Inspect as deeply as risk
+requires, then use progressive disclosure in the user-facing plan: lead with the
+delivery status and recommendation, report only material evidence, and avoid
+repeating the same fact across findings, steps, validation, and risks. Default to
+a compact execution plan; add a ledger or deeper appendix only when complexity
+or a user request justifies it. When a required repository, contract, decision,
+or owner is missing, return `DEPENDENCY PENDING` or `DECISION NEEDED` early and
+do not manufacture detailed downstream steps from unavailable evidence.
+
 ## Control requirements and decisions
 
 For ambiguous, multi-source, integration-heavy, or high-risk feature work,
@@ -373,7 +382,14 @@ Cockpit › <phase> · <immediate next action>
   Cockpit › <phase> · [Integration] <name>
   ```
 
-- Never duplicate an activation already rendered natively by the host.
+- When the host is known to render an activation from the tool call itself,
+  invoke it without a preceding fallback announcement. In particular, Codex
+  desktop already renders skills, subagents, plugins, integrations, and tool
+  activity natively; keep only the phase status and let those events carry the
+  capability detail.
+- Never duplicate an activation already rendered natively by the host, and do
+  not add prose that merely restates the names or obvious roles visible in the
+  native event. Explain only a material scope, permission, dependency, or result.
 - Use `›` only for hierarchy (`Cockpit → phase`) and `·` to introduce the current
   action or capability event. Put capability types in square brackets so they
   remain scannable without adding another hierarchy level.

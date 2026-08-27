@@ -25,7 +25,7 @@ alias @fishconfig='cd "$BACKPACK_ROOT/dotfiles/fish" && nvim'
 alias @nvimconfig='cd "$BACKPACK_ROOT/dotfiles/nvim" && nvim'
 alias @karabinerconfig='cd "$BACKPACK_ROOT/dotfiles/karabiner" && nvim'
 
-if status is-interactive; and test -d "$WORKSPACE"
+if status is-interactive; and test "$PWD" = "$HOME"; and test -d "$WORKSPACE"
     cd "$WORKSPACE"
 end
 

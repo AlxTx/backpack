@@ -10,7 +10,7 @@ model families without rewriting the engineering contract.
 | Product/content/UX design judgment | Frontier | `gpt-5.6-sol` | `high` |
 | Implement an approved, well-specified change | Fast | `gpt-5.6-luna` | `medium` |
 | Review correctness or meaningful regression risk | Frontier | `gpt-5.6-sol` | `high` |
-| Consolidate Code Review and Product QA | Frontier | `gpt-5.6-sol` | `high` |
+| Consolidate Code Review and Product QA | Balanced | `gpt-5.6-terra` | `medium` |
 | Product QA or knowledge codification | Balanced | `gpt-5.6-terra` | `medium` |
 | Pattern scan / unfamiliar-code orientation | Balanced | `gpt-5.6-terra` | `medium` |
 | Classification, extraction, routing, background automation | Fast | `gpt-5.6-luna` | `low` or `medium` |
@@ -22,14 +22,11 @@ gain; do not make them global defaults.
 
 ## Host mapping
 
-- **OpenCode** maps each primary agent to a concrete model in
-  `cockpit/adapters/opencode/opencode.json`. Its broad default `build` agent uses
-  Terra/medium because it covers discussion, diagnosis, implementation, and
-  validation rather than only settled execution. `plan`, `review`, `validate`,
-  and `product-design` use Sol/high; `general`, Product QA, Learn, and pattern
-  scanning use Terra/medium; native `explore` uses Luna/medium for bounded
-  high-volume discovery. Luna remains the starting tier for future commands or
-  agents dedicated to settled routine execution.
+- **OpenCode** deliberately leaves every primary agent and subagent unpinned.
+  The model selected in the current session is therefore inherited through
+  Plan, Build, Validate, Code Review, Product QA, Learn, design, exploration,
+  and pattern scanning. The semantic tiers above remain recommendations for a
+  deliberate session-level switch, never hidden provider routing.
 - **Codex** uses Terra/medium as the recommended everyday thread default. Select
   Sol/high for planning or review threads and Luna/medium for a thread executing
   a settled plan when latency or quota matters.

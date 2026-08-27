@@ -32,7 +32,7 @@ Otherwise choose one flow:
   missing product decisions, uncertain scope, changed acceptance criteria, or
   permissions that could be broadened. Return the review surface and stop for
   validation before executing the task.
-- **Explicit refinement** — when the user invokes the skill, `/refine`, or asks
+- **Explicit refinement** — when the user invokes the skill or asks
   only to rewrite or optimize a prompt, always return the review surface and do
   not execute the described task.
 

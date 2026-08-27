@@ -71,11 +71,23 @@ for adapter in codex claude copilot opencode; do
 done
 ok "all host adapters are documented"
 
+for agent in cockpit-code-review cockpit-product-qa; do
+  test -f "$BACKPACK_ROOT/cockpit/adapters/codex/agents/$agent.toml" ||
+    fail "missing Codex $agent agent"
+  grep -q '^sandbox_mode = "read-only"$' "$BACKPACK_ROOT/cockpit/adapters/codex/agents/$agent.toml" ||
+    fail "Codex $agent agent must be read-only"
+done
+ok "Codex validation agents exist and are read-only"
+
 test -d "$BACKPACK_ROOT/cockpit/adapters/claude/agents" || fail "missing Claude adapter agents"
-for agent in plan build review qa validate learn design pattern-scan; do
+for agent in plan build review qa design; do
   test -f "$BACKPACK_ROOT/cockpit/adapters/claude/agents/$agent.md" || fail "missing Claude $agent agent"
 done
-ok "Claude adapter agents exist"
+for duplicate in validate learn pattern-scan; do
+  test ! -e "$BACKPACK_ROOT/cockpit/adapters/claude/agents/$duplicate.md" ||
+    fail "Claude must use the portable $duplicate capability instead of a duplicate agent"
+done
+ok "Claude exposes one surface per Cockpit capability"
 
 test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/agents/product-design.md" || fail "missing OpenCode product-design agent"
 ok "product-design agent exists"
@@ -90,10 +102,7 @@ ok "brainstorm command uses plan"
 
 grep -A 2 '^agent: product-design$' "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/design.md" | grep -q '^subtask: true$' ||
   fail "OpenCode design command must delegate an isolated product-design subtask"
-grep -A 2 '^agent: pattern-scan$' "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/pattern-scan.md" | grep -q '^subtask: true$' ||
-  fail "OpenCode pattern-scan command must delegate an isolated subtask"
 
-test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/refine.md" || fail "missing OpenCode refine command"
 test -f "$BACKPACK_ROOT/cockpit/portable/skills/prompt-refinement/SKILL.md" || fail "missing portable prompt-refinement skill"
 ok "safe prompt refinement capability exists"
 
@@ -109,27 +118,29 @@ if grep -q '"interactive": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode
    grep -q '"design": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json"; then
   fail "OpenCode must expose only build and plan as custom primary agents"
 fi
-grep -A 5 '"general": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" | grep -q 'openai/gpt-5.6-terra' ||
-  fail "OpenCode general subagent must use the balanced model tier"
-grep -A 5 '"explore": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" | grep -q 'openai/gpt-5.6-luna' ||
-  fail "OpenCode explore subagent must use the fast model tier"
+if grep -Eq '"(model|small_model)"[[:space:]]*:' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" ||
+   grep -REq '^(model|variant):' "$BACKPACK_ROOT/cockpit/adapters/opencode/agents"; then
+  fail "OpenCode agents must inherit the current session model and provider"
+fi
+test "$(grep -c '"cockpit-\*": "allow"' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json")" -ge 2 ||
+  fail "OpenCode must allow trusted Cockpit skills globally and from build"
 grep -A 6 '"general": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" | grep -q '"description":' ||
   fail "OpenCode general subagent needs a delegation description"
 grep -A 6 '"explore": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" | grep -q '"description":' ||
   fail "OpenCode explore subagent needs a delegation description"
-grep -q '^model: openai/gpt-5.6-sol$' "$BACKPACK_ROOT/cockpit/adapters/opencode/agents/product-design.md" ||
-  fail "OpenCode product-design must use the frontier model tier"
-grep -q 'portable `pattern-scan` skill' "$BACKPACK_ROOT/cockpit/adapters/opencode/prompts/pattern-scan.md" ||
-  fail "OpenCode pattern-scan must delegate its contract to the portable skill"
-grep -q 'portable `pattern-scan` skill is the' "$BACKPACK_ROOT/cockpit/adapters/opencode/prompts/pattern-radar.md" ||
-  fail "OpenCode Pattern Radar adapter must defer scans to the portable skill"
 ok "OpenCode prompts stay thin around portable doctrine"
 
-for capability in qa validate learn; do
-  test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/agents/$capability.md" || fail "missing OpenCode $capability agent"
-  test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/$capability.md" || fail "missing OpenCode /$capability command"
+test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/agents/qa.md" || fail "missing OpenCode qa agent"
+test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/qa.md" || fail "missing OpenCode /qa command"
+for duplicate in validate learn start-work pattern-scan refine capture; do
+  test ! -e "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/$duplicate.md" ||
+    fail "OpenCode /$duplicate duplicates a portable skill"
 done
-ok "OpenCode validate and learn capabilities exist"
+for duplicate in validate learn; do
+  test ! -e "$BACKPACK_ROOT/cockpit/adapters/opencode/agents/$duplicate.md" ||
+    fail "OpenCode $duplicate agent duplicates a portable skill"
+done
+ok "OpenCode exposes one surface per Cockpit capability"
 
 for skill in brand-messaging website-content-architecture website-copywriting; do
   test -f "$BACKPACK_ROOT/cockpit/portable/skills/$skill/SKILL.md" || fail "missing portable $skill skill"
@@ -141,11 +152,11 @@ for retired_skill in code-first-product-design frontend-design design-quality-st
 done
 ok "Impeccable has no competing Backpack UX/UI skills"
 
-for skill in pattern-scan pattern-capture; do
+for skill in pattern-scan pattern-capture cockpit-validate cockpit-learn cockpit-start-work; do
   test -f "$BACKPACK_ROOT/cockpit/portable/skills/$skill/SKILL.md" || fail "missing portable $skill skill"
 done
 test -x "$BACKPACK_ROOT/cockpit/portable/skills/pattern-capture/scripts/capture.sh" || fail "portable pattern capture script is not executable"
-ok "pattern learning skills exist"
+ok "portable workflow and pattern skills are the canonical user surfaces"
 
 for skill in vercel-react-best-practices vercel-composition-patterns; do
   test -f "$BACKPACK_ROOT/cockpit/portable/skills/$skill/SKILL.md" || fail "missing vendored $skill skill"

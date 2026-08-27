@@ -2,9 +2,9 @@
 
 ## Safe prompt refinement
 
-First slice implemented as the portable `prompt-refinement` skill, with an
-OpenCode `/refine` shortcut. Codex, Claude Code, and GitHub Copilot consume the
-same skill through their normal skill discovery.
+First slice implemented as the portable `prompt-refinement` skill. Every host
+consumes that single canonical capability through native skill discovery; no
+host-specific alias is maintained.
 
 Cockpit automatically preflights long, ambiguous, conflicting, or repetitive
 prompts while letting clear actionable prompts pass unchanged. It improves

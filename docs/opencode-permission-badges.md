@@ -22,9 +22,9 @@ GUI.
 Examples:
 
 ```txt
-plan        | gpt-5.6-sol   | READ
-build       | gpt-5.6-terra | WRITE · SH?
-review      | gpt-5.6-sol   | READ · SH?
+plan        | selected model | READ
+build       | selected model | WRITE · SH?
+review      | selected model | READ · SH?
 ```
 
 Do not show `READ` when `WRITE` is active; write access already implies the

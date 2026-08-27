@@ -25,7 +25,7 @@ DRY_RUN=0
 WITH_RTK=1
 TARGET_FLAG_COUNT=0
 PROFILE_FLAG_COUNT=0
-USAGE='Usage: backpack install [cockpit|machine|everything] [target] [--personal|--client] [--replace] [--dry-run]'
+USAGE='Usage: backpack install [cockpit|machine|everything] [target] [--personal|--client] [--dry-run]'
 
 case "${1:-}" in
   cockpit|machine|everything)
@@ -115,16 +115,6 @@ fi
 if [ "$INSTALL_COMPONENT" = everything ]; then
   INSTALL_TARGET=all
   TARGET_SET=1
-fi
-
-if [ "$REPLACE_EXISTING" -eq 1 ]; then
-  case "$INSTALL_TARGET" in
-    opencode|ai|all) ;;
-    *)
-      printf '✗ --replace only applies when installing Cockpit for OpenCode\n' >&2
-      exit 2
-      ;;
-  esac
 fi
 
 if [ "$TARGET_SET" -eq 1 ] && [ "$DRY_RUN" -eq 0 ]; then
@@ -535,31 +525,22 @@ copy_dir() {
   detail_success "copied $target_path"
 }
 
-copy_path_replace() {
+copy_path_with_backup() {
   source_path=$1
   target_path=$2
 
-  rm -rf "$target_path"
-  mkdir -p "$(dirname "$target_path")"
-  cp -R "$source_path" "$target_path"
-  detail_success "updated $target_path"
-}
-
-install_opencode_rtk_plugin() {
-  source_path=$BACKPACK_ROOT/cockpit/adapters/opencode/plugins/rtk.ts
-  target_path=$CONFIG_DIR/opencode/plugins/rtk.ts
-
-  if [ ! -f "$source_path" ]; then
-    printf '✗ missing OpenCode rtk plugin: %s\n' "$source_path" >&2
-    exit 1
-  fi
-
   if [ "$APPLY" -eq 0 ]; then
-    detail "install OpenCode rtk plugin at $target_path"
+    detail "replace $target_path from $source_path"
     return
   fi
 
-  copy_path_replace "$source_path" "$target_path"
+  if [ -e "$target_path" ] || [ -L "$target_path" ]; then
+    backup_existing "$target_path"
+  fi
+
+  mkdir -p "$(dirname "$target_path")"
+  cp -R "$source_path" "$target_path"
+  detail_success "updated $target_path"
 }
 
 skills_source_dir() {
@@ -623,8 +604,8 @@ install_core_skills() {
 
   [ "$APPLY" -eq 1 ] && mkdir -p "$skills_dest"
 
-  # Remove legacy Backpack-owned specialized skill links from the global catalogue. Real
-  # directories and links owned by another installer are preserved.
+  # Remove legacy Backpack-owned specialized skill links from the global catalogue.
+  # Non-core paths belong to other installers and stay outside this install map.
   for installed_path in "$skills_dest"/*; do
     [ -L "$installed_path" ] || continue
     installed_target=$(readlink "$installed_path")
@@ -659,20 +640,34 @@ install_claude_adapter() {
   fi
 
   if [ "$APPLY" -eq 0 ]; then
-    detail "link Claude rules, agents, and the Cockpit core into $BACKPACK_CLAUDE_DIR"
+    detail "replace Claude rules, agents, and the Cockpit core in $BACKPACK_CLAUDE_DIR"
     return
   fi
 
-  mkdir -p "$BACKPACK_CLAUDE_DIR/rules" "$BACKPACK_CLAUDE_DIR/agents"
+  mkdir -p "$BACKPACK_CLAUDE_DIR/rules"
   link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_CLAUDE_DIR/rules/backpack.md"
 
   install_core_skills "$BACKPACK_CLAUDE_DIR/skills"
 
-  for agent_path in "$source_root/agents"/*.md; do
-    agent_name=$(basename "$agent_path")
-    link_entry "$agent_path" "$BACKPACK_CLAUDE_DIR/agents/$agent_name"
-  done
+  link_entry "$source_root/agents" "$BACKPACK_CLAUDE_DIR/agents"
   detail_success "Claude adapter linked at $BACKPACK_CLAUDE_DIR"
+}
+
+install_codex_adapter() {
+  source_root=$BACKPACK_ROOT/cockpit/adapters/codex
+
+  if [ ! -d "$source_root/agents" ]; then
+    printf '✗ missing Codex adapter agents: %s\n' "$source_root/agents" >&2
+    exit 1
+  fi
+
+  link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_CODEX_DIR/AGENTS.md"
+  install_core_skills "$BACKPACK_AGENTS_DIR/skills"
+
+  for agent_file in "$source_root"/agents/*.toml; do
+    [ -f "$agent_file" ] || continue
+    link_entry "$agent_file" "$BACKPACK_CODEX_DIR/agents/$(basename "$agent_file")"
+  done
 }
 
 configure_rtk_claude() {
@@ -705,7 +700,7 @@ configure_rtk_copilot() {
     rtk init -g --copilot --auto-patch >/dev/null 2>&1 && \
     [ -f "$rtk_temp_dir/.copilot/hooks/rtk-rewrite.json" ]; then
     if mkdir -p "$BACKPACK_COPILOT_DIR/hooks" && \
-      cp "$rtk_temp_dir/.copilot/hooks/rtk-rewrite.json" \
+      copy_path_with_backup "$rtk_temp_dir/.copilot/hooks/rtk-rewrite.json" \
         "$BACKPACK_COPILOT_DIR/hooks/rtk-rewrite.json"; then
       detail_success 'RTK GitHub Copilot hook configured'
     else
@@ -728,61 +723,14 @@ remove_legacy_copilot_instruction() {
     return
   fi
 
-  if [ -L "$legacy_path" ] && [ "$(readlink "$legacy_path")" = "$canonical_source" ]; then
-    rm "$legacy_path"
+  if [ -e "$legacy_path" ] || [ -L "$legacy_path" ]; then
+    if [ -L "$legacy_path" ] && [ "$(readlink "$legacy_path")" = "$canonical_source" ]; then
+      rm "$legacy_path"
+    else
+      backup_existing "$legacy_path"
+    fi
     detail_success "removed duplicate Copilot instructions at $legacy_path"
-  elif [ -e "$legacy_path" ] || [ -L "$legacy_path" ]; then
-    warn "preserving non-Backpack Copilot instructions at $legacy_path"
   fi
-}
-
-update_opencode_core() {
-  source_root=$1
-  target_root=$2
-
-  if [ ! -d "$source_root" ]; then
-    printf '✗ missing source dir: %s\n' "$source_root" >&2
-    exit 1
-  fi
-
-  if [ ! -d "$target_root" ]; then
-    if [ "$APPLY" -eq 0 ]; then
-      detail "copy $source_root -> $target_root"
-      return
-    fi
-
-    copy_dir "$source_root" "$target_root"
-    return
-  fi
-
-  if [ "$APPLY" -eq 0 ]; then
-    detail "backup $target_root"
-    detail "update OpenCode core files without touching $target_root/opencode.json"
-    return
-  fi
-
-  backup_existing "$target_root"
-  mkdir -p "$target_root"
-
-  if [ -f "$LAST_BACKUP_PATH/opencode.json" ]; then
-    cp "$LAST_BACKUP_PATH/opencode.json" "$target_root/opencode.json"
-    detail_success "kept $target_root/opencode.json"
-  fi
-
-  # Keep machine-local extensions and dependencies that Backpack does not own.
-  for entry in package.json package-lock.json node_modules .claude; do
-    if [ -e "$LAST_BACKUP_PATH/$entry" ]; then
-      cp -R "$LAST_BACKUP_PATH/$entry" "$target_root/$entry"
-      detail_success "kept $target_root/$entry"
-    fi
-  done
-
-  for entry in agents prompts commands plugins themes README.md tui.json .gitignore; do
-    if [ -e "$source_root/$entry" ]; then
-      copy_path_replace "$source_root/$entry" "$target_root/$entry"
-    fi
-  done
-
 }
 
 link_entry() {
@@ -870,7 +818,7 @@ print_client_reminder() {
       ai|opencode|all)
         printf '%s\n' \
           '- Backpack installs the OpenCode adapter and links the shared AI core.' \
-          "- Edit $CONFIG_DIR/opencode/opencode.json locally for client LLM providers/models."
+          "- Client-only edits in $CONFIG_DIR/opencode are temporary and will be backed up, then replaced, by the next install."
         ;;
     esac
 
@@ -948,7 +896,7 @@ $(section 'Installation summary')
 
   Target    $(target_description)
   Surfaces  $(target_surface)
-  Action    Refresh managed files and links from this Backpack version
+  Action    Refresh links and replace selected adapters from this Backpack version
   Core      $(if target_uses_skills; then printf '%s workflow skill(s); specialized skills are project-local' "$(count_core_skills)"; else printf 'not applicable'; fi)
   Mode      $(if [ "$APPLY" -eq 1 ]; then printf 'applying'; elif [ "$DRY_RUN" -eq 1 ]; then printf 'dry run'; else printf 'awaiting confirmation'; fi)
 
@@ -961,7 +909,6 @@ EOF
     case "$INSTALL_TARGET" in
       ai|all)
         install_rtk
-        install_opencode_rtk_plugin
         configure_rtk_claude
         configure_rtk_copilot
         ;;
@@ -978,18 +925,17 @@ EOF
         ;;
       opencode)
         install_rtk
-        install_opencode_rtk_plugin
         ;;
     esac
   fi
 
+  if [ "$REPLACE_EXISTING" -eq 1 ]; then
+    warn '--replace is no longer needed; installs always replace Backpack-managed targets.'
+  fi
+
   case "$INSTALL_TARGET" in
     ai|opencode|all)
-      if [ "$REPLACE_EXISTING" -eq 1 ]; then
-        copy_dir_once "$BACKPACK_ROOT/cockpit/adapters/opencode" "$CONFIG_DIR/opencode"
-      else
-        update_opencode_core "$BACKPACK_ROOT/cockpit/adapters/opencode" "$CONFIG_DIR/opencode"
-      fi
+      copy_dir_once "$BACKPACK_ROOT/cockpit/adapters/opencode" "$CONFIG_DIR/opencode"
       ;;
   esac
 
@@ -999,8 +945,7 @@ EOF
       install_core_skills "$BACKPACK_AGENTS_DIR/skills"
       ;;
     codex)
-      link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_CODEX_DIR/AGENTS.md"
-      install_core_skills "$BACKPACK_AGENTS_DIR/skills"
+      install_codex_adapter
       ;;
     claude)
       install_core_skills "$BACKPACK_AGENTS_DIR/skills"
@@ -1013,10 +958,9 @@ EOF
       ;;
     ai|all)
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$CONFIG_DIR/opencode/AGENTS.md"
-      link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_CODEX_DIR/AGENTS.md"
+      install_codex_adapter
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_COPILOT_DIR/copilot-instructions.md"
       remove_legacy_copilot_instruction
-      install_core_skills "$BACKPACK_AGENTS_DIR/skills"
       install_claude_adapter
       ;;
   esac

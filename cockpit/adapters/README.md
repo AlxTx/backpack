@@ -8,8 +8,9 @@ and the curated skill catalogue remain in `../portable/`.
 |---|---|---|
 | `opencode/` | CLI, TUI, desktop app, GitHub Action | Local config template, agents, commands, prompts, plugins, and themes |
 | `claude/` | Claude Code CLI and Desktop Code tab | Rules, subagents, and skills |
-| `codex/` | CLI and desktop app | Installation mapping for instructions and the Cockpit core |
+| `codex/` | CLI and desktop app | Read-only validation agents plus installation mapping for instructions and the Cockpit core |
 | `copilot/` | CLI and desktop app | Personal instructions, Cockpit core, and the RTK command hook |
 
-The installer owns the target paths and symlinks. Adapter documentation must not
-duplicate the portable workflow.
+The installer replaces every selected target path from these canonical sources
+and backs up conflicts first. Runtime data and host paths outside this map are
+untouched. Adapter documentation must not duplicate the portable workflow.

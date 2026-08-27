@@ -7,9 +7,14 @@ The minimal Cockpit core is linked into both `~/.claude/skills` and
 from project skill folders. This adapter adds the Claude-specific subagents
 under `agents/`.
 
-The delivery flow uses `plan` → `build` → `validate` → optional `learn`.
-`validate` keeps Code Review and Product QA as separate lenses and reports RTS
-without performing Git actions. `review` and `qa` remain independently usable.
+Installation replaces the Backpack rule, the complete Backpack agent directory,
+and core-skill paths from their canonical sources. Claude authentication,
+settings, histories, and unrelated host state remain untouched.
+
+The delivery flow uses `plan` → `build` → `cockpit-validate` → optional
+`cockpit-learn`. Shared capabilities are exposed once as portable skills;
+Claude-specific agents exist only for host-native postures or independent Code
+Review and Product QA lenses.
 
 Install only this adapter with:
 

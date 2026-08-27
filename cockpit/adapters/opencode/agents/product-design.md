@@ -2,8 +2,6 @@
 description: Isolated read-only content or UX/UI contract through installed project skills.
 mode: subagent
 hidden: true
-model: openai/gpt-5.6-sol
-variant: high
 permission:
   edit: deny
   bash: deny

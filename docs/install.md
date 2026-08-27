@@ -59,21 +59,56 @@ or `--all-machine`. A direct target applies immediately; add `--dry-run` for a
 read-only preview. RTK is included for applicable Cockpit hosts unless
 `--without-rtk` is passed.
 
-## Existing OpenCode configuration
+## Canonical replacement and recovery
 
-The normal OpenCode install updates Backpack-owned agents, prompts, commands,
-plugins, themes, and documentation. It backs up the existing directory and
-preserves local `opencode.json`, package files, dependencies, and `.claude`
-extensions. No separate update command or manual agent merge is needed.
+Installation always replaces the selected paths that Backpack manages. It never
+merges or silently preserves a divergent local copy:
 
-Use `--replace` only when you intentionally want a fresh OpenCode adapter:
+- OpenCode: the complete `~/.config/opencode/` adapter;
+- Codex: `~/.codex/AGENTS.md`, the two named Cockpit validation agents, and the
+  shared Cockpit core;
+- Claude Code: `~/.claude/rules/backpack.md`, `~/.claude/agents`, and the core;
+- GitHub Copilot: personal instructions, the RTK hook, and the core;
+- machine targets: the selected Fish, Starship, Neovim, Ghostty, and Karabiner
+  paths.
+
+Authentication, tokens, histories, caches, organization policy, and every path
+outside this installation map remain untouched. Non-core skills installed by
+another tool also remain outside Backpack's ownership.
+
+An OpenCode install replaces the complete `~/.config/opencode/` adapter with the
+canonical Backpack version:
 
 ```sh
-backpack install cockpit --opencode --replace
+backpack install cockpit --opencode
 ```
 
-Local providers, models, tokens, endpoints, and client policies belong in the
-machine-local OpenCode configuration and must not be committed to Backpack.
+Before replacing it, Backpack moves the previous directory under the
+`~/.config.backup.<timestamp>/` path printed at the end of the installation.
+This includes `opencode.json`, package files, dependencies, and local additions.
+
+To make an intentional local `opencode.json` change durable, promote it into
+`cockpit/adapters/opencode/opencode.json` and review the repository diff before
+running the installer. If installation already replaced it, use the printed
+backup as the comparison source. Never promote tokens, secrets, client
+endpoints, or client policies into Backpack.
+
+```sh
+diff -u cockpit/adapters/opencode/opencode.json ~/.config/opencode/opencode.json
+cp ~/.config/opencode/opencode.json cockpit/adapters/opencode/opencode.json
+git diff -- cockpit/adapters/opencode/opencode.json
+backpack doctor
+backpack install cockpit --opencode
+```
+
+After an installation, substitute the backed-up `opencode.json` path shown by
+the installer for `~/.config/opencode/opencode.json` in this flow.
+
+The same promotion rule applies to every target: compare the backed-up local
+file with its source under `cockpit/` or `dotfiles/`, report only the intended
+change into Backpack, review the Git diff, then reinstall. Most non-OpenCode
+targets are canonical symlinks, so editing through those links already edits the
+Backpack source and creates no local divergence.
 
 ## GitHub Copilot
 
@@ -105,7 +140,7 @@ Adding Impeccable installs its portable skill but does not silently enable its
 project hooks; hook activation remains a separate, explicit Impeccable action.
 
 The Cockpit installer removes legacy Backpack-owned global specialized-skill links during
-an update, but preserves real directories and links owned by other installers.
+an update, but leaves non-core paths owned by other installers outside its map.
 Earlier whole-catalogue symlinks are still backed up before migration.
 
 ## What is installed
@@ -114,6 +149,8 @@ Cockpit uses shared workflow and skill sources with thin host adapters:
 
 ```txt
 ~/.codex/AGENTS.md
+~/.codex/agents/cockpit-code-review.toml
+~/.codex/agents/cockpit-product-qa.toml
 ~/.copilot/copilot-instructions.md
 ~/.copilot/hooks/rtk-rewrite.json
 ~/.config/opencode/AGENTS.md

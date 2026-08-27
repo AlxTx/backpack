@@ -5,3 +5,6 @@
 prompt-refinement
 pattern-scan
 pattern-capture
+cockpit-validate
+cockpit-learn
+cockpit-start-work

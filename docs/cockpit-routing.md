@@ -3,7 +3,7 @@
 Mental model:
 
 - `Tab` changes the current primary agent: build or plan.
-- `/command` runs a prepared action.
+- `/command` runs a host-only prepared action; shared capabilities remain skills.
 - A pinned command uses its declared agent and does not depend on the current mode.
 - A subagent is an isolated specialist used for one task.
 - OpenCode `auto` changes permission approval only; it is not an agent or phase.
@@ -15,8 +15,8 @@ Build       -> default work: discuss, diagnose, plan proportionally, implement, 
 Plan        -> sustained read-only planning with edits and shell denied
 Brainstorm  -> /brainstorm runs a divergent read-only recipe through Plan
 Design      -> /design delegates an isolated product-design contract
-Validate    -> /validate runs Code Review + Product QA in read-only mode
-Learn       -> /learn reflects, extracts, and codifies reusable knowledge
+Validate    -> cockpit-validate runs Code Review + Product QA in read-only mode
+Learn       -> cockpit-learn reflects, extracts, and routes reusable knowledge
 ```
 
 These controls implement one delivery lifecycle rather than separate competing
@@ -25,14 +25,15 @@ workflows:
 ```txt
 Plan     -> explicit primary posture, or /brainstorm for divergent exploration
 Build    -> default agent with automatic skill/subagent routing
-Validate -> /review + /qa -> consolidated RTS status
-Learn    -> /learn; /capture remains the low-level persistence primitive
+Validate -> cockpit-validate -> independent Code Review + Product QA -> RTS status
+Learn    -> cockpit-learn; pattern-capture remains the persistence primitive
 ```
 
-`/review` and `/qa` remain independently callable. `/validate` is the default
+`/review` and `/qa` remain independently callable on hosts that expose those
+host-only lens commands. `cockpit-validate` is the default
 delivery gate and reports `READY TO SHIP`, `CHANGES REQUIRED`, or
 `DEPENDENCY PENDING`. RTS never commits or pushes; it waits for an explicit Git
-instruction. `/learn` is optional at RTS and does not modify the product by
+instruction. `cockpit-learn` is optional at RTS and does not modify the product by
 default.
 
 For uncertain or integration-heavy features, Plan also maintains a task-local
@@ -48,8 +49,9 @@ The lifecycle stays stable across contexts, while phase behavior changes:
 - SOLO work accepts narrow reversible defaults without fake stakeholder
   ceremony; TEAM and CLIENT work retain shared decisions and approval boundaries.
 
-Backpack provides the portable cockpit core. The updater preserves provider/model
-choices edited locally in `~/.config/opencode/opencode.json` on each machine.
+Backpack provides the portable cockpit core. The updater replaces the complete
+OpenCode adapter from `cockpit/adapters/opencode/`; provider/model choices that
+must persist belong in that canonical config, with secrets kept outside it.
 The current GPT-5.6 routing is documented in `cockpit/portable/MODELS.md`: Terra
 for balanced work, Sol for uncertainty and high-risk review, Luna for settled
 implementation and routine execution.

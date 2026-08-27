@@ -2,8 +2,6 @@
 description: Run Product QA in strict read-only mode against requirements, user journeys, states, and visible behavior.
 mode: subagent
 hidden: true
-model: openai/gpt-5.6-terra
-variant: medium
 permission:
   edit: deny
   bash: ask

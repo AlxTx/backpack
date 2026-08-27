@@ -4,10 +4,10 @@ Adaptateur OpenCode du workflow IA personnel. La doctrine et les skills
 canoniques vivent dans `cockpit/portable/`; ce dossier ne contient que les
 agents, prompts, commandes, permissions et defaults propres à OpenCode. Sur une
 nouvelle machine, l'adaptateur est copié dans `~/.config/opencode/`, tandis que
-`AGENTS.md` et les skills partagés sont liés depuis Backpack. Les overrides
-provider/modèle restent dans `~/.config/opencode/opencode.json`, préservé lors
-des updates. Les extensions locales (`package.json`, lockfile, `node_modules`,
-`.claude`) sont également préservées lorsqu'elles existent.
+`AGENTS.md` et les skills partagés sont liés depuis Backpack. Chaque installation
+remplace l'adaptateur local complet après l'avoir déplacé dans une sauvegarde
+horodatée. Les changements durables se font donc dans ce dossier canonique avant
+réinstallation.
 
 Le système : **Plan → Build → Validate → Learn**. Validate combine une Code
 Review et une Product QA indépendantes ; Learn capitalise uniquement les
@@ -21,22 +21,23 @@ enseignements réutilisables.
 |---|---|---|
 | Une idée floue, un arbitrage, choisir une archi (perso ou client), décider quoi faire | **build** ou **/brainstorm** | demande directement, ou tape `/brainstorm ...` pour une exploration read-only |
 | Mon prompt est long, ambigu ou répétitif | automatique | Cockpit laisse passer les prompts clairs, normalise sans risque, ou demande validation si le sens peut changer |
-| Je veux voir et contrôler explicitement la reformulation | **/refine** | tape `/refine ...`, vérifie la proposition, puis valide-la explicitement |
+| Je veux voir et contrôler explicitement la reformulation | **prompt-refinement** | invoque le skill, vérifie la proposition, puis valide-la explicitement |
 | Besoin de contenu, parcours, page, UX/UI ou idée sans maquette | **build** ou **/design** | demande directement, ou tape `/design ...` pour isoler le contrat design |
-| Je débarque sur un codebase inconnu, je veux la carte des patterns existants | **/pattern-scan** | tape `/pattern-scan` (ou `/pattern-scan src/`) |
+| Je débarque sur un codebase inconnu, je veux la carte des patterns existants | **pattern-scan** | invoque le skill avec le scope voulu |
+| Préparer une branche de travail depuis une base distante à jour | **cockpit-start-work** | invoque le skill avec la branche et la base |
 | Préparer un changement sûr : inspecter, comparer, plan d'exécution | **plan** | `Tab` → plan |
 | Implémenter le changement validé | **build** | `Tab` → build |
-| Vérifier tout le changement avant livraison | **/validate** | tape `/validate` |
+| Vérifier tout le changement avant livraison | **cockpit-validate** | invoque le skill portable |
 | Faire uniquement une Code Review | **/review** | tape `/review` |
 | Faire uniquement la Product QA fonctionnelle | **/qa** | tape `/qa` |
-| Tirer les leçons d'une tranche terminée | **/learn** | tape `/learn` |
-| Un pattern/anti-pattern croisé m'intéresse, je veux le garder pour l'étudier plus tard | **/capture** | tape `/capture` |
+| Tirer les leçons d'une tranche terminée | **cockpit-learn** | invoque le skill portable |
+| Un pattern/anti-pattern croisé m'intéresse, je veux le garder pour l'étudier plus tard | **pattern-capture** | invoque le skill portable |
 | On me propose plein de texte, je veux juste choisir | les agents proposent A/B/C | réponds par la lettre |
 
-**Le doute le plus fréquent — `/pattern-scan` ou `/capture` ?**
-- **`/pattern-scan`** = *LIRE* un codebase entier pour en sortir la carte des
+**Le doute le plus fréquent — `pattern-scan` ou `pattern-capture` ?**
+- **`pattern-scan`** = *LIRE* un codebase entier pour en sortir la carte des
   patterns. Au **début** d'un projet. Ça produit de l'info.
-- **`/capture`** = *SAUVEGARDER* un pattern déjà mentionné dans la conversation,
+- **`pattern-capture`** = *SAUVEGARDER* un pattern déjà mentionné dans la conversation,
   dans mon journal perso. **Pendant** le travail. Ça archive une note.
 - Moyen mnémo : **scan = découvrir / capture = garder.**
 
@@ -71,6 +72,14 @@ Rester dans **build** pour le travail quotidien. Passer à **plan** uniquement
 pour garantir une posture de planification durable sans modification. Pour du
 contenu, parcours, page, UX/UI ou une UI sans maquette, `build` charge les skills
 adaptés ou `/design` isole explicitement le contrat design.
+
+Le plan inspecte aussi profondément que le risque l'exige, mais restitue par
+défaut un résultat compact : statut, cinq faits matériels au plus, sept étapes
+avec leur preuve, trois risques et trois questions bloquantes. Les limites sont
+souples lorsqu'une omission rendrait le plan dangereux. Un dépôt, contrat ou
+arbitrage manquant produit un arrêt anticipé `DEPENDENCY PENDING` ou
+`DECISION NEEDED`, sans plan détaillé spéculatif.
+
 Greenfield et brownfield suivent le même cycle, avec une stratégie différente.
 En greenfield solo, Cockpit établit progressivement le contrat produit/design et
 les premières conventions sans simuler une équipe absente. En brownfield, il
@@ -80,48 +89,54 @@ inspecte et préserve les contrats existants.
 `ask` par défaut. `plan` refuse les edits et le shell : OpenCode `auto` ne peut
 donc pas transformer une session Plan en session d'implémentation.
 
-### Actions et subagents internes
+### Surfaces publiques et subagents internes
 
 | Command / subagent | Rôle | Modèle | Écrit ? |
 |---|---|---|---|
 | **/brainstorm** → `plan` | Explore plusieurs options et recommande une direction sans implémenter. | Profil local | ❌ read-only |
-| **/refine** | Prépare une version clarifiée du prompt, montre l'original et les changements, puis s'arrête avant exécution. | Profil local | ❌ read-only |
+| **prompt-refinement** | Prépare une version clarifiée du prompt, montre l'original et les changements, puis s'arrête avant exécution. | Profil local | ❌ read-only |
 | **/design** → `product-design` | Isole un contrat content/UX/UI : classe la demande en content-led, UI-led ou mixed. | Profil local | ❌ read-only |
 | **/review** | Code Review stricte. Verdicts APPROVE / REQUEST CHANGES / ESCALATE. | Profil local | ❌ read-only |
 | **/qa** | Product QA contextuelle contre les exigences, parcours, états et comportements visibles. | Profil local | ❌ read-only |
-| **/validate** | Conserve le contrat courant, délègue `/review` et `/qa`, puis produit le statut RTS consolidé. | Profil local | ❌ read-only |
-| **/learn** | Conserve le contexte de la tranche, puis réfléchit, extrait et codifie les connaissances réutilisables. | Profil local | ❌ produit read-only |
+| **cockpit-validate** | Conserve le contrat courant, délègue Code Review et Product QA, puis produit le statut RTS consolidé. | Profil local | ❌ read-only |
+| **cockpit-learn** | Conserve le contexte de la tranche, puis réfléchit, extrait et route les connaissances réutilisables. | Profil local | ❌ produit read-only |
+| **pattern-scan** | Cartographie les patterns établis d'un codebase inconnu. | Profil local | ❌ read-only |
 
-### Subagent (à la demande)
+### Modèle et provider
 
-| Subagent | Rôle | Modèle | Écrit ? |
-|---|---|---|---|
-| **pattern-scan** | Cartographier les patterns (archi / JS / framework) d'un codebase inconnu. Contexte isolé. | Profil local | ❌ read-only |
+L'adaptateur n'épingle aucun modèle, ni sur les agents principaux ni sur les
+subagents. Le modèle choisi dans la session OpenCode est hérité par
+`cockpit-validate`, Code Review, Product QA, Learn et les autres délégations. Changer de provider via
+le sélecteur de modèles change donc toute la vague suivante ; une requête déjà
+lancée conserve naturellement son modèle de départ.
 
-Lancé via `/pattern-scan`, par délégation ou avec `@pattern-scan`, le spécialiste
-travaille dans une session enfant isolée et read-only, puis rend sa carte à
-l'agent principal.
+Les tiers Frontier, Balanced et Fast de `cockpit/portable/MODELS.md` sont des
+recommandations de sélection, pas un routage silencieux. Pour confirmer le canal
+réel et ses limites, utiliser l'affichage natif d'OpenCode ou un outil de quota
+explicitement choisi, sans ajouter ce suivi tiers au Cockpit par défaut.
 
 ---
 
-## ⌨️ Les commands
+## ⌨️ Les surfaces utilisateur
+
+Les capacités partagées sont exposées directement par leur skill canonique :
+`cockpit-validate`, `cockpit-learn`, `cockpit-start-work`, `pattern-scan`,
+`pattern-capture` et `prompt-refinement`. OpenCode ne maintient aucun alias
+supplémentaire pour ces capacités.
+
+Les commandes restantes sont strictement propres à l'hôte :
 
 | Command | Fait quoi | Dépend du mode ? |
 |---|---|---|
 | **/brainstorm** `[sujet]` | Explore trois options, leurs compromis et une recommandation dans l'enveloppe read-only de `plan`. | Non (épinglé à `plan`) |
-| **/refine** `[brouillon]` | Raffine le prompt en mode Safe, expose les changements et attend une validation explicite sans l'exécuter. | Non (contextuel) |
 | **/design** `[besoin]` | Produit le bon contrat content/UX/UI dans un sous-agent isolé. | Non (épinglé à `product-design`) |
-| **/pattern-scan** `[scope]` | Lance le subagent pattern-scan sur un dossier (défaut : tout le projet). | Non (épinglé) |
 | **/review** `[scope]` | Lance uniquement la Code Review technique en gardant le contexte courant. | Non (contextuel) |
 | **/qa** `[scope]` | Lance uniquement la Product QA fonctionnelle en gardant le contexte courant. | Non (contextuel) |
-| **/validate** `[scope]` | Garde le contrat courant, lance les deux lentilles et consolide `READY TO SHIP`, `CHANGES REQUIRED` ou `DEPENDENCY PENDING`. | Non (contextuel) |
-| **/learn** `[scope]` | Analyse la tranche courante et route les connaissances utiles. | Non (contextuel) |
-| **/capture** `[texte]` | Append les patterns discutés (ou le texte donné) au journal perso. Sortie 1 ligne. | Non (autorisé partout) |
 
 `READY TO SHIP` n'autorise aucune action Git. Après RTS, Cockpit affiche le diff,
 les preuves, les risques et l'état Git, puis attend une instruction exacte :
 `commit`, `push`, ou `commit and push`. Un simple « OK » n'est pas une
-autorisation Git. `/learn` reste optionnel avant ou après cette instruction.
+autorisation Git. `cockpit-learn` reste optionnel avant ou après cette instruction.
 
 ### Le journal de capture
 - Emplacement : **`~/dev/ai/pattern-captures/<projet>.md`** — **un fichier par
@@ -138,14 +153,14 @@ autorisation Git. `/learn` reste optionnel avant ou après cette instruction.
 
 Deux niveaux, séparés exprès :
 
-1. **Lentille (gratuite, automatique)** — le **Pattern Radar** tourne dans `plan`
-   et `/review`. Le subagent `pattern-scan` charge le skill portable du même nom,
-   qui possède son contrat de cartographie. Chaque lentille **nomme** les patterns
+1. **Lentille (gratuite, automatique)** — `plan` et `/review` appliquent la règle
+   portable sur les patterns établis. Le skill `pattern-scan` possède le contrat
+   de cartographie explicite. Chaque lentille **nomme** les patterns
    avec leur nom canonique et préfère « rien de notable » à une invention.
-2. **Learn (volontaire)** — `/learn` fait la rétrospective et décide si une
+2. **Learn (volontaire)** — `cockpit-learn` fait la rétrospective et décide si une
    connaissance mérite d'être codifiée.
-3. **Capture (primitive)** — `/capture` enregistre un pattern déjà établi lorsque
-   `/learn` ou l'utilisateur décide de le conserver.
+3. **Capture (primitive)** — `pattern-capture` enregistre un pattern déjà établi lorsque
+   `cockpit-learn` ou l'utilisateur décide de le conserver.
 
 ---
 
@@ -173,24 +188,17 @@ installé dans le projet avec `backpack add impeccable`.
 ../portable/
   AGENTS.md              # doctrine canonique partagée par tous les outils
   skills/                # skills standard partagés via ~/.agents/skills
-opencode.json            # agents, permissions, modèles locaux
+opencode.json            # agents, permissions et modèles canoniques
 agents/
   product-design.md      # subagent isolé optionnel pour briefs design explicites
-  qa.md validate.md      # Product QA et porte de livraison RTS
-  learn.md                # rétrospective et capitalisation
+  qa.md                  # Product QA indépendante
 prompts/
-  pattern-radar.md       # format plan/review; no-op explicite pour pattern-scan
   plan.md build.md review.md
                          # contrats minces des agents primaires et de review
-  pattern-scan.md        # wrapper isolé vers le skill portable pattern-scan
 commands/
   brainstorm.md          # /brainstorm → plan read-only divergent
   design.md              # /design → subagent product-design isolé
-  refine.md              # /refine → prépare un prompt et attend validation
-  capture.md             # /capture
-  qa.md validate.md       # Product QA et porte de livraison RTS
-  learn.md                # rétrospective et capitalisation
-  pattern-scan.md        # /pattern-scan (épinglé au subagent pattern-scan)
+  qa.md                   # Product QA
   review.md              # /review (épinglé au subagent review)
 plugins/
   rtk.ts                 # réécrit les commandes compatibles via rtk si présent
@@ -208,16 +216,15 @@ plugins/
 - **Automatisation du déploiement** — RTS reste volontairement séparé des actions
   Git et de déploiement.
 - **Optimisation mesurée de prompts** — nécessite un dataset représentatif, des
-  critères de succès et des évaluations comparatives ; `/refine` reste un
+  critères de succès et des évaluations comparatives ; `prompt-refinement` reste un
   raffinement one-shot sans prétendre mesurer un optimum.
 
 ---
 
-## Config locale machine/client
+## Config effective et récupération
 
 Ce repo ne doit pas contenir de config client réelle. Après bootstrap,
-`~/.config/opencode/` est la config effective lue par OpenCode et peut être
-modifiée localement pour la machine courante :
+`~/.config/opencode/` est la copie effective lue par OpenCode :
 
 ```txt
 ~/.config/opencode/
@@ -229,17 +236,24 @@ modifiée localement pour la machine courante :
 ~/.agents/skills -> backpack/cockpit/portable/skills
 ```
 
-Sur un PC client, ajoute les providers/modèles client directement dans
-`~/.config/opencode/opencode.json`, puis relance OpenCode :
+Une modification locale peut servir d'essai, mais la prochaine installation la
+remplacera. Pour la pérenniser, reporte uniquement le changement voulu dans
+`cockpit/adapters/opencode/opencode.json`, vérifie le diff Git, puis réinstalle.
+Si elle a déjà été remplacée, compare avec le dossier
+`~/.config.backup.<timestamp>/.../.config/opencode/` affiché par l'installateur.
+
+Sur un PC client, sélectionner le modèle dans la session est préférable. Une
+surcharge locale reste temporaire et ne doit jamais être remontée dans Backpack
+si elle contient des providers, endpoints, politiques ou secrets propres au
+client :
 
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
   "default_agent": "build",
-  "model": "github-copilot/...",
-  "small_model": "github-copilot/..."
+  "model": "github-copilot/..."
 }
 ```
 
-Règle : Backpack initialise **comment** travailler ; la config locale machine
-décide **avec quels modèles/providers** travailler.
+Règle : Backpack est la source de vérité de l'adaptateur ; l'installation
+remplace sa copie locale et sauvegarde l'état précédent pour récupération.

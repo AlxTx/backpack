@@ -18,7 +18,8 @@ memory/              durable personal learning: craft, AI, concepts, books, play
 - Client mission notes live outside this repo.
 - Project truth lives in each project repo (`README.md`, `AGENTS.md`, `docs/`).
 - Secrets, SSH keys, tokens, client-specific certs, and local state are not committed.
-- Client-specific providers and models remain in local machine configuration.
+- Client-specific providers and models may be applied locally after installation,
+  but the next OpenCode installation intentionally resets them from Backpack.
 
 ## Quick start
 
@@ -62,8 +63,7 @@ uses arrow-key menus when `gum` is available and falls back to a numbered menu.
 | Install Cockpit for Codex | `backpack install cockpit --codex` |
 | Install Cockpit for Claude Code | `backpack install cockpit --claude` |
 | Install Cockpit for GitHub Copilot | `backpack install cockpit --copilot` |
-| Update Cockpit for OpenCode | `backpack install cockpit --opencode` |
-| Replace an existing OpenCode adapter | `backpack install cockpit --opencode --replace` |
+| Replace Cockpit for OpenCode from Backpack | `backpack install cockpit --opencode` |
 
 A direct target applies immediately; use `--dry-run` for a read-only preview.
 Applicable Cockpit targets install [`rtk`](https://github.com/rtk-ai/rtk)
@@ -113,16 +113,17 @@ the host already displays. This makes the workflow visible without exposing
 private model reasoning or producing a log for every shell command. After
 updating Backpack, restart the host.
 
-OpenCode is the exception to the symlink-only model: Backpack updates its adapter
-in `~/.config/opencode/`. Local provider and model choices stay in
-`~/.config/opencode/opencode.json` and are preserved by normal updates.
+Every installer target is canonical: Backpack replaces each selected path from
+the repository instead of retaining a divergent local copy. OpenCode is copied
+as a full adapter into `~/.config/opencode/`; other hosts and machine tools use
+canonical links for the paths Backpack owns.
 
 ## Safety and profiles
 
 Interactive installation previews first; direct targets apply immediately.
-Backpack backs up replaced entries under `~/.config.backup.<timestamp>/`, leaves
-matching links alone, and preserves local OpenCode configuration during normal
-updates. `--replace` requests a fresh OpenCode adapter explicitly.
+Backpack backs up replaced entries under `~/.config.backup.<timestamp>/` and
+leaves matching canonical links alone. Account data, tokens, histories, caches,
+and host files outside Backpack's installation map are never targeted.
 On client machines, use `--client` and keep providers, tokens, endpoints,
 policies, and mission notes outside Backpack.
 

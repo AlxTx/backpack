@@ -1,0 +1,7 @@
+interface:
+  display_name: "Cockpit Learn"
+  short_description: "Retain evidenced lessons from finished work"
+  default_prompt: "Use $cockpit-learn to reflect on this completed slice and route any reusable lessons."
+
+policy:
+  allow_implicit_invocation: true
