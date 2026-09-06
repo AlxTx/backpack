@@ -27,9 +27,8 @@ Safety and UX requirements:
 
 The portable skill is the safety boundary. It either performs editorial-only
 normalization and flows through, or returns a review surface and stops before a
-meaning-changing rewrite is executed. OpenCode also gets a command because it
-has an established command adapter; the other hosts do not need
-provider-specific duplication.
+meaning-changing rewrite is executed. Every host consumes that portable skill;
+OpenCode does not add a duplicate command.
 
 Future slice — measured prompt optimization:
 

@@ -19,17 +19,17 @@ enseignements réutilisables.
 
 | Ma situation | J'utilise | Comment |
 |---|---|---|
-| Une idée floue, un arbitrage, choisir une archi (perso ou client), décider quoi faire | **build** ou **/brainstorm** | demande directement, ou tape `/brainstorm ...` pour une exploration read-only |
+| Une idée floue, un arbitrage, choisir une archi (perso ou client), décider quoi faire | **build** ou **/cockpit-brainstorm** | demande directement, ou tape `/cockpit-brainstorm ...` pour une exploration read-only |
 | Mon prompt est long, ambigu ou répétitif | automatique | Cockpit laisse passer les prompts clairs, normalise sans risque, ou demande validation si le sens peut changer |
 | Je veux voir et contrôler explicitement la reformulation | **prompt-refinement** | invoque le skill, vérifie la proposition, puis valide-la explicitement |
-| Besoin de contenu, parcours, page, UX/UI ou idée sans maquette | **build** ou **/design** | demande directement, ou tape `/design ...` pour isoler le contrat design |
+| Besoin de contenu, parcours, page, UX/UI ou idée sans maquette | **build** ou **/cockpit-design** | demande directement, ou tape `/cockpit-design ...` pour isoler le contrat design |
 | Je débarque sur un codebase inconnu, je veux la carte des patterns existants | **pattern-scan** | invoque le skill avec le scope voulu |
 | Préparer une branche de travail depuis une base distante à jour | **cockpit-start-work** | invoque le skill avec la branche et la base |
 | Préparer un changement sûr : inspecter, comparer, plan d'exécution | **plan** | `Tab` → plan |
 | Implémenter le changement validé | **build** | `Tab` → build |
 | Vérifier tout le changement avant livraison | **cockpit-validate** | invoque le skill portable |
-| Faire uniquement une Code Review | **/review** | tape `/review` |
-| Faire uniquement la Product QA fonctionnelle | **/qa** | tape `/qa` |
+| Faire uniquement une Code Review | **/cockpit-review** | tape `/cockpit-review` |
+| Faire uniquement la Product QA fonctionnelle | **/cockpit-qa** | tape `/cockpit-qa` |
 | Tirer les leçons d'une tranche terminée | **cockpit-learn** | invoque le skill portable |
 | Un pattern/anti-pattern croisé m'intéresse, je veux le garder pour l'étudier plus tard | **pattern-capture** | invoque le skill portable |
 | On me propose plein de texte, je veux juste choisir | les agents proposent A/B/C | réponds par la lettre |
@@ -71,7 +71,7 @@ indépendant = subagent**. `auto` ne contourne jamais un `deny` explicite.
 Rester dans **build** pour le travail quotidien. Passer à **plan** uniquement
 pour garantir une posture de planification durable sans modification. Pour du
 contenu, parcours, page, UX/UI ou une UI sans maquette, `build` charge les skills
-adaptés ou `/design` isole explicitement le contrat design.
+adaptés ou `/cockpit-design` isole explicitement le contrat design.
 
 Le plan inspecte aussi profondément que le risque l'exige, mais restitue par
 défaut un résultat compact : statut, cinq faits matériels au plus, sept étapes
@@ -87,17 +87,20 @@ inspecte et préserve les contrats existants.
 
 `build` peut éditer les fichiers, mais les commandes shell restent en validation
 `ask` par défaut. `plan` refuse les edits et le shell : OpenCode `auto` ne peut
-donc pas transformer une session Plan en session d'implémentation.
+donc pas transformer une session Plan en session d'implémentation. Les lentilles
+`/cockpit-review` et `/cockpit-qa` refusent aussi le shell : elles utilisent les
+preuves déjà disponibles et signalent une preuve manquante plutôt que d'exécuter
+un check ou de conclure sans fondement.
 
 ### Surfaces publiques et subagents internes
 
 | Command / subagent | Rôle | Modèle | Écrit ? |
 |---|---|---|---|
-| **/brainstorm** → `plan` | Explore plusieurs options et recommande une direction sans implémenter. | Profil local | ❌ read-only |
+| **/cockpit-brainstorm** → `plan` | Explore plusieurs options et recommande une direction sans implémenter. | Profil local | ❌ read-only |
 | **prompt-refinement** | Prépare une version clarifiée du prompt, montre l'original et les changements, puis s'arrête avant exécution. | Profil local | ❌ read-only |
-| **/design** → `product-design` | Isole un contrat content/UX/UI : classe la demande en content-led, UI-led ou mixed. | Profil local | ❌ read-only |
-| **/review** | Code Review stricte. Verdicts APPROVE / REQUEST CHANGES / ESCALATE. | Profil local | ❌ read-only |
-| **/qa** | Product QA contextuelle contre les exigences, parcours, états et comportements visibles. | Profil local | ❌ read-only |
+| **/cockpit-design** → `product-design` | Isole un contrat content/UX/UI : classe la demande en content-led, UI-led ou mixed. | Profil local | ❌ read-only |
+| **/cockpit-review** | Code Review stricte. Verdicts APPROVE / REQUEST CHANGES / ESCALATE. | Profil local | ❌ read-only |
+| **/cockpit-qa** | Product QA contextuelle contre les exigences, parcours, états et comportements visibles. | Profil local | ❌ read-only |
 | **cockpit-validate** | Conserve le contrat courant, délègue Code Review et Product QA, puis produit le statut RTS consolidé. | Profil local | ❌ read-only |
 | **cockpit-learn** | Conserve le contexte de la tranche, puis réfléchit, extrait et route les connaissances réutilisables. | Profil local | ❌ produit read-only |
 | **pattern-scan** | Cartographie les patterns établis d'un codebase inconnu. | Profil local | ❌ read-only |
@@ -110,10 +113,19 @@ subagents. Le modèle choisi dans la session OpenCode est hérité par
 le sélecteur de modèles change donc toute la vague suivante ; une requête déjà
 lancée conserve naturellement son modèle de départ.
 
-Les tiers Frontier, Balanced et Fast de `cockpit/portable/MODELS.md` sont des
-recommandations de sélection, pas un routage silencieux. Pour confirmer le canal
-réel et ses limites, utiliser l'affichage natif d'OpenCode ou un outil de quota
-explicitement choisi, sans ajouter ce suivi tiers au Cockpit par défaut.
+Les tiers Maximum, Frontier et Balanced de `cockpit/portable/MODELS.md` sont des
+recommandations de sélection, pas un routage silencieux. Astra est réservé aux
+travaux les plus difficiles ou conséquents ; Sol reste le choix de planification
+et de review à risque, et Terra couvre le travail quotidien comme l'exécution
+routinière. Avant un travail substantiel, Cockpit propose un changement lorsque
+le modèle courant connu est insuffisant ou inutilement coûteux, puis attend une
+réponse oui/non. OpenCode ne fournit pas d'API officielle pour sélectionner
+directement un modèle précis dans la session, et Backpack n'ajoute pas de plugin
+de reroutage masqué. Cockpit annonce donc cette limite dans sa recommandation :
+changer le modèle avec `/models`, puis répondre `yes` une fois le modèle actif,
+ou `no` pour continuer sans changement. Pour confirmer le canal réel et ses
+limites, utiliser l'affichage natif d'OpenCode ou un outil de quota explicitement
+choisi.
 
 ---
 
@@ -128,10 +140,10 @@ Les commandes restantes sont strictement propres à l'hôte :
 
 | Command | Fait quoi | Dépend du mode ? |
 |---|---|---|
-| **/brainstorm** `[sujet]` | Explore trois options, leurs compromis et une recommandation dans l'enveloppe read-only de `plan`. | Non (épinglé à `plan`) |
-| **/design** `[besoin]` | Produit le bon contrat content/UX/UI dans un sous-agent isolé. | Non (épinglé à `product-design`) |
-| **/review** `[scope]` | Lance uniquement la Code Review technique en gardant le contexte courant. | Non (contextuel) |
-| **/qa** `[scope]` | Lance uniquement la Product QA fonctionnelle en gardant le contexte courant. | Non (contextuel) |
+| **/cockpit-brainstorm** `[sujet]` | Explore trois options, leurs compromis et une recommandation dans l'enveloppe read-only de `plan`. | Non (épinglé à `plan`) |
+| **/cockpit-design** `[besoin]` | Produit le bon contrat content/UX/UI dans un sous-agent isolé. | Non (épinglé à `product-design`) |
+| **/cockpit-review** `[scope]` | Lance uniquement la Code Review technique en gardant le contexte courant. | Non (contextuel) |
+| **/cockpit-qa** `[scope]` | Lance uniquement la Product QA fonctionnelle en gardant le contexte courant. | Non (contextuel) |
 
 `READY TO SHIP` n'autorise aucune action Git. Après RTS, Cockpit affiche le diff,
 les preuves, les risques et l'état Git, puis attend une instruction exacte :
@@ -153,7 +165,7 @@ autorisation Git. `cockpit-learn` reste optionnel avant ou après cette instruct
 
 Deux niveaux, séparés exprès :
 
-1. **Lentille (gratuite, automatique)** — `plan` et `/review` appliquent la règle
+1. **Lentille (gratuite, automatique)** — `plan` et `/cockpit-review` appliquent la règle
    portable sur les patterns établis. Le skill `pattern-scan` possède le contrat
    de cartographie explicite. Chaque lentille **nomme** les patterns
    avec leur nom canonique et préfère « rien de notable » à une invention.
@@ -176,7 +188,7 @@ Deux niveaux, séparés exprès :
 Ordre d'autorité : **conventions du projet → comportement officiel du framework →
 skills installés**. Jamais forcer un skill si une simple inspection suffit.
 
-Dans le menu `/`, utilise **`/design`** comme entrée utilisateur pour contenu,
+Dans le menu `/`, utilise **`/cockpit-design`** comme entrée utilisateur pour contenu,
 parcours, UX et UI. Backpack orchestre; Impeccable prend l'UX/UI lorsqu'il est
 installé dans le projet avec `backpack add impeccable`.
 
@@ -188,7 +200,7 @@ installé dans le projet avec `backpack add impeccable`.
 ../portable/
   AGENTS.md              # doctrine canonique partagée par tous les outils
   skills/                # skills standard partagés via ~/.agents/skills
-opencode.json            # agents, permissions et modèles canoniques
+opencode.json            # agents et permissions propres à OpenCode
 agents/
   product-design.md      # subagent isolé optionnel pour briefs design explicites
   qa.md                  # Product QA indépendante
@@ -196,10 +208,10 @@ prompts/
   plan.md build.md review.md
                          # contrats minces des agents primaires et de review
 commands/
-  brainstorm.md          # /brainstorm → plan read-only divergent
-  design.md              # /design → subagent product-design isolé
-  qa.md                   # Product QA
-  review.md              # /review (épinglé au subagent review)
+  cockpit-brainstorm.md  # /cockpit-brainstorm → plan read-only divergent
+  cockpit-design.md      # /cockpit-design → subagent product-design isolé
+  cockpit-qa.md          # /cockpit-qa → Product QA
+  cockpit-review.md      # /cockpit-review → subagent review
 plugins/
   rtk.ts                 # réécrit les commandes compatibles via rtk si présent
 ```
@@ -233,7 +245,8 @@ Ce repo ne doit pas contenir de config client réelle. Après bootstrap,
   agents/
   prompts/
   commands/
-~/.agents/skills -> backpack/cockpit/portable/skills
+~/.agents/skills/
+  <skill core> -> backpack/cockpit/portable/skills/<skill core>
 ```
 
 Une modification locale peut servir d'essai, mais la prochaine installation la

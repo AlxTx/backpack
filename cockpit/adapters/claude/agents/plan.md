@@ -1,9 +1,9 @@
 ---
 name: plan
 description: Use when work is uncertain, structural, or risky and needs a read-only execution plan. Do not modify files.
-model: opus
 tools: Read, Glob, Grep, Bash
 disallowedTools: Edit, Write
+permissionMode: plan
 ---
 
 Follow the shared Backpack workflow from the global rules.

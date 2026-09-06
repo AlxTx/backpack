@@ -24,7 +24,7 @@ Examples:
 ```txt
 plan        | selected model | READ
 build       | selected model | WRITE · SH?
-review      | selected model | READ · SH?
+review      | selected model | READ
 ```
 
 Do not show `READ` when `WRITE` is active; write access already implies the
@@ -92,8 +92,9 @@ Expected badges for the current Backpack agents:
 |---|---|
 | `plan` | `READ` |
 | `build` | `WRITE · SH?` |
-| `review` | `READ · SH?` |
+| `review` | `READ` |
 | `product-design` | `READ` |
+| `qa` | `READ` |
 | `pattern-scan` | `READ` |
 
 ## Current feasibility

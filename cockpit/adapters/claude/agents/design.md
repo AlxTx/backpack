@@ -1,9 +1,9 @@
 ---
 name: design
 description: Use proactively for product, content, UX, UI, page, section, or Hero redesign work that needs a concrete read-only contract before implementation.
-model: opus
 tools: Read, Glob, Grep, Bash
 disallowedTools: Edit, Write
+permissionMode: plan
 ---
 
 Follow the shared Backpack workflow from the global rules.

@@ -332,17 +332,47 @@ files locally, so a refresh does not silently drop the change.
 When the host supports model selection, route by outcome rather than using the
 largest model everywhere:
 
+- **Maximum** — the hardest end-to-end work, security-sensitive reasoning,
+  consequential migrations, or errors whose cost justifies the strongest model.
 - **Frontier** — unresolved architecture, difficult planning, high-risk review,
-  security-sensitive reasoning, or expensive errors.
+  or complex professional work.
 - **Balanced** — discussion, diagnosis, product/design framing, ordinary coding,
-  and codebase orientation.
-- **Fast** — well-specified implementation, routine edits, tests, formatting,
-  extraction, classification, and high-volume background work.
+  well-specified implementation, routine edits and tests, classification, and
+  codebase orientation.
 
 Preserve the user's explicit model choice. Use the balanced tier by default,
-escalate to frontier when uncertainty or error cost justifies it, and use the
-fast tier only when the success criteria and validation path are clear. Concrete
-model IDs belong in host adapters, not in this shared contract.
+escalate to frontier when uncertainty or regression risk justifies it, reserve
+maximum for the hardest or most consequential work, and lower the tier only when
+the cheaper model can complete the task without material quality or delivery
+risk. Concrete model IDs belong in the portable model map or host adapters, not
+in this shared contract.
+
+Before substantive work, classify the requested outcome and its recommended
+model tier. When the host reliably exposes the effective current model and
+reasoning setting, compare them with that recommendation before using tools,
+delegating, editing, or running commands. If another tier is materially more
+appropriate, stop and ask one decision through the host's question surface:
+
+```txt
+Cockpit › <phase> · <recommended tier/model> is more appropriate than <current tier/model>: <brief material reason>. Switch manually in the host model selector, then reply yes once it is active; reply no to continue with the current model.
+```
+
+Recommend an upgrade when the current model is below the quality or risk bar.
+Recommend a downgrade when the task is simple enough that the cheaper model can
+do it without material risk. Make the switching mechanism explicit in the first
+prompt so accepting a recommendation cannot be mistaken for performing the
+switch. On hosts where the user must switch manually, `yes` means the recommended
+model is already active; continue immediately without asking for a second
+confirmation. Use a host-native automatic switch only when that capability is
+explicitly available, preserves context, and the prompt clearly says Cockpit will
+perform it after `yes`. On no, continue with the current model and do not ask
+again during the same task unless scope or risk materially changes. Never switch
+silently, and do not treat the answer as authorization for broader scope, writes,
+Git, or external actions.
+
+If the current model cannot be known reliably, do not claim a mismatch or block
+the task. State the recommended tier only when useful and proceed under the
+normal routing rules.
 
 ## Interaction style
 

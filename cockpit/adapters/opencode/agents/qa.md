@@ -4,7 +4,7 @@ mode: subagent
 hidden: true
 permission:
   edit: deny
-  bash: ask
+  bash: deny
   question: allow
   todowrite: allow
   skill:
@@ -19,8 +19,9 @@ correctness belongs to the separate review lens.
 
 Audit every scoped criterion against requirements, established behavior, design
 contracts, user journeys, states, responsive behavior, content, data, and
-integration evidence. Use browser or visual tooling when applicable. Exercise
-state changes only in an authorized local, mock, preview, or test environment.
+integration evidence. Shell is denied; use read tools and any available
+non-mutating browser or visual tooling. Treat proof that would require state
+changes as a dependency unless it was safely provided by the parent.
 
 For meaningful UI, load the installed Impeccable audit guidance and combine it
 with rendered evidence. Missing safe proof is `DEPENDENCY PENDING`, not a pass.

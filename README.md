@@ -101,6 +101,26 @@ rewritten before execution. No copy-paste into app settings is required.
 Repository-level instructions remain project truth and can add client-specific
 constraints. Backpack never creates or commits them automatically.
 
+## Daily Cockpit flow
+
+Cockpit follows **Plan → Build → Validate → Learn**. Before substantive work, it
+compares the active model with the task when the host exposes that information:
+Terra covers everyday and settled work, Sol covers uncertainty and risky review,
+and Astra is reserved for the hardest consequential work. Cockpit asks `yes/no`
+before recommending either a safer upgrade or a risk-free cheaper downgrade; it
+never switches models silently. When the host requires a manual change, Cockpit
+says so before asking: switch in the model selector, then answer `yes` once the
+recommended model is active, or `no` to keep the current model.
+
+In OpenCode, use `Tab` for the `build` and read-only `plan` primary agents. Its
+host-specific commands are `/cockpit-brainstorm`, `/cockpit-design`,
+`/cockpit-review`, and `/cockpit-qa`. Shared lifecycle capabilities remain
+portable skills, notably `cockpit-validate`, `cockpit-learn`, and
+`cockpit-start-work`, rather than duplicate slash commands.
+
+See [Cockpit routing and command flow](docs/cockpit-routing.md) for the complete
+usage map.
+
 ## Visible Cockpit activity
 
 For a non-trivial task, Cockpit-compatible hosts expose the active Cockpit phase,

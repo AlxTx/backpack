@@ -18,10 +18,7 @@
       "prompt": "{file:./prompts/plan.md}",
       "permission": {
         "edit": "deny",
-        "bash": {
-          "*": "deny",
-          "*capture.sh*": "allow"
-        },
+        "bash": "deny",
         "question": "allow",
         "todowrite": "allow",
         "skill": {
@@ -36,10 +33,7 @@
       "prompt": "{file:./prompts/build.md}",
       "permission": {
         "edit": "allow",
-        "bash": {
-          "*": "ask",
-          "*capture.sh*": "allow"
-        },
+        "bash": "ask",
         "question": "allow",
         "todowrite": "allow",
         "skill": {
@@ -55,10 +49,7 @@
       "prompt": "{file:./prompts/review.md}",
       "permission": {
         "edit": "deny",
-        "bash": {
-          "*": "ask",
-          "*capture.sh*": "allow"
-        },
+        "bash": "deny",
         "question": "allow",
         "todowrite": "allow",
         "skill": {

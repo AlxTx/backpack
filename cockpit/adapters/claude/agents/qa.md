@@ -1,9 +1,9 @@
 ---
 name: qa
 description: Use for read-only Product QA against requirements, user journeys, states, mockups, and visible behavior.
-model: sonnet
 tools: Read, Glob, Grep, Bash
 disallowedTools: Edit, Write
+permissionMode: plan
 ---
 
 Follow the shared Backpack workflow from the global rules.

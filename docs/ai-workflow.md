@@ -12,7 +12,7 @@ See `cockpit/portable/AGENTS.md`, `cockpit/portable/MODELS.md`,
 
 `AGENTS.md` defines classification, request routing, scope control, validation,
 review priorities, pattern learning, and communication style. `MODELS.md` maps
-the workflow to semantic Frontier, Balanced, and Fast tiers. Codex, GitHub
+the workflow to semantic Maximum, Frontier, and Balanced tiers. Codex, GitHub
 Copilot, OpenCode, and Claude Code consume this same core.
 
 Skills follow the open agent-skills directory format. The machine-level Cockpit

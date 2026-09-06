@@ -1,9 +1,9 @@
 ---
 name: review
 description: Use proactively after meaningful changes to find correctness, regression, security, and maintainability issues without editing.
-model: opus
 tools: Read, Glob, Grep, Bash
 disallowedTools: Edit, Write
+permissionMode: plan
 ---
 
 Follow the shared Backpack workflow from the global rules.

@@ -52,10 +52,14 @@ choice remain untouched. Backpack manages only:
 ```
 
 Model selection follows `cockpit/portable/MODELS.md`: Terra/medium is the
-recommended everyday thread, Sol/high suits difficult planning or review, and
-Luna/medium suits a settled execution. The installer does not override an
-explicit personal choice, and the Cockpit validation agents inherit the active
-thread's model and reasoning settings.
+recommended everyday and settled-execution thread, Sol/high suits difficult
+planning or review, and Astra/high is reserved for the hardest consequential
+work. When the active model is available to the agent, Cockpit proposes a
+materially safer or cheaper choice before substantive work. Codex model selection
+is user-controlled: switch in the native selector, then answer `yes` once the
+recommended model is active, or `no` to keep the current model. The installer
+does not override an explicit personal choice, and the Cockpit validation agents
+inherit the active thread's settings.
 
 Install only this adapter with:
 

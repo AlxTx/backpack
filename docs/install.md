@@ -158,6 +158,12 @@ Cockpit uses shared workflow and skill sources with thin host adapters:
 ~/.agents/skills/
 ```
 
+OpenCode receives the complete canonical adapter, including
+`/cockpit-brainstorm`, `/cockpit-design`, `/cockpit-review`, and `/cockpit-qa`.
+Reinstallation backs up and replaces that managed directory, which removes old
+unnamespaced command files instead of preserving aliases. Restart OpenCode after
+an update so it reloads commands, instructions, and skills.
+
 Machine installation links the selected Fish, Starship, Neovim, Ghostty, and
 Karabiner configuration from this repository. Existing replaced entries are
 backed up under `~/.config.backup.<timestamp>/`.

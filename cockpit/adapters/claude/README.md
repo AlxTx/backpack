@@ -16,6 +16,20 @@ The delivery flow uses `plan` → `build` → `cockpit-validate` → optional
 Claude-specific agents exist only for host-native postures or independent Code
 Review and Product QA lenses.
 
+Plan, design, Code Review, and Product QA use Claude's native `plan` permission
+mode. They may inspect and use read-only shell commands under Claude's permission
+rules, but cannot edit files; Build remains the only implementation posture.
+
+## Model selection
+
+The adapter leaves every agent unpinned so Plan, Build, Review, Product QA, and
+design inherit the model selected by the user. Cockpit applies the semantic tiers
+from `cockpit/portable/MODELS.md` to the models available in Claude. When a
+different model is materially safer or safely cheaper, select it through
+Claude's native model control, then answer `yes` once active, or `no` to continue
+with the current model. Accepting the recommendation alone never implies that a
+manual switch occurred.
+
 Install only this adapter with:
 
 ```sh

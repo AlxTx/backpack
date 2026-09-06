@@ -58,8 +58,17 @@ ok "portable AGENTS.md is compatible with Copilot personal instructions"
 
 grep -q 'Plan → Build → Validate → Learn' "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "portable workflow must expose the canonical delivery loop"
 grep -q 'Cockpit › <phase>' "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "portable workflow must expose Cockpit activity"
+grep -q 'reply yes once it is active' "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "portable workflow must make manual model switching explicit before confirmation"
 grep -q 'Never commit, push' "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "portable workflow must protect Git delivery actions"
 ok "canonical Cockpit flow and Git gate exist"
+
+for model in gpt-6-astra gpt-5.6-sol gpt-5.6-terra; do
+  grep -q "$model" "$BACKPACK_ROOT/cockpit/portable/MODELS.md" || fail "missing model routing for $model"
+done
+if grep -q 'gpt-5.6-luna' "$BACKPACK_ROOT/cockpit/portable/MODELS.md"; then
+  fail "Cockpit model routing must stop at Terra unless a high-volume tier is justified"
+fi
+ok "Cockpit uses the Astra, Sol, and Terra routing"
 
 for adapter in codex claude copilot opencode; do
   test -d "$BACKPACK_ROOT/cockpit/adapters/$adapter" || fail "missing $adapter adapter"
@@ -83,25 +92,32 @@ test -d "$BACKPACK_ROOT/cockpit/adapters/claude/agents" || fail "missing Claude 
 for agent in plan build review qa design; do
   test -f "$BACKPACK_ROOT/cockpit/adapters/claude/agents/$agent.md" || fail "missing Claude $agent agent"
 done
+for agent in plan review qa design; do
+  grep -q '^permissionMode: plan$' "$BACKPACK_ROOT/cockpit/adapters/claude/agents/$agent.md" ||
+    fail "Claude $agent agent must use native plan permissions"
+done
 for duplicate in validate learn pattern-scan; do
   test ! -e "$BACKPACK_ROOT/cockpit/adapters/claude/agents/$duplicate.md" ||
     fail "Claude must use the portable $duplicate capability instead of a duplicate agent"
 done
+if grep -Rq '^model:' "$BACKPACK_ROOT/cockpit/adapters/claude/agents"; then
+  fail "Claude agents must inherit the user-selected model"
+fi
 ok "Claude exposes one surface per Cockpit capability"
 
 test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/agents/product-design.md" || fail "missing OpenCode product-design agent"
 ok "product-design agent exists"
 
-test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/design.md" || fail "missing OpenCode design command"
-ok "design command exists"
+test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/cockpit-design.md" || fail "missing OpenCode cockpit-design command"
+ok "cockpit-design command exists"
 
-test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/brainstorm.md" || fail "missing OpenCode brainstorm command"
-grep -q '^agent: plan$' "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/brainstorm.md" ||
-  fail "OpenCode brainstorm command must use the read-only plan agent"
-ok "brainstorm command uses plan"
+test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/cockpit-brainstorm.md" || fail "missing OpenCode cockpit-brainstorm command"
+grep -q '^agent: plan$' "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/cockpit-brainstorm.md" ||
+  fail "OpenCode cockpit-brainstorm command must use the read-only plan agent"
+ok "cockpit-brainstorm command uses plan"
 
-grep -A 2 '^agent: product-design$' "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/design.md" | grep -q '^subtask: true$' ||
-  fail "OpenCode design command must delegate an isolated product-design subtask"
+grep -A 2 '^agent: product-design$' "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/cockpit-design.md" | grep -q '^subtask: true$' ||
+  fail "OpenCode cockpit-design command must delegate an isolated product-design subtask"
 
 test -f "$BACKPACK_ROOT/cockpit/portable/skills/prompt-refinement/SKILL.md" || fail "missing portable prompt-refinement skill"
 ok "safe prompt refinement capability exists"
@@ -112,8 +128,23 @@ for prompt in plan build review; do
 done
 grep -q '"default_agent": "build"' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" ||
   fail "OpenCode build must be the default primary agent"
-grep -A 18 '"plan": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" | grep -q '"\*": "deny"' ||
+grep -A 14 '"plan": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" | grep -q '"bash": "deny"' ||
   fail "OpenCode plan must hard-deny shell so auto-approve remains read-only"
+grep -A 14 '"plan": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" | grep -q '"edit": "deny"' ||
+  fail "OpenCode plan must hard-deny edits in read-only mode"
+grep -A 14 '"build": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" | grep -q '"bash": "ask"' ||
+  fail "OpenCode build shell must require approval"
+grep -A 16 '"review": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" | grep -q '"bash": "deny"' ||
+  fail "OpenCode review must hard-deny shell in strict read-only mode"
+grep -A 16 '"review": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" | grep -q '"edit": "deny"' ||
+  fail "OpenCode review must hard-deny edits in strict read-only mode"
+grep -q '^  bash: deny$' "$BACKPACK_ROOT/cockpit/adapters/opencode/agents/qa.md" ||
+  fail "OpenCode Product QA must hard-deny shell in strict read-only mode"
+grep -q '^  edit: deny$' "$BACKPACK_ROOT/cockpit/adapters/opencode/agents/qa.md" ||
+  fail "OpenCode Product QA must hard-deny edits in strict read-only mode"
+if grep -R 'capture.sh' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" "$BACKPACK_ROOT/cockpit/adapters/opencode/prompts/plan.md" "$BACKPACK_ROOT/cockpit/adapters/opencode/prompts/review.md" >/dev/null 2>&1; then
+  fail "OpenCode read-only agents must not retain a pattern-capture shell exception"
+fi
 if grep -q '"interactive": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" ||
    grep -q '"design": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json"; then
   fail "OpenCode must expose only build and plan as custom primary agents"
@@ -131,16 +162,26 @@ grep -A 6 '"explore": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json
 ok "OpenCode prompts stay thin around portable doctrine"
 
 test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/agents/qa.md" || fail "missing OpenCode qa agent"
-test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/qa.md" || fail "missing OpenCode /qa command"
-for duplicate in validate learn start-work pattern-scan refine capture; do
+for command in cockpit-brainstorm cockpit-design cockpit-review cockpit-qa; do
+  test -f "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/$command.md" ||
+    fail "missing OpenCode /$command command"
+done
+for command_path in "$BACKPACK_ROOT/cockpit/adapters/opencode/commands"/*.md; do
+  command_name=$(basename "$command_path")
+  case "$command_name" in
+    cockpit-brainstorm.md|cockpit-design.md|cockpit-review.md|cockpit-qa.md) ;;
+    *) fail "unexpected or unnamespaced OpenCode command: $command_name" ;;
+  esac
+done
+for duplicate in brainstorm design review qa validate learn start-work pattern-scan refine capture; do
   test ! -e "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/$duplicate.md" ||
-    fail "OpenCode /$duplicate duplicates a portable skill"
+    fail "OpenCode retained retired or unnamespaced command /$duplicate"
 done
 for duplicate in validate learn; do
   test ! -e "$BACKPACK_ROOT/cockpit/adapters/opencode/agents/$duplicate.md" ||
     fail "OpenCode $duplicate agent duplicates a portable skill"
 done
-ok "OpenCode exposes one surface per Cockpit capability"
+ok "OpenCode commands are namespaced and expose one surface per Cockpit capability"
 
 for skill in brand-messaging website-content-architecture website-copywriting; do
   test -f "$BACKPACK_ROOT/cockpit/portable/skills/$skill/SKILL.md" || fail "missing portable $skill skill"

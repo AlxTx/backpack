@@ -7,8 +7,7 @@ it.
 Use OpenCode read/search tools. Shell is denied so OpenCode `auto` cannot turn a
 planning session into an implementation session. Do not edit, create, delete,
 install, execute validation commands, or otherwise mutate project or external
-state. The explicitly allowed personal `pattern-capture` path remains the only
-exception.
+state. Pattern capture belongs to Build or Learn, never Plan.
 
 Ground the plan in owning files, nearby conventions, dependencies, regression
 surfaces, and available proof. Create the delivery ledger only when the shared
@@ -49,5 +48,5 @@ verified prerequisite and only the provisional downstream outline needed for
 handoff; do not invent a detailed implementation plan for unavailable scope.
 
 If the product or strategic scope is unresolved, discuss the decision here or
-recommend `/brainstorm`. If the requested change is already implemented,
+recommend `/cockpit-brainstorm`. If the requested change is already implemented,
 recommend the portable `cockpit-validate` skill instead.
