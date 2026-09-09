@@ -263,6 +263,7 @@ for managed_link in \
   "$GENERAL_HOME/.codex/agents/cockpit-product-qa.toml" \
   "$GENERAL_HOME/.claude/rules/backpack.md" \
   "$GENERAL_HOME/.claude/agents" \
+  "$GENERAL_HOME/.copilot/copilot-instructions.md" \
   "$GENERAL_HOME/.agents/skills/cockpit-prompt-refinement" \
   "$GENERAL_HOME/.config/fish" \
   "$GENERAL_HOME/.config/nvim" \
@@ -278,8 +279,8 @@ test -f "$GENERAL_HOME/.codex/agents/local.toml" || {
   exit 1
 }
 
-grep -q '^local copilot$' "$GENERAL_HOME/.copilot/copilot-instructions.md" || {
-  printf '✗ Everything install changed the externally owned Copilot workflow\n' >&2
+cmp "$BACKPACK_ROOT/cockpit/adapters/copilot/copilot-instructions.md" "$GENERAL_HOME/.copilot/copilot-instructions.md" || {
+  printf '✗ Everything install did not install the FSH Copilot workflow bridge\n' >&2
   exit 1
 }
 
@@ -317,6 +318,7 @@ test -n "$general_backup" || {
 for backup_marker in \
   "$general_backup$GENERAL_HOME/.codex/AGENTS.md" \
   "$general_backup$GENERAL_HOME/.claude/agents/local.md" \
+  "$general_backup$GENERAL_HOME/.copilot/copilot-instructions.md" \
   "$general_backup$GENERAL_HOME/.copilot/hooks/rtk-rewrite.json" \
   "$general_backup$GENERAL_HOME/.agents/skills/prompt-refinement/SKILL.md" \
   "$general_backup$GENERAL_HOME/.config/fish/local.fish"; do

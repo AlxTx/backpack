@@ -68,7 +68,8 @@ merges or silently preserves a divergent local copy:
 - Codex: `~/.codex/AGENTS.md`, the two named Cockpit validation agents, and the
   shared Cockpit core;
 - Claude Code: `~/.claude/rules/backpack.md`, `~/.claude/agents`, and the core;
-- GitHub Copilot: the shared core as explicit `/cockpit-*` utilities only;
+- GitHub Copilot: the FSH workflow bridge and shared core as explicit
+  `/cockpit-*` utilities;
 - machine targets: the selected Fish, Starship, Neovim, Ghostty, and Karabiner
   paths.
 
@@ -113,9 +114,10 @@ Backpack source and creates no local divergence.
 ## GitHub Copilot
 
 Copilot discovers `~/.copilot/copilot-instructions.md` automatically in the CLI
-and desktop app. Backpack leaves that file, Copilot plugins, and Copilot hooks to
-the active client workflow. It installs only the six namespaced Cockpit skills,
-whose metadata requires an explicit `/cockpit-*` invocation in Copilot.
+and desktop app. Backpack links that path to its thin FSH workflow bridge and
+installs the six namespaced Cockpit skills, whose metadata requires an explicit
+`/cockpit-*` invocation in Copilot. Copilot plugins and hooks remain externally
+owned.
 
 During migration, Backpack backs up and removes the legacy
 `~/.copilot/hooks/rtk-rewrite.json` only when it identifies the former
@@ -155,6 +157,7 @@ Cockpit uses shared workflow and skill sources with thin host adapters:
 ~/.codex/AGENTS.md
 ~/.codex/agents/cockpit-code-review.toml
 ~/.codex/agents/cockpit-product-qa.toml
+~/.copilot/copilot-instructions.md
 ~/.config/opencode/AGENTS.md
 ~/.claude/rules/backpack.md
 ~/.agents/skills/

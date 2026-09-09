@@ -36,16 +36,16 @@ the installation mapping when the host directly consumes the portable files.
 | Host | CLI/Desktop coverage | Shared guidance | Cockpit core | Adapter-only concerns |
 |---|---|---|---|---|
 | Codex | Same portable files in CLI and desktop app | `~/.codex/AGENTS.md` | `~/.agents/skills` | read-only Review/QA agents; personal models, plugins, MCP |
-| GitHub Copilot | CLI and desktop app use the same external workflow | Externally owned | `~/.agents/skills` as explicit `/cockpit-*` utilities | account, organization policies, plugins, repository instructions |
+| GitHub Copilot | CLI and desktop app use the same FSH workflow bridge | `~/.copilot/copilot-instructions.md` | `~/.agents/skills` as explicit `/cockpit-*` utilities | account, organization policies, plugins, repository instructions |
 | OpenCode | Same configuration in CLI, TUI, desktop app, and GitHub Action | `~/.config/opencode/AGENTS.md` | `~/.agents/skills` | agents, commands, permissions, provider/model |
 | Claude Code | CLI and Desktop Code tab share local configuration | `~/.claude/rules/backpack.md` | `~/.claude/skills` | subagents, hooks, permissions, provider/model |
 | Other compatible hosts | Varies by host | global or repo `AGENTS.md` | `.agents/skills` | host permissions and UI |
 
-Copilot CLI and the desktop app may use a client-owned personal workflow.
-Backpack deliberately leaves Copilot instructions and hooks untouched and
-exposes its portable skills there only through explicit `/cockpit-*`
-invocations. Copilot cloud agents and code review use repository-level
-`AGENTS.md` or `.github/copilot-instructions.md`; those files remain client-owned.
+Copilot CLI and the desktop app use a thin FSH workflow bridge from Backpack's
+Copilot adapter. Backpack leaves Copilot hooks untouched and exposes its
+portable skills there only through explicit `/cockpit-*` invocations. Copilot
+cloud agents and code review use repository-level `AGENTS.md` or
+`.github/copilot-instructions.md`; those files remain client-owned.
 
 OpenCode keeps richer phase switching because its primary-agent model makes it
 useful. Those modes are an interface over the common workflow, not a second

@@ -1,8 +1,8 @@
 # GitHub Copilot adapter
 
-Copilot CLI and the desktop app discover Cockpit's shared skills, but Backpack
-does not install a default Copilot workflow or hook. The active client or host
-configuration owns `~/.copilot/copilot-instructions.md` and Copilot hooks.
+Copilot CLI and the desktop app receive the FSH workflow bridge from
+`copilot-instructions.md` in this adapter and discover Cockpit's shared skills.
+Backpack does not install a Copilot hook.
 
 Every `cockpit-*` skill is an explicit utility in Copilot: invoke it with its
 full `/cockpit-*` name. Copilot must not select these skills automatically, and
@@ -22,8 +22,8 @@ recommendation changed the model.
 Copilot App can use a client-owned workflow while retaining the portable
 Cockpit utilities for focused, user-requested operations.
 
-Installation links only the shared Cockpit skills. Copilot instructions, hooks,
-plugins, account data, organization policy, histories, and caches remain
+Installation links the FSH workflow bridge and shared Cockpit skills. Copilot
+hooks, plugins, account data, organization policy, histories, and caches remain
 untouched.
 
 Install only this adapter with:

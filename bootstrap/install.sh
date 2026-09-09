@@ -944,11 +944,13 @@ EOF
       install_claude_adapter
       ;;
     copilot)
+      link_entry "$BACKPACK_ROOT/cockpit/adapters/copilot/copilot-instructions.md" "$BACKPACK_COPILOT_DIR/copilot-instructions.md"
       install_core_skills "$BACKPACK_AGENTS_DIR/skills"
       ;;
     ai|all)
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$CONFIG_DIR/opencode/AGENTS.md"
       install_codex_adapter
+      link_entry "$BACKPACK_ROOT/cockpit/adapters/copilot/copilot-instructions.md" "$BACKPACK_COPILOT_DIR/copilot-instructions.md"
       install_claude_adapter
       ;;
   esac

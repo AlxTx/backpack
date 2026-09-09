@@ -92,11 +92,12 @@ authoritative.
 | Codex | `~/.codex/AGENTS.md` | Uses the same instruction source |
 | Claude Code | `~/.claude/rules/backpack.md`, agents, and skills | Code tab shares the same local configuration |
 | OpenCode | `~/.config/opencode/` | Uses the same configuration as CLI and TUI |
-| GitHub Copilot | External workflow plus explicit `/cockpit-*` skills from `~/.agents/skills` | Uses the same local configuration |
+| GitHub Copilot | FSH workflow bridge plus explicit `/cockpit-*` skills from `~/.agents/skills` | Uses the same local configuration |
 
-GitHub Copilot's default instructions, plugins, and hooks are externally owned.
-Backpack only exposes its namespaced skills there, and their Copilot metadata
-requires an explicit `/cockpit-*` invocation.
+GitHub Copilot receives the FSH workflow bridge from Backpack's Copilot adapter.
+Backpack also exposes its namespaced skills there, and their Copilot metadata
+requires an explicit `/cockpit-*` invocation. Copilot plugins and hooks remain
+externally owned.
 
 Repository-level instructions remain project truth and can add client-specific
 constraints. Backpack never creates or commits them automatically.
