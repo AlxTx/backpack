@@ -128,6 +128,18 @@ Weigh client delivery speed, business impact, production risk, reversibility,
 maintainability, team readability, onboarding cost, timebox, confidence, and
 handoff quality.
 
+After understanding the real flow, stop at the first option that fully and safely
+meets the requirement:
+
+1. Avoid work that does not need to exist.
+2. Reuse existing project behavior, helpers, and patterns.
+3. Prefer the standard library or a native platform capability.
+4. Reuse an already-installed dependency.
+5. Write the smallest local implementation that remains clear.
+
+Project requirements, established conventions, security, accessibility, and
+correctness override fewer lines or a lower rung.
+
 - Prefer minimal, localized, reversible changes.
 - Avoid speculative architecture, broad refactors, unnecessary abstractions,
   unjustified dependencies, and unrelated cleanup.
