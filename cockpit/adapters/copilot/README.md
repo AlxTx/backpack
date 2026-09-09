@@ -1,14 +1,13 @@
 # GitHub Copilot adapter
 
-Copilot CLI and the desktop app consume `~/.copilot/copilot-instructions.md` and
-shared skills. Backpack also installs RTK's user-level hook at
-`~/.copilot/hooks/rtk-rewrite.json` for automatic command rewriting.
+Copilot CLI and the desktop app discover Cockpit's shared skills, but Backpack
+does not install a default Copilot workflow or hook. The active client or host
+configuration owns `~/.copilot/copilot-instructions.md` and Copilot hooks.
 
-The desktop app can therefore run the same **Plan → Build → Validate → Learn**
-loop as the other hosts. `cockpit-validate`, `cockpit-learn`, and
-`cockpit-start-work` are portable skills rather than Copilot-specific commands.
-Use Copilot's native Plan, Interactive, or Autopilot surface; Cockpit supplies
-the lifecycle and delivery gates without recreating that UI.
+Every `cockpit-*` skill is an explicit utility in Copilot: invoke it with its
+full `/cockpit-*` name. Copilot must not select these skills automatically, and
+control returns to the externally owned workflow after the requested utility
+finishes. Other hosts keep Cockpit's normal automatic routing.
 
 ## Model selection
 
@@ -20,14 +19,11 @@ and makes the manual step explicit: select it in Copilot, then answer `yes` once
 active, or `no` to continue unchanged. It never assumes that accepting the
 recommendation changed the model.
 
-Copilot App is the preferred candidate when a professional Copilot seat should
-carry model consumption. Validate on real work that the available organization
-policy and credit budget cover the intended usage, and compare its native agent
-visibility and browser feedback loop with Codex before selecting it as the sole
-desktop host.
+Copilot App can use a client-owned workflow while retaining the portable
+Cockpit utilities for focused, user-requested operations.
 
-Installation replaces these Backpack-managed paths and backs up conflicts;
-Copilot account data, organization policy, histories, and caches remain
+Installation links only the shared Cockpit skills. Copilot instructions, hooks,
+plugins, account data, organization policy, histories, and caches remain
 untouched.
 
 Install only this adapter with:
@@ -36,5 +32,4 @@ Install only this adapter with:
 backpack install cockpit --copilot
 ```
 
-No in-app copy-paste is required. Restart GitHub Copilot after installation so
-it reloads instructions and hooks.
+Reload Copilot skills after installation.

@@ -1,6 +1,6 @@
 ---
 name: cockpit-learn
-description: Reflect on a completed or Ready-to-Ship delivery slice and route only evidenced reusable knowledge. Use when the user asks to learn from, retrospect on, or codify lessons from finished work.
+description: In GitHub Copilot, use only when the user explicitly invokes /cockpit-learn; never select automatically. Reflect on a completed or Ready-to-Ship delivery slice and route only evidenced reusable knowledge. In other hosts, use when the user asks to learn from, retrospect on, or codify lessons from finished work.
 ---
 
 # Cockpit Learn

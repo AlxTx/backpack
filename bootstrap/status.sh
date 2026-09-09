@@ -5,7 +5,6 @@ CONFIG_DIR=${CONFIG_DIR:-"$HOME/.config"}
 BACKPACK_AGENTS_DIR=${BACKPACK_AGENTS_DIR:-"$HOME/.agents"}
 BACKPACK_CODEX_DIR=${CODEX_HOME:-"$HOME/.codex"}
 BACKPACK_CLAUDE_DIR=${CLAUDE_CONFIG_DIR:-"$HOME/.claude"}
-BACKPACK_COPILOT_DIR=${COPILOT_HOME:-"$HOME/.copilot"}
 BACKPACK_BIN_DIR=${BACKPACK_BIN_DIR:-"$HOME/.local/bin"}
 
 state() {
@@ -25,9 +24,7 @@ printf 'Cockpit\n'
 state 'OpenCode' "$CONFIG_DIR/opencode/AGENTS.md"
 state 'Codex' "$BACKPACK_CODEX_DIR/AGENTS.md"
 state 'Claude Code' "$BACKPACK_CLAUDE_DIR/rules/backpack.md"
-state 'GitHub Copilot' "$BACKPACK_COPILOT_DIR/copilot-instructions.md"
-state 'Copilot RTK hook' "$BACKPACK_COPILOT_DIR/hooks/rtk-rewrite.json"
-state 'Cockpit core' "$BACKPACK_AGENTS_DIR/skills/cockpit-prompt-refinement"
+state 'Cockpit skills' "$BACKPACK_AGENTS_DIR/skills/cockpit-prompt-refinement"
 
 printf '\nThis Mac\n'
 state 'Shell' "$CONFIG_DIR/fish"

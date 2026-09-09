@@ -1,6 +1,6 @@
 ---
 name: cockpit-validate
-description: Validate a completed delivery slice by running independent read-only Code Review and Product QA, then consolidate delivery readiness. Use for final validation or Ready-to-Ship checks; not for routine tests during implementation.
+description: In GitHub Copilot, use only when the user explicitly invokes /cockpit-validate; never select automatically. Validate a completed delivery slice by running independent read-only Code Review and Product QA, then consolidate delivery readiness. In other hosts, use for final validation or Ready-to-Ship checks; not for routine tests during implementation.
 ---
 
 # Cockpit Validate

@@ -1,6 +1,6 @@
 ---
 name: cockpit-pattern-scan
-description: Map established architecture, JavaScript, and framework patterns or anti-patterns in an unfamiliar codebase. Use for onboarding and explicit pattern scans; not for implementation plans or diff review.
+description: In GitHub Copilot, use only when the user explicitly invokes /cockpit-pattern-scan; never select automatically. Map established architecture, JavaScript, and framework patterns or anti-patterns in an unfamiliar codebase. In other hosts, use for onboarding and explicit pattern scans; not for implementation plans or diff review.
 ---
 
 # Pattern Scan

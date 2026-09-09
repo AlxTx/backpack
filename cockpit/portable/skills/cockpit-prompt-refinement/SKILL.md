@@ -1,6 +1,6 @@
 ---
 name: cockpit-prompt-refinement
-description: Automatically preflight long, ambiguous, conflicting, or repetitive prompts before execution, and handle explicit requests to refine or compact a prompt. Skip clear actionable prompts.
+description: In GitHub Copilot, use only when the user explicitly invokes /cockpit-prompt-refinement; never select automatically. In other hosts, automatically preflight long, ambiguous, conflicting, or repetitive prompts before execution, and handle explicit requests to refine or compact a prompt. Skip clear actionable prompts.
 ---
 
 # Prompt Refinement

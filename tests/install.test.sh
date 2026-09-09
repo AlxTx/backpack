@@ -219,6 +219,7 @@ mkdir -p \
   "$GENERAL_HOME/.codex/agents" \
   "$GENERAL_HOME/.claude/rules" \
   "$GENERAL_HOME/.claude/agents" \
+  "$GENERAL_HOME/.copilot/hooks" \
   "$GENERAL_HOME/.copilot/instructions" \
   "$GENERAL_HOME/.agents/skills/prompt-refinement" \
   "$GENERAL_HOME/.config/fish" \
@@ -233,6 +234,8 @@ printf 'local claude rule\n' > "$GENERAL_HOME/.claude/rules/backpack.md"
 printf 'local claude agent\n' > "$GENERAL_HOME/.claude/agents/local.md"
 printf 'local copilot\n' > "$GENERAL_HOME/.copilot/copilot-instructions.md"
 printf 'legacy copilot\n' > "$GENERAL_HOME/.copilot/instructions/backpack.instructions.md"
+printf '{"hooks":{"PreToolUse":[{"command": "rtk hook copilot"}]}}\n' > "$GENERAL_HOME/.copilot/hooks/rtk-rewrite.json"
+printf '{"hooks":{"PreToolUse":[{"command": "client hook"}]}}\n' > "$GENERAL_HOME/.copilot/hooks/client.json"
 printf 'local legacy skill\n' > "$GENERAL_HOME/.agents/skills/prompt-refinement/SKILL.md"
 printf 'local fish\n' > "$GENERAL_HOME/.config/fish/local.fish"
 printf 'local nvim\n' > "$GENERAL_HOME/.config/nvim/local.lua"
@@ -260,7 +263,6 @@ for managed_link in \
   "$GENERAL_HOME/.codex/agents/cockpit-product-qa.toml" \
   "$GENERAL_HOME/.claude/rules/backpack.md" \
   "$GENERAL_HOME/.claude/agents" \
-  "$GENERAL_HOME/.copilot/copilot-instructions.md" \
   "$GENERAL_HOME/.agents/skills/cockpit-prompt-refinement" \
   "$GENERAL_HOME/.config/fish" \
   "$GENERAL_HOME/.config/nvim" \
@@ -276,6 +278,26 @@ test -f "$GENERAL_HOME/.codex/agents/local.toml" || {
   exit 1
 }
 
+grep -q '^local copilot$' "$GENERAL_HOME/.copilot/copilot-instructions.md" || {
+  printf '✗ Everything install changed the externally owned Copilot workflow\n' >&2
+  exit 1
+}
+
+grep -q '^legacy copilot$' "$GENERAL_HOME/.copilot/instructions/backpack.instructions.md" || {
+  printf '✗ Everything install changed external Copilot instructions\n' >&2
+  exit 1
+}
+
+test ! -e "$GENERAL_HOME/.copilot/hooks/rtk-rewrite.json" || {
+  printf '✗ Everything install preserved the legacy Backpack RTK Copilot hook\n' >&2
+  exit 1
+}
+
+grep -q 'client hook' "$GENERAL_HOME/.copilot/hooks/client.json" || {
+  printf '✗ Everything install changed an externally owned Copilot hook\n' >&2
+  exit 1
+}
+
 grep -q '^model = "personal-model"$' "$GENERAL_HOME/.codex/config.toml" || {
   printf '✗ Everything install changed personal Codex configuration\n' >&2
   exit 1
@@ -283,11 +305,6 @@ grep -q '^model = "personal-model"$' "$GENERAL_HOME/.codex/config.toml" || {
 
 grep -Fq 'test "$PWD" = "$HOME"' "$GENERAL_HOME/.config/fish/config.fish" || {
   printf '✗ Fish config does not preserve an inherited project directory\n' >&2
-  exit 1
-}
-
-test ! -e "$GENERAL_HOME/.copilot/instructions/backpack.instructions.md" || {
-  printf '✗ Everything install preserved legacy Copilot instructions\n' >&2
   exit 1
 }
 
@@ -300,13 +317,21 @@ test -n "$general_backup" || {
 for backup_marker in \
   "$general_backup$GENERAL_HOME/.codex/AGENTS.md" \
   "$general_backup$GENERAL_HOME/.claude/agents/local.md" \
-  "$general_backup$GENERAL_HOME/.copilot/copilot-instructions.md" \
+  "$general_backup$GENERAL_HOME/.copilot/hooks/rtk-rewrite.json" \
   "$general_backup$GENERAL_HOME/.agents/skills/prompt-refinement/SKILL.md" \
   "$general_backup$GENERAL_HOME/.config/fish/local.fish"; do
   test -f "$backup_marker" || {
     printf '✗ Everything install did not back up managed path: %s\n' "$backup_marker" >&2
     exit 1
   }
+done
+
+for cockpit_skill in cockpit-prompt-refinement cockpit-pattern-scan cockpit-pattern-capture cockpit-validate cockpit-learn cockpit-start-work; do
+  grep -q "In GitHub Copilot, use only when the user explicitly invokes /$cockpit_skill; never select automatically" \
+    "$BACKPACK_ROOT/cockpit/portable/skills/$cockpit_skill/SKILL.md" || {
+      printf '✗ %s is not explicit-only in GitHub Copilot\n' "$cockpit_skill" >&2
+      exit 1
+    }
 done
 
 printf '✓ interactive Cockpit install contract\n'

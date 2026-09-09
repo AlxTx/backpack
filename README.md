@@ -62,7 +62,7 @@ uses arrow-key menus when `gum` is available and falls back to a numbered menu.
 | Install Cockpit for every AI tool | `backpack install cockpit --all-hosts` |
 | Install Cockpit for Codex | `backpack install cockpit --codex` |
 | Install Cockpit for Claude Code | `backpack install cockpit --claude` |
-| Install Cockpit for GitHub Copilot | `backpack install cockpit --copilot` |
+| Install explicit Cockpit utilities for GitHub Copilot | `backpack install cockpit --copilot` |
 | Replace Cockpit for OpenCode from Backpack | `backpack install cockpit --opencode` |
 
 A direct target applies immediately; use `--dry-run` for a read-only preview.
@@ -92,11 +92,11 @@ authoritative.
 | Codex | `~/.codex/AGENTS.md` | Uses the same instruction source |
 | Claude Code | `~/.claude/rules/backpack.md`, agents, and skills | Code tab shares the same local configuration |
 | OpenCode | `~/.config/opencode/` | Uses the same configuration as CLI and TUI |
-| GitHub Copilot | `~/.copilot/copilot-instructions.md`, RTK hook, and `~/.agents/skills` | Uses the same local configuration |
+| GitHub Copilot | External workflow plus explicit `/cockpit-*` skills from `~/.agents/skills` | Uses the same local configuration |
 
-GitHub Copilot discovers the personal instruction file automatically. Backpack
-also installs RTK's user-level Copilot hook so compatible shell commands are
-rewritten before execution. No copy-paste into app settings is required.
+GitHub Copilot's default instructions, plugins, and hooks are externally owned.
+Backpack only exposes its namespaced skills there, and their Copilot metadata
+requires an explicit `/cockpit-*` invocation.
 
 Repository-level instructions remain project truth and can add client-specific
 constraints. Backpack never creates or commits them automatically.

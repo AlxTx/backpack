@@ -572,6 +572,15 @@ count_core_skills() {
   printf '%s' "$count_total"
 }
 
+core_install_description() {
+  core_count=$(count_core_skills)
+  case "$INSTALL_TARGET" in
+    copilot) printf '%s explicit /cockpit-* utility skill(s)' "$core_count" ;;
+    ai|all) printf '%s workflow skill(s); explicit-only in Copilot' "$core_count" ;;
+    *) printf '%s workflow skill(s); specialized skills are project-local' "$core_count" ;;
+  esac
+}
+
 target_uses_skills() {
   case "$INSTALL_TARGET" in
     ai|all|codex|claude|copilot|opencode) return 0 ;;
@@ -698,52 +707,20 @@ configure_rtk_claude() {
   fi
 }
 
-configure_rtk_copilot() {
-  if [ "$APPLY" -eq 0 ]; then
-    detail 'configure RTK GitHub Copilot hook'
-    return
-  fi
+remove_legacy_copilot_rtk_hook() {
+  legacy_hook="$BACKPACK_COPILOT_DIR/hooks/rtk-rewrite.json"
 
-  rtk_temp_dir=$(mktemp -d "${TMPDIR:-/tmp}/backpack-rtk-copilot.XXXXXX") || {
-    warn 'could not create a temporary directory for the RTK Copilot hook'
-    return
-  }
-
-  if HOME="$rtk_temp_dir" COPILOT_HOME="$rtk_temp_dir/.copilot" \
-    rtk init -g --copilot --auto-patch >/dev/null 2>&1 && \
-    [ -f "$rtk_temp_dir/.copilot/hooks/rtk-rewrite.json" ]; then
-    if mkdir -p "$BACKPACK_COPILOT_DIR/hooks" && \
-      copy_path_with_backup "$rtk_temp_dir/.copilot/hooks/rtk-rewrite.json" \
-        "$BACKPACK_COPILOT_DIR/hooks/rtk-rewrite.json"; then
-      detail_success 'RTK GitHub Copilot hook configured'
-    else
-      warn 'could not write the RTK GitHub Copilot hook; shared shell rules remain active'
-    fi
-  else
-    warn 'could not configure the RTK GitHub Copilot hook; shared shell rules remain active'
-  fi
-
-  rm -rf "$rtk_temp_dir"
-}
-
-remove_legacy_copilot_instruction() {
-  legacy_path="$BACKPACK_COPILOT_DIR/instructions/backpack.instructions.md"
-  canonical_source="$BACKPACK_ROOT/cockpit/portable/AGENTS.md"
+  [ -f "$legacy_hook" ] || return 0
+  grep -q '"command": "rtk hook copilot"' "$legacy_hook" || return 0
 
   if [ "$APPLY" -eq 0 ]; then
-    [ -e "$legacy_path" ] || [ -L "$legacy_path" ] || return 0
-    detail "remove duplicate Copilot instructions at $legacy_path"
+    detail "remove legacy Backpack RTK Copilot hook at $legacy_hook"
     return
   fi
 
-  if [ -e "$legacy_path" ] || [ -L "$legacy_path" ]; then
-    if [ -L "$legacy_path" ] && [ "$(readlink "$legacy_path")" = "$canonical_source" ]; then
-      rm "$legacy_path"
-    else
-      backup_existing "$legacy_path"
-    fi
-    detail_success "removed duplicate Copilot instructions at $legacy_path"
-  fi
+  mkdir -p "$backup_dir"
+  backup_existing "$legacy_hook"
+  detail_success "removed legacy Backpack RTK Copilot hook at $legacy_hook"
 }
 
 link_entry() {
@@ -837,7 +814,7 @@ print_client_reminder() {
 
     case "$INSTALL_TARGET" in
       ai|copilot|all)
-        printf '%s\n' '- Copilot gets personal instructions locally; client repository instructions remain authoritative.'
+        printf '%s\n' '- Copilot gets explicit /cockpit-* utilities only; its default workflow and repository instructions remain externally owned.'
         ;;
     esac
 
@@ -855,7 +832,7 @@ target_description() {
     opencode) printf 'Cockpit for OpenCode' ;;
     codex) printf 'Cockpit for Codex' ;;
     claude) printf 'Cockpit for Claude Code' ;;
-    copilot) printf 'Cockpit for GitHub Copilot' ;;
+    copilot) printf 'Explicit Cockpit utilities for GitHub Copilot' ;;
     ai) printf 'Cockpit for all supported tools' ;;
     shell) printf 'Shell configuration' ;;
     editor) printf 'Editor configuration' ;;
@@ -887,8 +864,8 @@ print_completion() {
       printf 'Restart the app to activate it.\n'
       ;;
     copilot)
-      success 'Cockpit for GitHub Copilot installed'
-      printf 'Restart GitHub Copilot to activate it.\n'
+      success 'Explicit Cockpit utilities for GitHub Copilot installed'
+      printf 'Reload Copilot skills to activate them.\n'
       ;;
     ai)
       success 'Cockpit installed for all supported tools'
@@ -910,7 +887,7 @@ $(section 'Installation summary')
   Target    $(target_description)
   Surfaces  $(target_surface)
   Action    Refresh links and replace selected adapters from this Backpack version
-  Core      $(if target_uses_skills; then printf '%s workflow skill(s); specialized skills are project-local' "$(count_core_skills)"; else printf 'not applicable'; fi)
+  Core      $(if target_uses_skills; then core_install_description; else printf 'not applicable'; fi)
   Mode      $(if [ "$APPLY" -eq 1 ]; then printf 'applying'; elif [ "$DRY_RUN" -eq 1 ]; then printf 'dry run'; else printf 'awaiting confirmation'; fi)
 
 EOF
@@ -923,7 +900,6 @@ EOF
       ai|all)
         install_rtk
         configure_rtk_claude
-        configure_rtk_copilot
         ;;
       codex)
         install_rtk
@@ -934,13 +910,16 @@ EOF
         ;;
       copilot)
         install_rtk
-        configure_rtk_copilot
         ;;
       opencode)
         install_rtk
         ;;
     esac
   fi
+
+  case "$INSTALL_TARGET" in
+    ai|all|copilot) remove_legacy_copilot_rtk_hook ;;
+  esac
 
   if [ "$REPLACE_EXISTING" -eq 1 ]; then
     warn '--replace is no longer needed; installs always replace Backpack-managed targets.'
@@ -965,15 +944,11 @@ EOF
       install_claude_adapter
       ;;
     copilot)
-      link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_COPILOT_DIR/copilot-instructions.md"
-      remove_legacy_copilot_instruction
       install_core_skills "$BACKPACK_AGENTS_DIR/skills"
       ;;
     ai|all)
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$CONFIG_DIR/opencode/AGENTS.md"
       install_codex_adapter
-      link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_COPILOT_DIR/copilot-instructions.md"
-      remove_legacy_copilot_instruction
       install_claude_adapter
       ;;
   esac

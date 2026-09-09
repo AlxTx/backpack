@@ -1,6 +1,6 @@
 ---
 name: cockpit-start-work
-description: Create a new local work branch from an exact up-to-date remote base without changing product files. Use only when the user asks to prepare or start a branch and supplies or confirms the branch and base.
+description: In GitHub Copilot, use only when the user explicitly invokes /cockpit-start-work; never select automatically. Create a new local work branch from an exact up-to-date remote base without changing product files. In other hosts, use only when the user asks to prepare or start a branch and supplies or confirms the branch and base.
 ---
 
 # Cockpit Start Work
