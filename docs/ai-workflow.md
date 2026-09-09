@@ -54,7 +54,7 @@ source of doctrine.
 All compatible hosts expose portable skills as the single public surface for
 shared capabilities. They do not add aliases such as `/validate` or duplicate
 wrapper agents around `cockpit-validate`, `cockpit-learn`,
-`cockpit-start-work`, `pattern-scan`, `pattern-capture`, or `prompt-refinement`.
+`cockpit-start-work`, `cockpit-pattern-scan`, `cockpit-pattern-capture`, or `cockpit-prompt-refinement`.
 The Codex adapter adds only the two read-only agents that
 make Code Review and Product QA independently inspectable in the native subagent
 UI. Plan and Build continue to use Codex's native mode and conversation instead
@@ -79,13 +79,13 @@ of duplicating host controls.
 
 ## Prompt refinement
 
-`prompt-refinement` is a hybrid automatic preflight for long, ambiguous,
+`cockpit-prompt-refinement` is a hybrid automatic preflight for long, ambiguous,
 conflicting, or repetitive prompts. Clear actionable prompts bypass it.
 Meaning-preserving cleanup can flow directly into execution without adding a
 conversation turn. If a rewrite could change intent, scope, requirements,
 acceptance criteria, or permissions, Cockpit preserves the original, shows the
 proposal and changes, then waits for explicit validation. An explicit
-`prompt-refinement` invocation always uses this review path. Safe mode preserves detail by default;
+`cockpit-prompt-refinement` invocation always uses this review path. Safe mode preserves detail by default;
 compact mode is opt-in.
 
 The agent-level preflight does not guarantee token savings because the original
@@ -96,7 +96,7 @@ prevents short clear prompts from paying this overhead.
 
 This is not measured prompt optimization. Calling a prompt “optimized” requires
 representative cases, explicit success criteria, and comparative evaluation.
-Every host uses the shared `prompt-refinement` skill directly; no adapter adds a
+Every host uses the shared `cockpit-prompt-refinement` skill directly; no adapter adds a
 second shortcut for it.
 
 ## Visible execution context

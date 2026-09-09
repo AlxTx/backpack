@@ -2,9 +2,9 @@
 # Specialized skills are deliberately excluded and are added per project with
 # `backpack add <skill>`.
 
-prompt-refinement
-pattern-scan
-pattern-capture
+cockpit-prompt-refinement
+cockpit-pattern-scan
+cockpit-pattern-capture
 cockpit-validate
 cockpit-learn
 cockpit-start-work

@@ -1,5 +1,5 @@
 ---
-name: pattern-capture
+name: cockpit-pattern-capture
 description: Capture already-identified software patterns or anti-patterns into the user's personal per-project learning log. Use only after a pattern has been named or when explicitly asked to capture one; do not re-analyze the codebase.
 ---
 

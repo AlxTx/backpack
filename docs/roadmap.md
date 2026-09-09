@@ -2,7 +2,7 @@
 
 ## Safe prompt refinement
 
-First slice implemented as the portable `prompt-refinement` skill. Every host
+First slice implemented as the portable `cockpit-prompt-refinement` skill. Every host
 consumes that single canonical capability through native skill discovery; no
 host-specific alias is maintained.
 

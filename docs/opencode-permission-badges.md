@@ -95,7 +95,7 @@ Expected badges for the current Backpack agents:
 | `review` | `READ` |
 | `product-design` | `READ` |
 | `qa` | `READ` |
-| `pattern-scan` | `READ` |
+| `cockpit-pattern-scan` | `READ` |
 
 ## Current feasibility
 

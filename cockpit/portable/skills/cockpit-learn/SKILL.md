@@ -12,7 +12,7 @@ conversation, diff, validation evidence, or an established repeated outcome.
 Route each useful lesson deliberately:
 
 - project-specific truth → the project's conventional documentation;
-- reusable personal software pattern → `pattern-capture` when retention is
+- reusable personal software pattern → `cockpit-pattern-capture` when retention is
   explicitly authorized;
 - measured cross-project workflow lesson → a proposed Cockpit improvement at
   the smallest effective enforcement point;

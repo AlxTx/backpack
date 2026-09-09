@@ -1,5 +1,5 @@
 ---
-name: pattern-scan
+name: cockpit-pattern-scan
 description: Map established architecture, JavaScript, and framework patterns or anti-patterns in an unfamiliar codebase. Use for onboarding and explicit pattern scans; not for implementation plans or diff review.
 ---
 

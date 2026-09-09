@@ -96,7 +96,7 @@ for agent in plan review qa design; do
   grep -q '^permissionMode: plan$' "$BACKPACK_ROOT/cockpit/adapters/claude/agents/$agent.md" ||
     fail "Claude $agent agent must use native plan permissions"
 done
-for duplicate in validate learn pattern-scan; do
+for duplicate in validate learn cockpit-pattern-scan; do
   test ! -e "$BACKPACK_ROOT/cockpit/adapters/claude/agents/$duplicate.md" ||
     fail "Claude must use the portable $duplicate capability instead of a duplicate agent"
 done
@@ -119,7 +119,7 @@ ok "cockpit-brainstorm command uses plan"
 grep -A 2 '^agent: product-design$' "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/cockpit-design.md" | grep -q '^subtask: true$' ||
   fail "OpenCode cockpit-design command must delegate an isolated product-design subtask"
 
-test -f "$BACKPACK_ROOT/cockpit/portable/skills/prompt-refinement/SKILL.md" || fail "missing portable prompt-refinement skill"
+test -f "$BACKPACK_ROOT/cockpit/portable/skills/cockpit-prompt-refinement/SKILL.md" || fail "missing portable cockpit-prompt-refinement skill"
 ok "safe prompt refinement capability exists"
 
 for prompt in plan build review; do
@@ -143,7 +143,7 @@ grep -q '^  bash: deny$' "$BACKPACK_ROOT/cockpit/adapters/opencode/agents/qa.md"
 grep -q '^  edit: deny$' "$BACKPACK_ROOT/cockpit/adapters/opencode/agents/qa.md" ||
   fail "OpenCode Product QA must hard-deny edits in strict read-only mode"
 if grep -R 'capture.sh' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" "$BACKPACK_ROOT/cockpit/adapters/opencode/prompts/plan.md" "$BACKPACK_ROOT/cockpit/adapters/opencode/prompts/review.md" >/dev/null 2>&1; then
-  fail "OpenCode read-only agents must not retain a pattern-capture shell exception"
+  fail "OpenCode read-only agents must not retain a cockpit-pattern-capture shell exception"
 fi
 if grep -q '"interactive": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json" ||
    grep -q '"design": {' "$BACKPACK_ROOT/cockpit/adapters/opencode/opencode.json"; then
@@ -173,7 +173,7 @@ for command_path in "$BACKPACK_ROOT/cockpit/adapters/opencode/commands"/*.md; do
     *) fail "unexpected or unnamespaced OpenCode command: $command_name" ;;
   esac
 done
-for duplicate in brainstorm design review qa validate learn start-work pattern-scan refine capture; do
+for duplicate in brainstorm design review qa validate learn start-work cockpit-pattern-scan cockpit-prompt-refinement cockpit-pattern-capture; do
   test ! -e "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/$duplicate.md" ||
     fail "OpenCode retained retired or unnamespaced command /$duplicate"
 done
@@ -193,10 +193,10 @@ for retired_skill in code-first-product-design frontend-design design-quality-st
 done
 ok "Impeccable has no competing Backpack UX/UI skills"
 
-for skill in pattern-scan pattern-capture cockpit-validate cockpit-learn cockpit-start-work; do
+for skill in cockpit-prompt-refinement cockpit-pattern-scan cockpit-pattern-capture cockpit-validate cockpit-learn cockpit-start-work; do
   test -f "$BACKPACK_ROOT/cockpit/portable/skills/$skill/SKILL.md" || fail "missing portable $skill skill"
 done
-test -x "$BACKPACK_ROOT/cockpit/portable/skills/pattern-capture/scripts/capture.sh" || fail "portable pattern capture script is not executable"
+test -x "$BACKPACK_ROOT/cockpit/portable/skills/cockpit-pattern-capture/scripts/capture.sh" || fail "portable pattern capture script is not executable"
 ok "portable workflow and pattern skills are the canonical user surfaces"
 
 for skill in vercel-react-best-practices vercel-composition-patterns; do

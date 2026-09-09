@@ -66,7 +66,7 @@ workflows:
 Plan     -> explicit primary posture, or /cockpit-brainstorm for divergent exploration
 Build    -> default agent with automatic skill/subagent routing
 Validate -> cockpit-validate -> independent Code Review + Product QA -> RTS status
-Learn    -> cockpit-learn; pattern-capture remains the persistence primitive
+Learn    -> cockpit-learn; cockpit-pattern-capture remains the persistence primitive
 ```
 
 On OpenCode, `/cockpit-review` and `/cockpit-qa` also deny shell so their
@@ -106,9 +106,8 @@ execution. Before substantive work, Cockpit recommends a safer upgrade or a
 risk-free cheaper downgrade when the current model is known, then waits for an
 explicit yes/no decision.
 
-All Backpack-owned OpenCode slash commands use the `cockpit-` prefix. Portable
-skills such as `pattern-scan` and `prompt-refinement` keep their canonical skill
-names because they are not slash commands.
+All Backpack-owned Cockpit skills and OpenCode slash commands use the
+`cockpit-` prefix across hosts.
 
 Future guardrail idea: show active agent permission badges in OpenCode UI, e.g.
 `NO-IO`, `READ · SH?`, or `WRITE · SH?`. See

@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-# Append a pattern-capture entry to the personal per-project learning log.
+# Append a cockpit-pattern-capture entry to the personal per-project learning log.
 # Reads the entry body from stdin and appends; it never overwrites prior entries.
 
 capture_dir="$HOME/dev/ai/pattern-captures"

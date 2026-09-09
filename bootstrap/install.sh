@@ -604,6 +604,19 @@ install_core_skills() {
 
   [ "$APPLY" -eq 1 ] && mkdir -p "$skills_dest"
 
+  # These names were core skills before Cockpit adopted a consistent public
+  # prefix. They are Backpack-managed paths, so move any previous contents to
+  # the normal recovery backup before linking their replacements.
+  for legacy_skill in prompt-refinement pattern-scan pattern-capture; do
+    legacy_path="$skills_dest/$legacy_skill"
+    [ -e "$legacy_path" ] || [ -L "$legacy_path" ] || continue
+    if [ "$APPLY" -eq 1 ]; then
+      backup_existing "$legacy_path"
+    else
+      detail "migrate legacy Cockpit skill $legacy_path"
+    fi
+  done
+
   # Remove legacy Backpack-owned specialized skill links from the global catalogue.
   # Non-core paths belong to other installers and stay outside this install map.
   for installed_path in "$skills_dest"/*; do

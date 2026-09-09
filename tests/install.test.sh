@@ -59,7 +59,7 @@ for claude_readonly_agent in plan review qa design; do
   }
 done
 
-for cockpit_skill in cockpit-validate cockpit-learn cockpit-start-work; do
+for cockpit_skill in cockpit-prompt-refinement cockpit-pattern-scan cockpit-pattern-capture cockpit-validate cockpit-learn cockpit-start-work; do
   test -L "$TEST_HOME/.agents/skills/$cockpit_skill" || {
     printf '✗ Cockpit install did not link the %s core skill\n' "$cockpit_skill" >&2
     exit 1
@@ -138,7 +138,7 @@ grep -q '^  edit: deny$' "$TEST_HOME/.config/opencode/agents/qa.md" || {
 }
 
 if grep -R 'capture.sh' "$TEST_HOME/.config/opencode/opencode.json" "$TEST_HOME/.config/opencode/prompts/plan.md" "$TEST_HOME/.config/opencode/prompts/review.md" >/dev/null 2>&1; then
-  printf '✗ OpenCode read-only agents retain a pattern-capture shell exception\n' >&2
+  printf '✗ OpenCode read-only agents retain a cockpit-pattern-capture shell exception\n' >&2
   exit 1
 fi
 
@@ -233,7 +233,7 @@ printf 'local claude rule\n' > "$GENERAL_HOME/.claude/rules/backpack.md"
 printf 'local claude agent\n' > "$GENERAL_HOME/.claude/agents/local.md"
 printf 'local copilot\n' > "$GENERAL_HOME/.copilot/copilot-instructions.md"
 printf 'legacy copilot\n' > "$GENERAL_HOME/.copilot/instructions/backpack.instructions.md"
-printf 'local skill\n' > "$GENERAL_HOME/.agents/skills/prompt-refinement/SKILL.md"
+printf 'local legacy skill\n' > "$GENERAL_HOME/.agents/skills/prompt-refinement/SKILL.md"
 printf 'local fish\n' > "$GENERAL_HOME/.config/fish/local.fish"
 printf 'local nvim\n' > "$GENERAL_HOME/.config/nvim/local.lua"
 printf 'local ghostty\n' > "$GENERAL_HOME/.config/ghostty/local.conf"
@@ -261,7 +261,7 @@ for managed_link in \
   "$GENERAL_HOME/.claude/rules/backpack.md" \
   "$GENERAL_HOME/.claude/agents" \
   "$GENERAL_HOME/.copilot/copilot-instructions.md" \
-  "$GENERAL_HOME/.agents/skills/prompt-refinement" \
+  "$GENERAL_HOME/.agents/skills/cockpit-prompt-refinement" \
   "$GENERAL_HOME/.config/fish" \
   "$GENERAL_HOME/.config/nvim" \
   "$GENERAL_HOME/.config/ghostty"; do

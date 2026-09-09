@@ -21,9 +21,9 @@ enseignements réutilisables.
 |---|---|---|
 | Une idée floue, un arbitrage, choisir une archi (perso ou client), décider quoi faire | **build** ou **/cockpit-brainstorm** | demande directement, ou tape `/cockpit-brainstorm ...` pour une exploration read-only |
 | Mon prompt est long, ambigu ou répétitif | automatique | Cockpit laisse passer les prompts clairs, normalise sans risque, ou demande validation si le sens peut changer |
-| Je veux voir et contrôler explicitement la reformulation | **prompt-refinement** | invoque le skill, vérifie la proposition, puis valide-la explicitement |
+| Je veux voir et contrôler explicitement la reformulation | **cockpit-prompt-refinement** | invoque le skill, vérifie la proposition, puis valide-la explicitement |
 | Besoin de contenu, parcours, page, UX/UI ou idée sans maquette | **build** ou **/cockpit-design** | demande directement, ou tape `/cockpit-design ...` pour isoler le contrat design |
-| Je débarque sur un codebase inconnu, je veux la carte des patterns existants | **pattern-scan** | invoque le skill avec le scope voulu |
+| Je débarque sur un codebase inconnu, je veux la carte des patterns existants | **cockpit-pattern-scan** | invoque le skill avec le scope voulu |
 | Préparer une branche de travail depuis une base distante à jour | **cockpit-start-work** | invoque le skill avec la branche et la base |
 | Préparer un changement sûr : inspecter, comparer, plan d'exécution | **plan** | `Tab` → plan |
 | Implémenter le changement validé | **build** | `Tab` → build |
@@ -31,13 +31,13 @@ enseignements réutilisables.
 | Faire uniquement une Code Review | **/cockpit-review** | tape `/cockpit-review` |
 | Faire uniquement la Product QA fonctionnelle | **/cockpit-qa** | tape `/cockpit-qa` |
 | Tirer les leçons d'une tranche terminée | **cockpit-learn** | invoque le skill portable |
-| Un pattern/anti-pattern croisé m'intéresse, je veux le garder pour l'étudier plus tard | **pattern-capture** | invoque le skill portable |
+| Un pattern/anti-pattern croisé m'intéresse, je veux le garder pour l'étudier plus tard | **cockpit-pattern-capture** | invoque le skill portable |
 | On me propose plein de texte, je veux juste choisir | les agents proposent A/B/C | réponds par la lettre |
 
-**Le doute le plus fréquent — `pattern-scan` ou `pattern-capture` ?**
-- **`pattern-scan`** = *LIRE* un codebase entier pour en sortir la carte des
+**Le doute le plus fréquent — `cockpit-pattern-scan` ou `cockpit-pattern-capture` ?**
+- **`cockpit-pattern-scan`** = *LIRE* un codebase entier pour en sortir la carte des
   patterns. Au **début** d'un projet. Ça produit de l'info.
-- **`pattern-capture`** = *SAUVEGARDER* un pattern déjà mentionné dans la conversation,
+- **`cockpit-pattern-capture`** = *SAUVEGARDER* un pattern déjà mentionné dans la conversation,
   dans mon journal perso. **Pendant** le travail. Ça archive une note.
 - Moyen mnémo : **scan = découvrir / capture = garder.**
 
@@ -97,13 +97,13 @@ un check ou de conclure sans fondement.
 | Command / subagent | Rôle | Modèle | Écrit ? |
 |---|---|---|---|
 | **/cockpit-brainstorm** → `plan` | Explore plusieurs options et recommande une direction sans implémenter. | Profil local | ❌ read-only |
-| **prompt-refinement** | Prépare une version clarifiée du prompt, montre l'original et les changements, puis s'arrête avant exécution. | Profil local | ❌ read-only |
+| **cockpit-prompt-refinement** | Prépare une version clarifiée du prompt, montre l'original et les changements, puis s'arrête avant exécution. | Profil local | ❌ read-only |
 | **/cockpit-design** → `product-design` | Isole un contrat content/UX/UI : classe la demande en content-led, UI-led ou mixed. | Profil local | ❌ read-only |
 | **/cockpit-review** | Code Review stricte. Verdicts APPROVE / REQUEST CHANGES / ESCALATE. | Profil local | ❌ read-only |
 | **/cockpit-qa** | Product QA contextuelle contre les exigences, parcours, états et comportements visibles. | Profil local | ❌ read-only |
 | **cockpit-validate** | Conserve le contrat courant, délègue Code Review et Product QA, puis produit le statut RTS consolidé. | Profil local | ❌ read-only |
 | **cockpit-learn** | Conserve le contexte de la tranche, puis réfléchit, extrait et route les connaissances réutilisables. | Profil local | ❌ produit read-only |
-| **pattern-scan** | Cartographie les patterns établis d'un codebase inconnu. | Profil local | ❌ read-only |
+| **cockpit-pattern-scan** | Cartographie les patterns établis d'un codebase inconnu. | Profil local | ❌ read-only |
 
 ### Modèle et provider
 
@@ -132,8 +132,8 @@ choisi.
 ## ⌨️ Les surfaces utilisateur
 
 Les capacités partagées sont exposées directement par leur skill canonique :
-`cockpit-validate`, `cockpit-learn`, `cockpit-start-work`, `pattern-scan`,
-`pattern-capture` et `prompt-refinement`. OpenCode ne maintient aucun alias
+`cockpit-validate`, `cockpit-learn`, `cockpit-start-work`, `cockpit-pattern-scan`,
+`cockpit-pattern-capture` et `cockpit-prompt-refinement`. OpenCode ne maintient aucun alias
 supplémentaire pour ces capacités.
 
 Les commandes restantes sont strictement propres à l'hôte :
@@ -157,7 +157,7 @@ autorisation Git. `cockpit-learn` reste optionnel avant ou après cette instruct
 - Chaque entrée : en-tête de date + les patterns.
 - Usage : je relis en fin de journée, je note ce que je veux creuser, j'étudie de
   mon côté. (Branchement Obsidian plus tard = changer le script portable
-  `pattern-capture`.)
+   `cockpit-pattern-capture`.)
 
 ---
 
@@ -166,12 +166,12 @@ autorisation Git. `cockpit-learn` reste optionnel avant ou après cette instruct
 Deux niveaux, séparés exprès :
 
 1. **Lentille (gratuite, automatique)** — `plan` et `/cockpit-review` appliquent la règle
-   portable sur les patterns établis. Le skill `pattern-scan` possède le contrat
+   portable sur les patterns établis. Le skill `cockpit-pattern-scan` possède le contrat
    de cartographie explicite. Chaque lentille **nomme** les patterns
    avec leur nom canonique et préfère « rien de notable » à une invention.
 2. **Learn (volontaire)** — `cockpit-learn` fait la rétrospective et décide si une
    connaissance mérite d'être codifiée.
-3. **Capture (primitive)** — `pattern-capture` enregistre un pattern déjà établi lorsque
+3. **Capture (primitive)** — `cockpit-pattern-capture` enregistre un pattern déjà établi lorsque
    `cockpit-learn` ou l'utilisateur décide de le conserver.
 
 ---
@@ -182,8 +182,8 @@ Deux niveaux, séparés exprès :
 |---|---|
 | `brand-messaging`, `website-content-architecture`, `website-copywriting` | **content design** : audience, promesse, navigation, section narrative, CTA, copy et readiness |
 | `impeccable` | **skill UX/UI unique** : shape, critique, direction visuelle, audit, polish, hardening et itération live |
-| `pattern-scan`, `pattern-capture` | **apprentissage portable** : cartographier puis conserver les patterns établis |
-| `prompt-refinement` | **préparer automatiquement** un prompt : bypass s'il est clair, flow-through éditorial, validation si le sens peut changer |
+| `cockpit-pattern-scan`, `cockpit-pattern-capture` | **apprentissage portable** : cartographier puis conserver les patterns établis |
+| `cockpit-prompt-refinement` | **préparer automatiquement** un prompt : bypass s'il est clair, flow-through éditorial, validation si le sens peut changer |
 
 Ordre d'autorité : **conventions du projet → comportement officiel du framework →
 skills installés**. Jamais forcer un skill si une simple inspection suffit.
@@ -228,7 +228,7 @@ plugins/
 - **Automatisation du déploiement** — RTS reste volontairement séparé des actions
   Git et de déploiement.
 - **Optimisation mesurée de prompts** — nécessite un dataset représentatif, des
-  critères de succès et des évaluations comparatives ; `prompt-refinement` reste un
+   critères de succès et des évaluations comparatives ; `cockpit-prompt-refinement` reste un
   raffinement one-shot sans prétendre mesurer un optimum.
 
 ---

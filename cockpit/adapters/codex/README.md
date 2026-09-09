@@ -19,7 +19,7 @@ and terminal instead of reproducing OpenCode's primary-agent and `/command` UI.
 | Validate the completed slice | Ask to validate delivery readiness | `@cockpit-validate` in the app or `$cockpit-validate` in CLI/IDE |
 | Learn from finished work | Ask to learn from or retrospect on the slice | `@cockpit-learn` or `$cockpit-learn` |
 | Prepare a safe work branch | Provide the work branch and remote base | `@cockpit-start-work` or `$cockpit-start-work` |
-| Scan an unfamiliar codebase | Ask for a pattern scan and give the scope | `@pattern-scan` or `$pattern-scan` |
+| Scan an unfamiliar codebase | Ask for a pattern scan and give the scope | `@cockpit-pattern-scan` or `$cockpit-pattern-scan` |
 
 Natural language remains the default. Explicit skill invocation is useful when
 the workflow boundary itself matters or when testing Cockpit behavior.

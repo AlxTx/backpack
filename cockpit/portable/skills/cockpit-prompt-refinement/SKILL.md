@@ -1,5 +1,5 @@
 ---
-name: prompt-refinement
+name: cockpit-prompt-refinement
 description: Automatically preflight long, ambiguous, conflicting, or repetitive prompts before execution, and handle explicit requests to refine or compact a prompt. Skip clear actionable prompts.
 ---
 

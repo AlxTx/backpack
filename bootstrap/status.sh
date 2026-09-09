@@ -27,7 +27,7 @@ state 'Codex' "$BACKPACK_CODEX_DIR/AGENTS.md"
 state 'Claude Code' "$BACKPACK_CLAUDE_DIR/rules/backpack.md"
 state 'GitHub Copilot' "$BACKPACK_COPILOT_DIR/copilot-instructions.md"
 state 'Copilot RTK hook' "$BACKPACK_COPILOT_DIR/hooks/rtk-rewrite.json"
-state 'Cockpit core' "$BACKPACK_AGENTS_DIR/skills/prompt-refinement"
+state 'Cockpit core' "$BACKPACK_AGENTS_DIR/skills/cockpit-prompt-refinement"
 
 printf '\nThis Mac\n'
 state 'Shell' "$CONFIG_DIR/fish"
