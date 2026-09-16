@@ -329,7 +329,7 @@ for backup_marker in \
 done
 
 for cockpit_skill in cockpit-prompt-refinement cockpit-pattern-scan cockpit-pattern-capture cockpit-validate cockpit-learn cockpit-start-work; do
-  grep -q "In GitHub Copilot, use only when the user explicitly invokes /$cockpit_skill; never select automatically" \
+  grep -q "In GitHub Copilot, explicit /$cockpit_skill invocation only" \
     "$BACKPACK_ROOT/cockpit/portable/skills/$cockpit_skill/SKILL.md" || {
       printf '✗ %s is not explicit-only in GitHub Copilot\n' "$cockpit_skill" >&2
       exit 1

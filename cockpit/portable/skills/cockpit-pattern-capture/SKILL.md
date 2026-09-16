@@ -1,6 +1,6 @@
 ---
 name: cockpit-pattern-capture
-description: In GitHub Copilot, use only when the user explicitly invokes /cockpit-pattern-capture; never select automatically. Capture already-identified software patterns or anti-patterns into the user's personal per-project learning log. In other hosts, use only after a pattern has been named or when explicitly asked to capture one; do not re-analyze the codebase.
+description: Save an identified pattern or anti-pattern to the project learning log. In GitHub Copilot, explicit /cockpit-pattern-capture invocation only.
 ---
 
 # Pattern Capture
