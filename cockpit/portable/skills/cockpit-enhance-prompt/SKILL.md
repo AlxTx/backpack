@@ -1,9 +1,9 @@
 ---
-name: cockpit-prompt-refinement
-description: Refine a long, ambiguous, conflicting, or repetitive prompt without changing intent. In GitHub Copilot, explicit /cockpit-prompt-refinement invocation only.
+name: cockpit-enhance-prompt
+description: Improve or compact a long, ambiguous, conflicting, or repetitive prompt without changing intent. Skip clear actionable prompts. In GitHub Copilot, do not use this skill; follow the client-owned workflow instead.
 ---
 
-# Prompt Refinement
+# Prompt Enhancement
 
 Turn the user's draft into a clearer, more executable task contract while
 preserving their intent and authority boundaries. Cockpit uses a hybrid flow:

@@ -1,6 +1,6 @@
 ---
 name: cockpit-pattern-capture
-description: Save an identified pattern or anti-pattern to the project learning log. In GitHub Copilot, explicit /cockpit-pattern-capture invocation only.
+description: Save an identified pattern or anti-pattern to the project learning log. In GitHub Copilot, do not use this skill; follow the client-owned workflow instead.
 ---
 
 # Pattern Capture

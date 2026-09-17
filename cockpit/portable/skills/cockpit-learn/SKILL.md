@@ -1,6 +1,6 @@
 ---
 name: cockpit-learn
-description: Extract evidenced, reusable lessons from completed work. In GitHub Copilot, explicit /cockpit-learn invocation only.
+description: Extract evidenced, reusable lessons from completed work. In GitHub Copilot, do not use this skill; follow the client-owned workflow instead.
 ---
 
 # Cockpit Learn

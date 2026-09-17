@@ -25,7 +25,7 @@ Use the smallest surface that exposes the event once:
 Always announce one non-trivial phase before work starts:
 
 ```txt
-Cockpit › <Phase> · <immediate action>
+[Cockpit - <Phase>] · <immediate action>
 ```
 
 When a host such as Codex desktop then renders `Code Review` and `Product QA` as
@@ -35,13 +35,13 @@ their obvious roles in prose.
 When the host has no native activation event, use the fallback:
 
 ```txt
-Cockpit › Validate · [Agent] Code Review
-Cockpit › Validate · [Agent] Product QA
+[Cockpit - Validate] · [Agent] Code Review
+[Cockpit - Validate] · [Agent] Product QA
 ```
 
 ## Usage rules
 
-- Keep `Cockpit › <Phase>` as the stable workflow marker.
+- Keep `[Cockpit - <Phase>]` as the stable workflow marker.
 - Describe one concrete action or material result in plain language.
 - Render a capability name manually only when it is genuinely active and not
   already visible in the host UI.
@@ -61,7 +61,7 @@ Cockpit › Validate · [Agent] Product QA
 A completed phase may use a check mark when the status is unambiguous:
 
 ```txt
-Cockpit › Validate ✓ · aucun défaut bloquant trouvé
+[Cockpit - Validate] ✓ · aucun défaut bloquant trouvé
 ```
 
 The check mark reports workflow state only. It does not imply permission to

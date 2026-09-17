@@ -12,8 +12,8 @@ See `cockpit/portable/AGENTS.md`, `cockpit/portable/MODELS.md`,
 
 `AGENTS.md` defines classification, request routing, scope control, validation,
 review priorities, pattern learning, and communication style. `MODELS.md` maps
-the workflow to semantic Maximum, Frontier, and Balanced tiers. Codex, GitHub
-Copilot, OpenCode, and Claude Code consume this same core.
+the workflow to semantic Maximum, Frontier, and Balanced tiers. Codex, OpenCode,
+and Claude Code consume this same core.
 
 Skills follow the open agent-skills directory format. The machine-level Cockpit
 install links only `skills.core` into `~/.agents/skills` and
@@ -36,16 +36,15 @@ the installation mapping when the host directly consumes the portable files.
 | Host | CLI/Desktop coverage | Shared guidance | Cockpit core | Adapter-only concerns |
 |---|---|---|---|---|
 | Codex | Same portable files in CLI and desktop app | `~/.codex/AGENTS.md` | `~/.agents/skills` | read-only Review/QA agents; personal models, plugins, MCP |
-| GitHub Copilot | CLI and desktop app use the same FSH workflow bridge | `~/.copilot/copilot-instructions.md` | `~/.agents/skills` as explicit `/cockpit-*` utilities | account, organization policies, plugins, repository instructions |
 | OpenCode | Same configuration in CLI, TUI, desktop app, and GitHub Action | `~/.config/opencode/AGENTS.md` | `~/.agents/skills` | agents, commands, permissions, provider/model |
 | Claude Code | CLI and Desktop Code tab share local configuration | `~/.claude/rules/backpack.md` | `~/.claude/skills` | subagents, hooks, permissions, provider/model |
 | Other compatible hosts | Varies by host | global or repo `AGENTS.md` | `.agents/skills` | host permissions and UI |
 
-Copilot CLI and the desktop app use a thin FSH workflow bridge from Backpack's
-Copilot adapter. Backpack leaves Copilot hooks untouched and exposes its
-portable skills there only through explicit `/cockpit-*` invocations. Copilot
-cloud agents and code review use repository-level `AGENTS.md` or
-`.github/copilot-instructions.md`; those files remain client-owned.
+GitHub Copilot is not a Backpack host. Its workflow and every Copilot-specific
+instruction, plugin, hook, and skill remain client-owned. Backpack does not
+install or update `~/.copilot`. If Copilot discovers a Backpack skill through
+the shared `~/.agents/skills` compatibility path, the skill metadata disables
+it for that host.
 
 OpenCode keeps richer phase switching because its primary-agent model makes it
 useful. Those modes are an interface over the common workflow, not a second
@@ -54,7 +53,7 @@ source of doctrine.
 All compatible hosts expose portable skills as the single public surface for
 shared capabilities. They do not add aliases such as `/validate` or duplicate
 wrapper agents around `cockpit-validate`, `cockpit-learn`,
-`cockpit-start-work`, `cockpit-pattern-scan`, `cockpit-pattern-capture`, or `cockpit-prompt-refinement`.
+`cockpit-start-work`, `cockpit-pattern-scan`, `cockpit-pattern-capture`, or `cockpit-enhance-prompt`.
 The Codex adapter adds only the two read-only agents that
 make Code Review and Product QA independently inspectable in the native subagent
 UI. Plan and Build continue to use Codex's native mode and conversation instead
@@ -73,19 +72,19 @@ of duplicating host controls.
 - Route shell output through `rtk` when it is installed. It is an execution
   filter, not a second instruction corpus: Claude Code and OpenCode rewrite
   compatible commands automatically, while Codex inherits the portable shell
-  rule. Copilot hook ownership stays with its external workflow.
+  rule. Backpack does not configure Copilot hooks.
 - Use `backpack install cockpit --all-hosts` to activate the shared workflow for
-  Codex, OpenCode, and Claude Code plus explicit Cockpit utilities for Copilot.
+  Codex, OpenCode, and Claude Code. Copilot remains untouched.
 
-## Prompt refinement
+## Prompt enhancement
 
-`cockpit-prompt-refinement` is a hybrid automatic preflight for long, ambiguous,
+`cockpit-enhance-prompt` is a hybrid automatic preflight for long, ambiguous,
 conflicting, or repetitive prompts. Clear actionable prompts bypass it.
 Meaning-preserving cleanup can flow directly into execution without adding a
 conversation turn. If a rewrite could change intent, scope, requirements,
 acceptance criteria, or permissions, Cockpit preserves the original, shows the
 proposal and changes, then waits for explicit validation. An explicit
-`cockpit-prompt-refinement` invocation always uses this review path. Safe mode preserves detail by default;
+`cockpit-enhance-prompt` invocation always uses this review path. Safe mode preserves detail by default;
 compact mode is opt-in.
 
 The agent-level preflight does not guarantee token savings because the original
@@ -96,7 +95,7 @@ prevents short clear prompts from paying this overhead.
 
 This is not measured prompt optimization. Calling a prompt “optimized” requires
 representative cases, explicit success criteria, and comparative evaluation.
-Every host uses the shared `cockpit-prompt-refinement` skill directly; no adapter adds a
+Every host uses the shared `cockpit-enhance-prompt` skill directly; no adapter adds a
 second shortcut for it.
 
 ## Visible execution context
@@ -105,8 +104,8 @@ Cockpit does not expose private model reasoning. For non-trivial work it emits
 a short public status before acting, then announces any selected skill, subagent,
 plugin, or integration when it is actually activated. This is a portable
 semantic event: use the host's native rendering when available, otherwise fall
-back to a compact hierarchical line: `Cockpit › <phase> · <action>` for phase
-status, then `Cockpit › <phase> · [<capability>] <name>` for an activation. The
+back to a compact line: `[Cockpit - <phase>] · <action>` for phase status, then
+`[Cockpit - <phase>] · [<capability>] <name>` for an activation. The
 repeated phase keeps each capability attached to the work that caused it, while
 the bracketed label stays easy to scan. Never show both native and fallback
 rendering for the same activation. This is an audit trail of the workflow, not a
@@ -163,7 +162,6 @@ backpack install cockpit --all-hosts
 # one adapter only
 backpack install cockpit --codex
 backpack install cockpit --claude
-backpack install cockpit --copilot
 backpack install cockpit --opencode
 ```
 
@@ -176,6 +174,7 @@ replaced local path is moved into a recovery backup first.
 
 - Project truth stays in each project's `AGENTS.md`, README, docs, and tests.
 - Client providers, endpoints, policies, secrets, and tokens stay local.
+- Client-owned Copilot configuration stays outside Backpack.
 - Personal pattern captures stay outside client repositories.
 - Add a host adapter only when the host cannot consume the common standards.
 - Use plugins for external capabilities or independently maintained workflows,

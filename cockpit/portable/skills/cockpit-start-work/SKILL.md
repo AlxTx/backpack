@@ -1,6 +1,6 @@
 ---
 name: cockpit-start-work
-description: Create a safe local branch from an exact, up-to-date remote base. In GitHub Copilot, explicit /cockpit-start-work invocation only.
+description: Create a safe local branch from an exact, up-to-date remote base. In GitHub Copilot, do not use this skill; follow the client-owned workflow instead.
 ---
 
 # Cockpit Start Work

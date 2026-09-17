@@ -21,7 +21,7 @@ enseignements réutilisables.
 |---|---|---|
 | Une idée floue, un arbitrage, choisir une archi (perso ou client), décider quoi faire | **build** ou **/cockpit-brainstorm** | demande directement, ou tape `/cockpit-brainstorm ...` pour une exploration read-only |
 | Mon prompt est long, ambigu ou répétitif | automatique | Cockpit laisse passer les prompts clairs, normalise sans risque, ou demande validation si le sens peut changer |
-| Je veux voir et contrôler explicitement la reformulation | **cockpit-prompt-refinement** | invoque le skill, vérifie la proposition, puis valide-la explicitement |
+| Je veux voir et contrôler explicitement la reformulation | **cockpit-enhance-prompt** | invoque le skill, vérifie la proposition, puis valide-la explicitement |
 | Besoin de contenu, parcours, page, UX/UI ou idée sans maquette | **build** ou **/cockpit-design** | demande directement, ou tape `/cockpit-design ...` pour isoler le contrat design |
 | Je débarque sur un codebase inconnu, je veux la carte des patterns existants | **cockpit-pattern-scan** | invoque le skill avec le scope voulu |
 | Préparer une branche de travail depuis une base distante à jour | **cockpit-start-work** | invoque le skill avec la branche et la base |
@@ -97,7 +97,7 @@ un check ou de conclure sans fondement.
 | Command / subagent | Rôle | Modèle | Écrit ? |
 |---|---|---|---|
 | **/cockpit-brainstorm** → `plan` | Explore plusieurs options et recommande une direction sans implémenter. | Profil local | ❌ read-only |
-| **cockpit-prompt-refinement** | Prépare une version clarifiée du prompt, montre l'original et les changements, puis s'arrête avant exécution. | Profil local | ❌ read-only |
+| **cockpit-enhance-prompt** | Prépare une version clarifiée du prompt, montre l'original et les changements, puis s'arrête avant exécution. | Profil local | ❌ read-only |
 | **/cockpit-design** → `product-design` | Isole un contrat content/UX/UI : classe la demande en content-led, UI-led ou mixed. | Profil local | ❌ read-only |
 | **/cockpit-review** | Code Review stricte. Verdicts APPROVE / REQUEST CHANGES / ESCALATE. | Profil local | ❌ read-only |
 | **/cockpit-qa** | Product QA contextuelle contre les exigences, parcours, états et comportements visibles. | Profil local | ❌ read-only |
@@ -133,7 +133,7 @@ choisi.
 
 Les capacités partagées sont exposées directement par leur skill canonique :
 `cockpit-validate`, `cockpit-learn`, `cockpit-start-work`, `cockpit-pattern-scan`,
-`cockpit-pattern-capture` et `cockpit-prompt-refinement`. OpenCode ne maintient aucun alias
+`cockpit-pattern-capture` et `cockpit-enhance-prompt`. OpenCode ne maintient aucun alias
 supplémentaire pour ces capacités.
 
 Les commandes restantes sont strictement propres à l'hôte :
@@ -183,7 +183,7 @@ Deux niveaux, séparés exprès :
 | `brand-messaging`, `website-content-architecture`, `website-copywriting` | **content design** : audience, promesse, navigation, section narrative, CTA, copy et readiness |
 | `impeccable` | **skill UX/UI unique** : shape, critique, direction visuelle, audit, polish, hardening et itération live |
 | `cockpit-pattern-scan`, `cockpit-pattern-capture` | **apprentissage portable** : cartographier puis conserver les patterns établis |
-| `cockpit-prompt-refinement` | **préparer automatiquement** un prompt : bypass s'il est clair, flow-through éditorial, validation si le sens peut changer |
+| `cockpit-enhance-prompt` | **préparer automatiquement** un prompt : bypass s'il est clair, flow-through éditorial, validation si le sens peut changer |
 
 Ordre d'autorité : **conventions du projet → comportement officiel du framework →
 skills installés**. Jamais forcer un skill si une simple inspection suffit.
@@ -228,7 +228,7 @@ plugins/
 - **Automatisation du déploiement** — RTS reste volontairement séparé des actions
   Git et de déploiement.
 - **Optimisation mesurée de prompts** — nécessite un dataset représentatif, des
-   critères de succès et des évaluations comparatives ; `cockpit-prompt-refinement` reste un
+   critères de succès et des évaluations comparatives ; `cockpit-enhance-prompt` reste un
   raffinement one-shot sans prétendre mesurer un optimum.
 
 ---

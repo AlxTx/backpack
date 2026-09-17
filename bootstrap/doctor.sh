@@ -53,11 +53,11 @@ ok "opencode config exists"
 test -f "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "missing cockpit/portable/AGENTS.md"
 ok "portable AGENTS.md exists"
 
-grep -q '^applyTo: "\*\*"$' "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "portable AGENTS.md must apply to all files when loaded by Copilot"
-ok "portable AGENTS.md is compatible with Copilot personal instructions"
+grep -q '^applyTo: "\*\*"$' "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "portable AGENTS.md must retain its cross-host frontmatter"
+ok "portable AGENTS.md frontmatter exists"
 
 grep -q 'Plan → Build → Validate → Learn' "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "portable workflow must expose the canonical delivery loop"
-grep -q 'Cockpit › <phase>' "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "portable workflow must expose Cockpit activity"
+grep -q '\[Cockpit - <phase>\]' "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "portable workflow must expose Cockpit activity"
 grep -q 'reply yes once it is active' "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "portable workflow must make manual model switching explicit before confirmation"
 grep -q 'Never commit, push' "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" || fail "portable workflow must protect Git delivery actions"
 ok "canonical Cockpit flow and Git gate exist"
@@ -70,15 +70,19 @@ if grep -q 'gpt-5.6-luna' "$BACKPACK_ROOT/cockpit/portable/MODELS.md"; then
 fi
 ok "Cockpit uses the Astra, Sol, and Terra routing"
 
-for adapter in codex claude copilot opencode; do
+for adapter in codex claude opencode; do
   test -d "$BACKPACK_ROOT/cockpit/adapters/$adapter" || fail "missing $adapter adapter"
 done
 ok "all host adapter directories exist"
 
-for adapter in codex claude copilot opencode; do
+for adapter in codex claude opencode; do
   test -f "$BACKPACK_ROOT/cockpit/adapters/$adapter/README.md" || fail "missing $adapter adapter documentation"
 done
 ok "all host adapters are documented"
+
+test ! -e "$BACKPACK_ROOT/cockpit/adapters/copilot" ||
+  fail "GitHub Copilot is client-owned and must not have a Backpack adapter"
+ok "GitHub Copilot remains outside Backpack"
 
 for agent in cockpit-code-review cockpit-product-qa; do
   test -f "$BACKPACK_ROOT/cockpit/adapters/codex/agents/$agent.toml" ||
@@ -119,7 +123,7 @@ ok "cockpit-brainstorm command uses plan"
 grep -A 2 '^agent: product-design$' "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/cockpit-design.md" | grep -q '^subtask: true$' ||
   fail "OpenCode cockpit-design command must delegate an isolated product-design subtask"
 
-test -f "$BACKPACK_ROOT/cockpit/portable/skills/cockpit-prompt-refinement/SKILL.md" || fail "missing portable cockpit-prompt-refinement skill"
+test -f "$BACKPACK_ROOT/cockpit/portable/skills/cockpit-enhance-prompt/SKILL.md" || fail "missing portable cockpit-enhance-prompt skill"
 ok "safe prompt refinement capability exists"
 
 for prompt in plan build review; do
@@ -173,7 +177,7 @@ for command_path in "$BACKPACK_ROOT/cockpit/adapters/opencode/commands"/*.md; do
     *) fail "unexpected or unnamespaced OpenCode command: $command_name" ;;
   esac
 done
-for duplicate in brainstorm design review qa validate learn start-work cockpit-pattern-scan cockpit-prompt-refinement cockpit-pattern-capture; do
+for duplicate in brainstorm design review qa validate learn start-work cockpit-pattern-scan cockpit-enhance-prompt cockpit-pattern-capture; do
   test ! -e "$BACKPACK_ROOT/cockpit/adapters/opencode/commands/$duplicate.md" ||
     fail "OpenCode retained retired or unnamespaced command /$duplicate"
 done
@@ -193,8 +197,10 @@ for retired_skill in code-first-product-design frontend-design design-quality-st
 done
 ok "Impeccable has no competing Backpack UX/UI skills"
 
-for skill in cockpit-prompt-refinement cockpit-pattern-scan cockpit-pattern-capture cockpit-validate cockpit-learn cockpit-start-work; do
+for skill in cockpit-enhance-prompt cockpit-pattern-scan cockpit-pattern-capture cockpit-validate cockpit-learn cockpit-start-work; do
   test -f "$BACKPACK_ROOT/cockpit/portable/skills/$skill/SKILL.md" || fail "missing portable $skill skill"
+  grep -q 'In GitHub Copilot, do not use this skill' "$BACKPACK_ROOT/cockpit/portable/skills/$skill/SKILL.md" ||
+    fail "$skill must remain disabled in GitHub Copilot"
 done
 test -x "$BACKPACK_ROOT/cockpit/portable/skills/cockpit-pattern-capture/scripts/capture.sh" || fail "portable pattern capture script is not executable"
 ok "portable workflow and pattern skills are the canonical user surfaces"

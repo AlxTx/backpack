@@ -16,6 +16,7 @@ and terminal instead of reproducing OpenCode's primary-agent and `/command` UI.
 | Discuss, decide, or diagnose | Ask normally; Cockpit stays read-only | none needed |
 | Produce an execution-ready plan | Select Codex Plan mode and ask for the plan | native Plan mode |
 | Implement an approved change | Ask to build, fix, align, migrate, or remove | normal Codex thread |
+| Clarify or compact a prompt explicitly | Ask to improve the prompt | `@cockpit-enhance-prompt` in the app or `$cockpit-enhance-prompt` in CLI/IDE |
 | Validate the completed slice | Ask to validate delivery readiness | `@cockpit-validate` in the app or `$cockpit-validate` in CLI/IDE |
 | Learn from finished work | Ask to learn from or retrospect on the slice | `@cockpit-learn` or `$cockpit-learn` |
 | Prepare a safe work branch | Provide the work branch and remote base | `@cockpit-start-work` or `$cockpit-start-work` |
@@ -35,7 +36,7 @@ the workflow boundary itself matters or when testing Cockpit behavior.
   inspection;
 - the Git delivery gate remains separate: Ready to Ship never authorizes a
   commit, push, merge, pull request, or deployment;
-- Cockpit activity is announced through the portable `Cockpit › phase` event,
+- Cockpit activity is announced through the portable `[Cockpit - phase]` event,
   while Codex renders skills, subagents, and tools through its native UI. The
   conversation does not duplicate those native chips with `[Skill]`, `[Agent]`,
   or explanatory status lines.

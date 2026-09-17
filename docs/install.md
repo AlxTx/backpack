@@ -13,8 +13,10 @@ cd backpack
 ./backpack
 ```
 
-The first installation adds `backpack` to `~/.local/bin`. Later, if that
-directory is on `PATH`, the command can be run from anywhere.
+The first installation adds `backpack` to `~/.local/bin`. Selecting **Shell** or
+**Everything** also configures Fish to include that directory on `PATH`; start a
+new Fish session after installation, then run `backpack` from anywhere. A
+Cockpit-only install leaves shell configuration untouched.
 
 `backpack` opens the main menu. `backpack install` opens the installation menu.
 Both use selectable prompts when `gum` is available and fall back to numbered
@@ -43,7 +45,6 @@ Select a Cockpit host directly when no menu is wanted:
 backpack install cockpit --opencode
 backpack install cockpit --codex
 backpack install cockpit --claude
-backpack install cockpit --copilot
 backpack install cockpit --all-hosts
 ```
 
@@ -52,7 +53,6 @@ The host menu describes the affected surfaces:
 - OpenCode — Terminal · Desktop app · GitHub Action
 - Codex — Terminal · Desktop app
 - Claude Code — Terminal · Desktop app (Code tab)
-- GitHub Copilot — Terminal · Desktop app
 
 Select machine configuration directly with `--shell`, `--editor`, `--terminal`,
 or `--all-machine`. A direct target applies immediately; add `--dry-run` for a
@@ -68,8 +68,6 @@ merges or silently preserves a divergent local copy:
 - Codex: `~/.codex/AGENTS.md`, the two named Cockpit validation agents, and the
   shared Cockpit core;
 - Claude Code: `~/.claude/rules/backpack.md`, `~/.claude/agents`, and the core;
-- GitHub Copilot: the FSH workflow bridge and shared core as explicit
-  `/cockpit-*` utilities;
 - machine targets: the selected Fish, Starship, Neovim, Ghostty, and Karabiner
   paths.
 
@@ -113,15 +111,14 @@ Backpack source and creates no local divergence.
 
 ## GitHub Copilot
 
-Copilot discovers `~/.copilot/copilot-instructions.md` automatically in the CLI
-and desktop app. Backpack links that path to its thin FSH workflow bridge and
-installs the six namespaced Cockpit skills, whose metadata requires an explicit
-`/cockpit-*` invocation in Copilot. Copilot plugins and hooks remain externally
-owned.
+GitHub Copilot is not a Backpack installation target. Its workflow is
+client-owned, so `--all-hosts` and `everything` leave `~/.copilot` untouched.
+Client instructions, plugins, hooks, and skills must be installed from the
+client's private configuration source.
 
-During migration, Backpack backs up and removes the legacy
-`~/.copilot/hooks/rtk-rewrite.json` only when it identifies the former
-`rtk hook copilot` command. Other Copilot hooks remain untouched.
+Because Copilot also discovers the shared `~/.agents/skills` standard,
+Backpack's core skill metadata explicitly disables those skills in Copilot.
+This is a compatibility guard, not a Copilot integration.
 
 ## Choosing project skills
 
@@ -157,7 +154,6 @@ Cockpit uses shared workflow and skill sources with thin host adapters:
 ~/.codex/AGENTS.md
 ~/.codex/agents/cockpit-code-review.toml
 ~/.codex/agents/cockpit-product-qa.toml
-~/.copilot/copilot-instructions.md
 ~/.config/opencode/AGENTS.md
 ~/.claude/rules/backpack.md
 ~/.agents/skills/

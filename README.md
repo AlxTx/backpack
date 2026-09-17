@@ -8,7 +8,7 @@ learning memory.
 ```txt
 bootstrap/           setup and validation scripts
 cockpit/portable/    host-agnostic workflow, core skills, and curated skill catalogue
-cockpit/adapters/    thin Codex, Claude, Copilot, and OpenCode adapters
+cockpit/adapters/    thin Codex, Claude, and OpenCode adapters
 memory/              durable personal learning: craft, AI, concepts, books, playbooks
 ```
 
@@ -16,6 +16,7 @@ memory/              durable personal learning: craft, AI, concepts, books, play
 
 - `backpack/memory` is personal, durable, and reusable.
 - Client mission notes live outside this repo.
+- GitHub Copilot configuration is client-owned and lives outside this repo.
 - Project truth lives in each project repo (`README.md`, `AGENTS.md`, `docs/`).
 - Secrets, SSH keys, tokens, client-specific certs, and local state are not committed.
 - Client-specific providers and models may be applied locally after installation,
@@ -33,8 +34,9 @@ cd backpack
 ```
 
 `./backpack` means “run the `backpack` file from this folder”. The first
-installation links `backpack` into `~/.local/bin`;
-afterward, when that folder is on `PATH`, use either from anywhere.
+installation links `backpack` into `~/.local/bin`. Selecting **Shell** or
+**Everything** configures Fish to include that directory; start a new Fish
+session afterward, then use it from anywhere.
 
 The menu validates the repository, previews interactive plans, and asks before
 changing local configuration.
@@ -59,10 +61,9 @@ uses arrow-key menus when `gum` is available and falls back to a numbered menu.
 | Remove a skill from this project | `backpack remove impeccable` |
 | Install everything on a personal Mac | `backpack install everything --personal` |
 | Install everything on a client Mac | `backpack install everything --client` |
-| Install Cockpit for every AI tool | `backpack install cockpit --all-hosts` |
+| Install Cockpit for every supported personal host | `backpack install cockpit --all-hosts` |
 | Install Cockpit for Codex | `backpack install cockpit --codex` |
 | Install Cockpit for Claude Code | `backpack install cockpit --claude` |
-| Install explicit Cockpit utilities for GitHub Copilot | `backpack install cockpit --copilot` |
 | Replace Cockpit for OpenCode from Backpack | `backpack install cockpit --opencode` |
 
 A direct target applies immediately; use `--dry-run` for a read-only preview.
@@ -92,12 +93,10 @@ authoritative.
 | Codex | `~/.codex/AGENTS.md` | Uses the same instruction source |
 | Claude Code | `~/.claude/rules/backpack.md`, agents, and skills | Code tab shares the same local configuration |
 | OpenCode | `~/.config/opencode/` | Uses the same configuration as CLI and TUI |
-| GitHub Copilot | FSH workflow bridge plus explicit `/cockpit-*` skills from `~/.agents/skills` | Uses the same local configuration |
-
-GitHub Copilot receives the FSH workflow bridge from Backpack's Copilot adapter.
-Backpack also exposes its namespaced skills there, and their Copilot metadata
-requires an explicit `/cockpit-*` invocation. Copilot plugins and hooks remain
-externally owned.
+GitHub Copilot is deliberately excluded from Backpack installation. Its workflow,
+instructions, plugins, hooks, and skills remain client-owned. Backpack skills
+that are visible through the shared agent-skills standard declare Copilot as an
+unsupported host and must not run there.
 
 Repository-level instructions remain project truth and can add client-specific
 constraints. Backpack never creates or commits them automatically.
@@ -127,7 +126,7 @@ usage map.
 For a non-trivial task, Cockpit-compatible hosts expose the active Cockpit phase,
 then any skill, agent, plugin, or integration actually activated. Native host
 events are preferred; otherwise Backpack emits a compact one-line fallback such
-as `Cockpit › Build · [Skill] impeccable`. The hierarchy stays
+as `[Cockpit - Build] · [Skill] impeccable`. The status marker stays
 visible on every line: Cockpit, then the active phase; the bracketed label makes
 the capability type immediately scannable. It never duplicates an activation
 the host already displays. This makes the workflow visible without exposing
@@ -149,8 +148,7 @@ On client machines, use `--client` and keep providers, tokens, endpoints,
 policies, and mission notes outside Backpack.
 
 After installation, restart applications that load configuration at startup.
-OpenCode must be restarted after adapter or skill updates; Copilot CLI can reload
-skills with `/skills reload`.
+OpenCode must be restarted after adapter or skill updates.
 
 See [installation details](docs/install.md) for every option and
 [the host-agnostic AI workflow](docs/ai-workflow.md) for host boundaries.

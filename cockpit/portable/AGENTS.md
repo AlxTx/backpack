@@ -60,7 +60,7 @@ diagnose, plan, validate, review, or learn is not permission to modify product
 files. A request to build, fix, align, migrate, or remove does include the normal
 in-scope changes and validation needed to complete it.
 
-Before routing, apply the portable `cockpit-prompt-refinement` skill automatically only
+Before routing, apply the portable `cockpit-enhance-prompt` skill automatically only
 when a request is long, materially ambiguous, internally conflicting, or
 repetitive. Clear actionable prompts pass through unchanged. Meaning-preserving
 editorial normalization may flow directly into the requested work; any proposed
@@ -366,7 +366,7 @@ delegating, editing, or running commands. If another tier is materially more
 appropriate, stop and ask one decision through the host's question surface:
 
 ```txt
-Cockpit › <phase> · <recommended tier/model> is more appropriate than <current tier/model>: <brief material reason>. Switch manually in the host model selector, then reply yes once it is active; reply no to continue with the current model.
+[Cockpit - <phase>] · <recommended tier/model> is more appropriate than <current tier/model>: <brief material reason>. Switch manually in the host model selector, then reply yes once it is active; reply no to continue with the current model.
 ```
 
 Recommend an upgrade when the current model is below the quality or risk bar.
@@ -410,7 +410,7 @@ files, or perform a multi-step action, send one short status before the first
 action:
 
 ```txt
-Cockpit › <phase> · <immediate next action>
+[Cockpit - <phase>] · <immediate next action>
 ```
 
 - When a named capability is activated and the host does not already show it,
@@ -418,10 +418,10 @@ Cockpit › <phase> · <immediate next action>
   remains visibly attached to the work that activated it:
 
   ```txt
-  Cockpit › <phase> · [Skill] <name>
-  Cockpit › <phase> · [Agent] <name>
-  Cockpit › <phase> · [Plugin] <name>
-  Cockpit › <phase> · [Integration] <name>
+  [Cockpit - <phase>] · [Skill] <name>
+  [Cockpit - <phase>] · [Agent] <name>
+  [Cockpit - <phase>] · [Plugin] <name>
+  [Cockpit - <phase>] · [Integration] <name>
   ```
 
 - When the host is known to render an activation from the tool call itself,
@@ -432,9 +432,9 @@ Cockpit › <phase> · <immediate next action>
 - Never duplicate an activation already rendered natively by the host, and do
   not add prose that merely restates the names or obvious roles visible in the
   native event. Explain only a material scope, permission, dependency, or result.
-- Use `›` only for hierarchy (`Cockpit → phase`) and `·` to introduce the current
-  action or capability event. Put capability types in square brackets so they
-  remain scannable without adding another hierarchy level.
+- Use `[Cockpit - phase]` as the stable workflow marker and `·` to introduce the
+  current action or capability event. Put capability types in square brackets so
+  they remain scannable without adding another hierarchy level.
 - Keep the stable `Cockpit` prefix, capability labels, and canonical capability
   name across hosts; localize the phase and short action description to the
   user's language.

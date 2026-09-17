@@ -12,7 +12,6 @@ CONFIG_DIR=${CONFIG_DIR:-"$HOME/.config"}
 BACKPACK_AGENTS_DIR=${BACKPACK_AGENTS_DIR:-"$HOME/.agents"}
 BACKPACK_CODEX_DIR=${CODEX_HOME:-"$HOME/.codex"}
 BACKPACK_CLAUDE_DIR=${CLAUDE_CONFIG_DIR:-"$HOME/.claude"}
-BACKPACK_COPILOT_DIR=${COPILOT_HOME:-"$HOME/.copilot"}
 BACKPACK_BIN_DIR=${BACKPACK_BIN_DIR:-"$HOME/.local/bin"}
 APPLY=0
 DIRECT_APPLY=0
@@ -44,7 +43,7 @@ while [ "${1:-}" != "" ]; do
       PROFILE_FLAG_COUNT=$((PROFILE_FLAG_COUNT + 1))
       PROFILE_MODE=client
       ;;
-    --codex|--claude|--copilot|--opencode)
+    --codex|--claude|--opencode)
       TARGET_FLAG_COUNT=$((TARGET_FLAG_COUNT + 1))
       target=${1#--}
       if [ "$INSTALL_COMPONENT" != cockpit ]; then
@@ -53,6 +52,10 @@ while [ "${1:-}" != "" ]; do
       fi
       INSTALL_TARGET=$target
       TARGET_SET=1
+      ;;
+    --copilot)
+      printf '✗ GitHub Copilot is client-owned and is not installed by Backpack.\n' >&2
+      exit 2
       ;;
     --all-hosts)
       TARGET_FLAG_COUNT=$((TARGET_FLAG_COUNT + 1))
@@ -301,7 +304,6 @@ gum_choose_cockpit_target() {
     'OpenCode        Terminal · Desktop app · GitHub Action' \
     'Codex           Terminal · Desktop app' \
     'Claude Code     Terminal · Desktop app (Code tab)' \
-    'GitHub Copilot  Terminal · Desktop app' \
     'All supported tools' \
     'Back') || {
       warn 'Install cancelled. No changes were made.'
@@ -312,7 +314,6 @@ gum_choose_cockpit_target() {
     OpenCode*) INSTALL_TARGET=opencode ;;
     Codex*) INSTALL_TARGET=codex ;;
     'Claude Code'*) INSTALL_TARGET=claude ;;
-    'GitHub Copilot'*) INSTALL_TARGET=copilot ;;
     'All supported'*) INSTALL_TARGET=ai ;;
     Back)
       INSTALL_COMPONENT=
@@ -410,8 +411,7 @@ Where do you want to use Cockpit?
   1  OpenCode        Terminal · Desktop app · GitHub Action
   2  Codex           Terminal · Desktop app
   3  Claude Code     Terminal · Desktop app (Code tab)
-  4  GitHub Copilot  Terminal · Desktop app
-  5  All supported tools
+  4  All supported tools
   b  Back
 
 EOF
@@ -423,8 +423,7 @@ EOF
     1) INSTALL_TARGET=opencode ;;
     2) INSTALL_TARGET=codex ;;
     3) INSTALL_TARGET=claude ;;
-    4) INSTALL_TARGET=copilot ;;
-    5) INSTALL_TARGET=ai ;;
+    4) INSTALL_TARGET=ai ;;
     b|B)
       INSTALL_COMPONENT=
       return 1
@@ -574,16 +573,12 @@ count_core_skills() {
 
 core_install_description() {
   core_count=$(count_core_skills)
-  case "$INSTALL_TARGET" in
-    copilot) printf '%s explicit /cockpit-* utility skill(s)' "$core_count" ;;
-    ai|all) printf '%s workflow skill(s); explicit-only in Copilot' "$core_count" ;;
-    *) printf '%s workflow skill(s); specialized skills are project-local' "$core_count" ;;
-  esac
+  printf '%s workflow skill(s); specialized skills are project-local' "$core_count"
 }
 
 target_uses_skills() {
   case "$INSTALL_TARGET" in
-    ai|all|codex|claude|copilot|opencode) return 0 ;;
+    ai|all|codex|claude|opencode) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -616,7 +611,7 @@ install_core_skills() {
   # These names were core skills before Cockpit adopted a consistent public
   # prefix. They are Backpack-managed paths, so move any previous contents to
   # the normal recovery backup before linking their replacements.
-  for legacy_skill in prompt-refinement pattern-scan pattern-capture; do
+  for legacy_skill in prompt-refinement cockpit-prompt-refinement pattern-scan pattern-capture; do
     legacy_path="$skills_dest/$legacy_skill"
     [ -e "$legacy_path" ] || [ -L "$legacy_path" ] || continue
     if [ "$APPLY" -eq 1 ]; then
@@ -705,22 +700,6 @@ configure_rtk_claude() {
   else
     warn 'could not configure the RTK Claude Code hook; shared rules remain active'
   fi
-}
-
-remove_legacy_copilot_rtk_hook() {
-  legacy_hook="$BACKPACK_COPILOT_DIR/hooks/rtk-rewrite.json"
-
-  [ -f "$legacy_hook" ] || return 0
-  grep -q '"command": "rtk hook copilot"' "$legacy_hook" || return 0
-
-  if [ "$APPLY" -eq 0 ]; then
-    detail "remove legacy Backpack RTK Copilot hook at $legacy_hook"
-    return
-  fi
-
-  mkdir -p "$backup_dir"
-  backup_existing "$legacy_hook"
-  detail_success "removed legacy Backpack RTK Copilot hook at $legacy_hook"
 }
 
 link_entry() {
@@ -812,13 +791,9 @@ print_client_reminder() {
         ;;
     esac
 
-    case "$INSTALL_TARGET" in
-      ai|copilot|all)
-        printf '%s\n' '- Copilot gets explicit /cockpit-* utilities only; its default workflow and repository instructions remain externally owned.'
-        ;;
-    esac
-
-    printf '%s\n' '- Do not commit client providers, tokens, endpoints, or policies to Backpack.'
+    printf '%s\n' \
+      '- GitHub Copilot is outside Backpack and remains entirely client-owned.' \
+      '- Do not commit client providers, tokens, endpoints, instructions, or policies to Backpack.'
   fi
 }
 
@@ -832,7 +807,6 @@ target_description() {
     opencode) printf 'Cockpit for OpenCode' ;;
     codex) printf 'Cockpit for Codex' ;;
     claude) printf 'Cockpit for Claude Code' ;;
-    copilot) printf 'Explicit Cockpit utilities for GitHub Copilot' ;;
     ai) printf 'Cockpit for all supported tools' ;;
     shell) printf 'Shell configuration' ;;
     editor) printf 'Editor configuration' ;;
@@ -847,7 +821,6 @@ target_surface() {
     opencode) printf 'Terminal · Desktop app · GitHub Action' ;;
     codex) printf 'Terminal · Desktop app' ;;
     claude) printf 'Terminal · Desktop app (Code tab)' ;;
-    copilot) printf 'Terminal · Desktop app' ;;
     ai) printf 'All supported terminal and desktop surfaces' ;;
     shell) printf 'Fish · Starship' ;;
     editor) printf 'Neovim' ;;
@@ -862,10 +835,6 @@ print_completion() {
     opencode|codex|claude)
       success "$(target_description) installed"
       printf 'Restart the app to activate it.\n'
-      ;;
-    copilot)
-      success 'Explicit Cockpit utilities for GitHub Copilot installed'
-      printf 'Reload Copilot skills to activate them.\n'
       ;;
     ai)
       success 'Cockpit installed for all supported tools'
@@ -908,18 +877,11 @@ EOF
         install_rtk
         configure_rtk_claude
         ;;
-      copilot)
-        install_rtk
-        ;;
       opencode)
         install_rtk
         ;;
     esac
   fi
-
-  case "$INSTALL_TARGET" in
-    ai|all|copilot) remove_legacy_copilot_rtk_hook ;;
-  esac
 
   if [ "$REPLACE_EXISTING" -eq 1 ]; then
     warn '--replace is no longer needed; installs always replace Backpack-managed targets.'
@@ -943,14 +905,9 @@ EOF
       install_core_skills "$BACKPACK_AGENTS_DIR/skills"
       install_claude_adapter
       ;;
-    copilot)
-      link_entry "$BACKPACK_ROOT/cockpit/adapters/copilot/copilot-instructions.md" "$BACKPACK_COPILOT_DIR/copilot-instructions.md"
-      install_core_skills "$BACKPACK_AGENTS_DIR/skills"
-      ;;
     ai|all)
       link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$CONFIG_DIR/opencode/AGENTS.md"
       install_codex_adapter
-      link_entry "$BACKPACK_ROOT/cockpit/adapters/copilot/copilot-instructions.md" "$BACKPACK_COPILOT_DIR/copilot-instructions.md"
       install_claude_adapter
       ;;
   esac

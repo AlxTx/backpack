@@ -1,6 +1,6 @@
 ---
 name: cockpit-validate
-description: Run independent Code Review and Product QA on completed work. In GitHub Copilot, explicit /cockpit-validate invocation only.
+description: Run independent Code Review and Product QA on completed work. In GitHub Copilot, do not use this skill; follow the client-owned workflow instead.
 ---
 
 # Cockpit Validate

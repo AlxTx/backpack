@@ -1,6 +1,6 @@
 ---
 name: cockpit-pattern-scan
-description: Map established architecture, patterns, and anti-patterns in a codebase. In GitHub Copilot, explicit /cockpit-pattern-scan invocation only.
+description: Map established architecture, patterns, and anti-patterns in a codebase. In GitHub Copilot, do not use this skill; follow the client-owned workflow instead.
 ---
 
 # Pattern Scan

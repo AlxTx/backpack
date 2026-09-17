@@ -9,19 +9,23 @@ trap 'rm -rf "$TEST_ROOT"' EXIT HUP INT TERM
 TEST_HOME="$TEST_ROOT/home"
 mkdir -p "$TEST_HOME"
 
-output=$(printf '5\ny\n' | \
+output=$(printf '4\ny\n' | \
   HOME="$TEST_HOME" \
   CONFIG_DIR="$TEST_HOME/.config" \
   BACKPACK_AGENTS_DIR="$TEST_HOME/.agents" \
   CODEX_HOME="$TEST_HOME/.codex" \
   CLAUDE_CONFIG_DIR="$TEST_HOME/.claude" \
-  COPILOT_HOME="$TEST_HOME/.copilot" \
   BACKPACK_BIN_DIR="$TEST_HOME/.local/bin" \
   BACKPACK_ROOT="$BACKPACK_ROOT" \
   "$BACKPACK_ROOT/bootstrap/install.sh" cockpit --without-rtk)
 
 printf '%s' "$output" | grep -q 'Cockpit installed for all supported tools' || {
   printf '✗ interactive Cockpit install did not complete\n' >&2
+  exit 1
+}
+
+test ! -e "$TEST_HOME/.copilot" || {
+  printf '✗ all-hosts install unexpectedly created GitHub Copilot configuration\n' >&2
   exit 1
 }
 
@@ -59,7 +63,7 @@ for claude_readonly_agent in plan review qa design; do
   }
 done
 
-for cockpit_skill in cockpit-prompt-refinement cockpit-pattern-scan cockpit-pattern-capture cockpit-validate cockpit-learn cockpit-start-work; do
+for cockpit_skill in cockpit-enhance-prompt cockpit-pattern-scan cockpit-pattern-capture cockpit-validate cockpit-learn cockpit-start-work; do
   test -L "$TEST_HOME/.agents/skills/$cockpit_skill" || {
     printf '✗ Cockpit install did not link the %s core skill\n' "$cockpit_skill" >&2
     exit 1
@@ -179,7 +183,6 @@ replace_output=$( \
   BACKPACK_AGENTS_DIR="$TEST_HOME/.agents" \
   CODEX_HOME="$TEST_HOME/.codex" \
   CLAUDE_CONFIG_DIR="$TEST_HOME/.claude" \
-  COPILOT_HOME="$TEST_HOME/.copilot" \
   BACKPACK_BIN_DIR="$TEST_HOME/.local/bin" \
   BACKPACK_ROOT="$BACKPACK_ROOT" \
   "$BACKPACK_ROOT/bootstrap/install.sh" cockpit --opencode --without-rtk)
@@ -247,7 +250,6 @@ everything_output=$( \
   BACKPACK_AGENTS_DIR="$GENERAL_HOME/.agents" \
   CODEX_HOME="$GENERAL_HOME/.codex" \
   CLAUDE_CONFIG_DIR="$GENERAL_HOME/.claude" \
-  COPILOT_HOME="$GENERAL_HOME/.copilot" \
   BACKPACK_BIN_DIR="$GENERAL_HOME/.local/bin" \
   BACKPACK_ROOT="$BACKPACK_ROOT" \
   "$BACKPACK_ROOT/bootstrap/install.sh" everything --personal --without-rtk)
@@ -263,8 +265,7 @@ for managed_link in \
   "$GENERAL_HOME/.codex/agents/cockpit-product-qa.toml" \
   "$GENERAL_HOME/.claude/rules/backpack.md" \
   "$GENERAL_HOME/.claude/agents" \
-  "$GENERAL_HOME/.copilot/copilot-instructions.md" \
-  "$GENERAL_HOME/.agents/skills/cockpit-prompt-refinement" \
+  "$GENERAL_HOME/.agents/skills/cockpit-enhance-prompt" \
   "$GENERAL_HOME/.config/fish" \
   "$GENERAL_HOME/.config/nvim" \
   "$GENERAL_HOME/.config/ghostty"; do
@@ -279,8 +280,8 @@ test -f "$GENERAL_HOME/.codex/agents/local.toml" || {
   exit 1
 }
 
-cmp "$BACKPACK_ROOT/cockpit/adapters/copilot/copilot-instructions.md" "$GENERAL_HOME/.copilot/copilot-instructions.md" || {
-  printf '✗ Everything install did not install the FSH Copilot workflow bridge\n' >&2
+grep -q '^local copilot$' "$GENERAL_HOME/.copilot/copilot-instructions.md" || {
+  printf '✗ Everything install changed client-owned Copilot instructions\n' >&2
   exit 1
 }
 
@@ -289,8 +290,8 @@ grep -q '^legacy copilot$' "$GENERAL_HOME/.copilot/instructions/backpack.instruc
   exit 1
 }
 
-test ! -e "$GENERAL_HOME/.copilot/hooks/rtk-rewrite.json" || {
-  printf '✗ Everything install preserved the legacy Backpack RTK Copilot hook\n' >&2
+grep -q 'rtk hook copilot' "$GENERAL_HOME/.copilot/hooks/rtk-rewrite.json" || {
+  printf '✗ Everything install changed a client-owned Copilot hook\n' >&2
   exit 1
 }
 
@@ -309,6 +310,11 @@ grep -Fq 'test "$PWD" = "$HOME"' "$GENERAL_HOME/.config/fish/config.fish" || {
   exit 1
 }
 
+grep -Fq 'not contains -- "$HOME/.local/bin" $PATH' "$GENERAL_HOME/.config/fish/conf.d/backpack-path.fish" || {
+  printf '✗ Fish shell install does not add Backpack bin directory to PATH\n' >&2
+  exit 1
+}
+
 general_backup=$(printf '%s\n' "$everything_output" | sed -n 's/^Backups: //p' | tail -n 1)
 test -n "$general_backup" || {
   printf '✗ Everything install did not report the recovery backup\n' >&2
@@ -318,8 +324,6 @@ test -n "$general_backup" || {
 for backup_marker in \
   "$general_backup$GENERAL_HOME/.codex/AGENTS.md" \
   "$general_backup$GENERAL_HOME/.claude/agents/local.md" \
-  "$general_backup$GENERAL_HOME/.copilot/copilot-instructions.md" \
-  "$general_backup$GENERAL_HOME/.copilot/hooks/rtk-rewrite.json" \
   "$general_backup$GENERAL_HOME/.agents/skills/prompt-refinement/SKILL.md" \
   "$general_backup$GENERAL_HOME/.config/fish/local.fish"; do
   test -f "$backup_marker" || {
@@ -328,12 +332,24 @@ for backup_marker in \
   }
 done
 
-for cockpit_skill in cockpit-prompt-refinement cockpit-pattern-scan cockpit-pattern-capture cockpit-validate cockpit-learn cockpit-start-work; do
-  grep -q "In GitHub Copilot, explicit /$cockpit_skill invocation only" \
+for cockpit_skill in cockpit-enhance-prompt cockpit-pattern-scan cockpit-pattern-capture cockpit-validate cockpit-learn cockpit-start-work; do
+  grep -q 'In GitHub Copilot, do not use this skill' \
     "$BACKPACK_ROOT/cockpit/portable/skills/$cockpit_skill/SKILL.md" || {
-      printf '✗ %s is not explicit-only in GitHub Copilot\n' "$cockpit_skill" >&2
+      printf '✗ %s is not disabled in GitHub Copilot\n' "$cockpit_skill" >&2
       exit 1
     }
 done
+
+copilot_error="$TEST_ROOT/copilot-error.txt"
+if HOME="$TEST_HOME" \
+   BACKPACK_ROOT="$BACKPACK_ROOT" \
+   "$BACKPACK_ROOT/bootstrap/install.sh" cockpit --copilot --without-rtk 2>"$copilot_error"; then
+  printf '✗ Backpack still accepts GitHub Copilot as an installation target\n' >&2
+  exit 1
+fi
+grep -q 'GitHub Copilot is client-owned and is not installed by Backpack' "$copilot_error" || {
+  printf '✗ rejected GitHub Copilot install does not explain the ownership boundary\n' >&2
+  exit 1
+}
 
 printf '✓ interactive Cockpit install contract\n'
