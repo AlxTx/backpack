@@ -15,8 +15,9 @@ usage() {
   cat <<'EOF'
 Usage:
   backpack
-  backpack install [cockpit|machine|everything] [options]
+  backpack install [engineering|cockpit|machine|everything] [options]
   backpack doctor
+  backpack check [component]
   backpack status
   backpack skills
   backpack list
@@ -26,9 +27,11 @@ Usage:
   backpack remove <skill>
 
 Examples:
-  backpack install cockpit
-  backpack install cockpit --codex
-  backpack install cockpit --all-hosts
+  backpack install engineering
+  backpack install engineering --codex
+  backpack install engineering --super
+  backpack install engineering --all-hosts
+  backpack install cockpit --all-hosts  # legacy alias
   backpack install machine
   backpack install everything --personal
   backpack find design
@@ -42,14 +45,14 @@ use_gum() {
 
 dispatch_main_choice() {
   case "$1" in
-    cockpit) exec "$SCRIPT_DIR/bootstrap/install.sh" cockpit ;;
+    engineering) exec "$SCRIPT_DIR/bootstrap/install.sh" engineering ;;
     machine) exec "$SCRIPT_DIR/bootstrap/install.sh" machine ;;
     everything) exec "$SCRIPT_DIR/bootstrap/install.sh" everything ;;
     skills)
       "$SCRIPT_DIR/bootstrap/skills.sh" menu
       exec "$SCRIPT_DIR/backpack"
       ;;
-    doctor) exec "$SCRIPT_DIR/bootstrap/doctor.sh" ;;
+    check) exec "$SCRIPT_DIR/bootstrap/check.sh" ;;
     status) exec "$SCRIPT_DIR/bootstrap/status.sh" ;;
     quit) exit 0 ;;
   esac
@@ -62,14 +65,14 @@ gum_main_menu() {
     --border rounded \
     --padding '1 2' \
     --margin '1 0' \
-    '◆ Backpack' 'Cockpit and machine setup.'
+    '◆ Backpack' 'Backpack Engineering and machine setup.'
 
   selection=$(gum choose \
     --header 'What do you want to do?' \
     --cursor '→ ' \
     --selected-prefix '✓ ' \
     --unselected-prefix '  ' \
-    'Install or update Cockpit' \
+    'Install or update Backpack Engineering' \
     'Install or update this Mac' \
     'Install everything' \
     'Manage project skills' \
@@ -78,11 +81,11 @@ gum_main_menu() {
     'Quit') || exit 0
 
   case "$selection" in
-    'Install or update Cockpit') dispatch_main_choice cockpit ;;
+    'Install or update Backpack Engineering') dispatch_main_choice engineering ;;
     'Install or update this Mac') dispatch_main_choice machine ;;
     'Install everything') dispatch_main_choice everything ;;
     'Manage project skills') dispatch_main_choice skills ;;
-    'Check installation') dispatch_main_choice doctor ;;
+    'Check installation') dispatch_main_choice check ;;
     'Show status') dispatch_main_choice status ;;
     'Quit') dispatch_main_choice quit ;;
   esac
@@ -95,7 +98,7 @@ numbered_main_menu() {
 
 What do you want to do?
 
-  1  Install or update Cockpit
+  1  Install or update Backpack Engineering
   2  Install or update this Mac
   3  Install everything
   4  Manage project skills
@@ -108,11 +111,11 @@ EOF
   read choice
 
   case "$choice" in
-    1) dispatch_main_choice cockpit ;;
+    1) dispatch_main_choice engineering ;;
     2) dispatch_main_choice machine ;;
     3) dispatch_main_choice everything ;;
     4) dispatch_main_choice skills ;;
-    5) dispatch_main_choice doctor ;;
+    5) dispatch_main_choice check ;;
     6) dispatch_main_choice status ;;
     q|Q) dispatch_main_choice quit ;;
     *)
@@ -140,6 +143,11 @@ case "${1:-}" in
     shift
     [ "$#" -eq 0 ] || { usage >&2; exit 2; }
     exec "$SCRIPT_DIR/bootstrap/doctor.sh"
+    ;;
+  check)
+    shift
+    [ "$#" -le 1 ] || { usage >&2; exit 2; }
+    exec "$SCRIPT_DIR/bootstrap/check.sh" "$@"
     ;;
   status)
     shift

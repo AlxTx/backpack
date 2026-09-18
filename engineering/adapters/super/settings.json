@@ -1,0 +1,89 @@
+{
+  "theme_mode": "dark",
+  "app_icon": "dark",
+  "font_family": "",
+  "mono_font_family": "Lilex",
+  "font_size": 12.0,
+  "line_height": 16.0,
+  "ui_scale": 1.0,
+  "ui_language": "system",
+  "terminal_font_family": "Lilex Nerd Font",
+  "terminal_color_scheme": "vscode",
+  "chat_text_multiplier": 1.0,
+  "chat_full_width": false,
+  "show_conversation_cost": true,
+  "conversation_cost_scope": "worktree",
+  "show_file_edits_inline": true,
+  "show_live_edits_in_chat": false,
+  "expand_completed_tool_summaries_by_default": false,
+  "expand_streaming_file_edits_by_default": false,
+  "expand_thinking_by_default": false,
+  "expand_tool_calls_by_default": false,
+  "loading_indicator_style": "thinking_orb_solving",
+  "diff_view_mode": "stacked",
+  "diff_word_wrap": false,
+  "markdown_file_open_mode": "rich",
+  "preferred_commit_action": "commit_and_push",
+  "command_digit_switches_tabs": true,
+  "workspace_tab_placement": "top",
+  "pinned_tab_style": "compact",
+  "worktree_sort_mode": "activity",
+  "pinned_worktree_sort_mode": "activity",
+  "sidebar_show_commit_status": true,
+  "compact_sidebar_label_style": "description",
+  "detailed_sidebar_label_style": "branch",
+  "auto_hide_sidebars": true,
+  "default_tool": "codex",
+  "default_add_action": "superconductor",
+  "automatic_branch_naming": true,
+  "auto_fast_forward": true,
+  "auto_fast_forward_default_branch": true,
+  "delete_local_branch_on_cleanup": true,
+  "delete_remote_tracking_branches_on_cleanup": false,
+  "provider_update_checks": true,
+  "palette": {
+    "show_files": true,
+    "show_worktrees": true,
+    "show_tabs": true,
+    "show_commands": true,
+    "show_conversations": true,
+    "show_breadcrumbs": true
+  },
+  "notification_sounds": {
+    "task_complete": "default",
+    "approval_needed": "default",
+    "delivery_mode": "only_when_not_focused",
+    "break_through_focus": false,
+    "timeline_limit": 50
+  },
+  "experimental": {
+    "agent_orchestration": true,
+    "browser_automation": false
+  },
+  "ai_execution": {
+    "bypass_claude_permissions": false,
+    "bypass_codex_permissions": false,
+    "bypass_opencode_permissions": false,
+    "bypass_antigravity_permissions": false,
+    "bypass_grok_permissions": false,
+    "bypass_kimi_permissions": false,
+    "codex_permission_bypass_mode": "safe_bypass"
+  },
+  "review_submit": {
+    "default_destination": "agent"
+  },
+  "open_in_apps": {
+    "hidden_defaults": [
+      "Cursor",
+      "Warp",
+      "Terminal"
+    ],
+    "order": [
+      "Ghostty",
+      "Finder",
+      "Cursor",
+      "Warp",
+      "Terminal"
+    ]
+  }
+}

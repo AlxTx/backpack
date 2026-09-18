@@ -2,11 +2,11 @@
 
 ## Safe prompt enhancement
 
-First slice implemented as the portable `cockpit-enhance-prompt` skill. Every host
+First slice implemented as the portable `backpack-enhance-prompt` skill. Every host
 consumes that single canonical capability through native skill discovery; no
 host-specific alias is maintained.
 
-Cockpit automatically preflights long, ambiguous, conflicting, or repetitive
+Backpack Engineering automatically preflights long, ambiguous, conflicting, or repetitive
 prompts while letting clear actionable prompts pass unchanged. It improves
 clarity and optionally reduces repetition through a hybrid flow.
 
@@ -22,7 +22,7 @@ Safety and UX requirements:
 - provide a safe default mode and an opt-in compact mode;
 - bypass clear prompts because agent-level refinement cannot remove the original
   message from context and may otherwise cost more tokens than it saves;
-- work through the portable Cockpit skill model rather than a provider-specific
+- work through the portable Backpack Engineering skill model rather than a provider-specific
   integration where possible.
 
 The portable skill is the safety boundary. It either performs editorial-only
@@ -46,13 +46,13 @@ Future feature — not part of the current installer.
 
 Separate the distributable Backpack core from owner-specific configuration:
 
-- public, generic Backpack: Cockpit workflow, adapters, reusable skills, and
+- public, generic Backpack: Backpack Engineering workflow, adapters, reusable skills, and
   installer;
 - private AlxTx profile: professional persona, model routing, dotfiles, memory,
   Git/SSH conventions, and personal paths;
 - generic profile by default for another user;
 - optional local or private-repository profile installation, for example
-  `backpack install cockpit --profile alxtx`;
+  `backpack install engineering --profile alxtx`;
 - no AlxTx profile content in the public repository;
 - use a clean public repository history if the current personal repository ever
   contains information that should not become public.

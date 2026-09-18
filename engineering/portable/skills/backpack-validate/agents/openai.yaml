@@ -1,0 +1,7 @@
+interface:
+  display_name: "Backpack Validate"
+  short_description: "Independent review and product QA gate"
+  default_prompt: "Use $backpack-validate to validate the completed delivery slice and report its Ready-to-Ship status."
+
+policy:
+  allow_implicit_invocation: true

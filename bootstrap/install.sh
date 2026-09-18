@@ -12,11 +12,20 @@ CONFIG_DIR=${CONFIG_DIR:-"$HOME/.config"}
 BACKPACK_AGENTS_DIR=${BACKPACK_AGENTS_DIR:-"$HOME/.agents"}
 BACKPACK_CODEX_DIR=${CODEX_HOME:-"$HOME/.codex"}
 BACKPACK_CLAUDE_DIR=${CLAUDE_CONFIG_DIR:-"$HOME/.claude"}
+if [ "${SUPER_CONFIG_DIR+x}" = x ]; then
+  BACKPACK_SUPER_DIR=$SUPER_CONFIG_DIR
+  SUPER_CONFIG_EXPLICIT=1
+else
+  BACKPACK_SUPER_DIR=$HOME/.super.engineering
+  SUPER_CONFIG_EXPLICIT=0
+fi
 BACKPACK_BIN_DIR=${BACKPACK_BIN_DIR:-"$HOME/.local/bin"}
+BACKPACK_STATE_FILE=${BACKPACK_STATE_FILE:-"$CONFIG_DIR/backpack/installed-components"}
 APPLY=0
 DIRECT_APPLY=0
 PROFILE_MODE=personal
 INSTALL_COMPONENT=
+LEGACY_COMPONENT=0
 INSTALL_TARGET=
 TARGET_SET=0
 REPLACE_EXISTING=0
@@ -24,11 +33,16 @@ DRY_RUN=0
 WITH_RTK=1
 TARGET_FLAG_COUNT=0
 PROFILE_FLAG_COUNT=0
-USAGE='Usage: backpack install [cockpit|machine|everything] [target] [--personal|--client] [--dry-run]'
+USAGE='Usage: backpack install [engineering|cockpit|machine|everything] [target] [--personal|--client] [--dry-run]'
 
 case "${1:-}" in
-  cockpit|machine|everything)
+  engineering|machine|everything)
     INSTALL_COMPONENT=$1
+    shift
+    ;;
+  cockpit)
+    INSTALL_COMPONENT=engineering
+    LEGACY_COMPONENT=1
     shift
     ;;
 esac
@@ -43,11 +57,11 @@ while [ "${1:-}" != "" ]; do
       PROFILE_FLAG_COUNT=$((PROFILE_FLAG_COUNT + 1))
       PROFILE_MODE=client
       ;;
-    --codex|--claude|--opencode)
+    --codex|--claude|--opencode|--super)
       TARGET_FLAG_COUNT=$((TARGET_FLAG_COUNT + 1))
       target=${1#--}
-      if [ "$INSTALL_COMPONENT" != cockpit ]; then
-        printf '✗ %s requires: backpack install cockpit %s\n' "$1" "$1" >&2
+      if [ "$INSTALL_COMPONENT" != engineering ]; then
+        printf '✗ %s requires: backpack install engineering %s\n' "$1" "$1" >&2
         exit 2
       fi
       INSTALL_TARGET=$target
@@ -59,8 +73,8 @@ while [ "${1:-}" != "" ]; do
       ;;
     --all-hosts)
       TARGET_FLAG_COUNT=$((TARGET_FLAG_COUNT + 1))
-      if [ "$INSTALL_COMPONENT" != cockpit ]; then
-        printf '✗ --all-hosts requires: backpack install cockpit --all-hosts\n' >&2
+      if [ "$INSTALL_COMPONENT" != engineering ]; then
+        printf '✗ --all-hosts requires: backpack install engineering --all-hosts\n' >&2
         exit 2
       fi
       INSTALL_TARGET=ai
@@ -272,16 +286,16 @@ gum_choose_component() {
     --cursor '→ ' \
     --selected-prefix '✓ ' \
     --unselected-prefix '  ' \
-    'Cockpit      AI workflow for supported assistants' \
+    'Backpack Engineering      AI workflow for supported assistants' \
     'This Mac     Shell, editor, terminal, and personal tools' \
-    'Everything   Cockpit and this Mac' \
+    'Everything   Backpack Engineering and this Mac' \
     'Quit') || {
       warn 'Install cancelled. No changes were made.'
       exit 0
     }
 
   case $selection in
-    Cockpit*) INSTALL_COMPONENT=cockpit ;;
+    'Backpack Engineering'*) INSTALL_COMPONENT=engineering ;;
     'This Mac'*) INSTALL_COMPONENT=machine ;;
     Everything*)
       INSTALL_COMPONENT=everything
@@ -295,15 +309,16 @@ gum_choose_component() {
   esac
 }
 
-gum_choose_cockpit_target() {
+gum_choose_backpack_target() {
   selection=$(gum choose \
-    --header 'Where do you want to use Cockpit?' \
+    --header 'Where do you want to use Backpack Engineering?' \
     --cursor '→ ' \
     --selected-prefix '✓ ' \
     --unselected-prefix '  ' \
     'OpenCode        Terminal · Desktop app · GitHub Action' \
     'Codex           Terminal · Desktop app' \
     'Claude Code     Terminal · Desktop app (Code tab)' \
+    'Super           Portable control-plane preferences' \
     'All supported tools' \
     'Back') || {
       warn 'Install cancelled. No changes were made.'
@@ -314,6 +329,7 @@ gum_choose_cockpit_target() {
     OpenCode*) INSTALL_TARGET=opencode ;;
     Codex*) INSTALL_TARGET=codex ;;
     'Claude Code'*) INSTALL_TARGET=claude ;;
+    Super*) INSTALL_TARGET=super ;;
     'All supported'*) INSTALL_TARGET=ai ;;
     Back)
       INSTALL_COMPONENT=
@@ -373,9 +389,9 @@ Portable setup for a fresh machine.
 
 What do you want to install?
 
-  1  Cockpit      AI workflow for supported assistants
+  1  Backpack Engineering      AI workflow for supported assistants
   2  This Mac     Shell, editor, terminal, and personal tools
-  3  Everything   Cockpit and this Mac
+  3  Everything   Backpack Engineering and this Mac
   q  Quit
 
 EOF
@@ -384,7 +400,7 @@ EOF
   read choice
 
   case "$choice" in
-    1) INSTALL_COMPONENT=cockpit ;;
+    1) INSTALL_COMPONENT=engineering ;;
     2) INSTALL_COMPONENT=machine ;;
     3)
       INSTALL_COMPONENT=everything
@@ -403,15 +419,16 @@ EOF
   esac
 }
 
-ask_cockpit_target() {
+ask_backpack_target() {
   cat <<EOF
 
-Where do you want to use Cockpit?
+Where do you want to use Backpack Engineering?
 
   1  OpenCode        Terminal · Desktop app · GitHub Action
   2  Codex           Terminal · Desktop app
   3  Claude Code     Terminal · Desktop app (Code tab)
-  4  All supported tools
+  4  Super           Portable control-plane preferences
+  5  All supported tools
   b  Back
 
 EOF
@@ -423,7 +440,8 @@ EOF
     1) INSTALL_TARGET=opencode ;;
     2) INSTALL_TARGET=codex ;;
     3) INSTALL_TARGET=claude ;;
-    4) INSTALL_TARGET=ai ;;
+    4) INSTALL_TARGET=super ;;
+    5) INSTALL_TARGET=ai ;;
     b|B)
       INSTALL_COMPONENT=
       return 1
@@ -480,11 +498,11 @@ ask_install_target() {
     fi
 
     case "$INSTALL_COMPONENT" in
-      cockpit)
+      engineering)
         if use_gum; then
-          gum_choose_cockpit_target || continue
+          gum_choose_backpack_target || continue
         else
-          ask_cockpit_target || continue
+          ask_backpack_target || continue
         fi
         ;;
       machine)
@@ -543,12 +561,12 @@ copy_path_with_backup() {
 }
 
 skills_source_dir() {
-  printf '%s' "$BACKPACK_ROOT/cockpit/portable/skills"
+  printf '%s' "$BACKPACK_ROOT/engineering/portable/skills"
 }
 
 skill_is_core() {
   core_candidate=$1
-  core_manifest="$BACKPACK_ROOT/cockpit/portable/skills.core"
+  core_manifest="$BACKPACK_ROOT/engineering/portable/skills.core"
 
   while IFS= read -r manifest_line || [ -n "$manifest_line" ]; do
     manifest_entry=${manifest_line%%#*}
@@ -583,7 +601,7 @@ target_uses_skills() {
   esac
 }
 
-# Install only the workflow skills required by Cockpit. Specialized skills are
+# Install only the workflow skills required by Backpack Engineering. Specialized skills are
 # project-local and managed separately through `backpack add` / `backpack remove`.
 install_core_skills() {
   skills_dest=$1
@@ -608,16 +626,26 @@ install_core_skills() {
 
   [ "$APPLY" -eq 1 ] && mkdir -p "$skills_dest"
 
-  # These names were core skills before Cockpit adopted a consistent public
+  # These names were core skills before Backpack Engineering adopted a consistent public
   # prefix. They are Backpack-managed paths, so move any previous contents to
   # the normal recovery backup before linking their replacements.
-  for legacy_skill in prompt-refinement cockpit-prompt-refinement pattern-scan pattern-capture; do
+  for legacy_skill in \
+    prompt-refinement \
+    cockpit-prompt-refinement \
+    cockpit-enhance-prompt \
+    cockpit-pattern-scan \
+    cockpit-pattern-capture \
+    cockpit-validate \
+    cockpit-learn \
+    cockpit-start-work \
+    pattern-scan \
+    pattern-capture; do
     legacy_path="$skills_dest/$legacy_skill"
     [ -e "$legacy_path" ] || [ -L "$legacy_path" ] || continue
     if [ "$APPLY" -eq 1 ]; then
       backup_existing "$legacy_path"
     else
-      detail "migrate legacy Cockpit skill $legacy_path"
+      detail "migrate legacy Backpack Engineering skill $legacy_path"
     fi
   done
 
@@ -649,7 +677,7 @@ install_core_skills() {
 }
 
 install_claude_adapter() {
-  source_root=$BACKPACK_ROOT/cockpit/adapters/claude
+  source_root=$BACKPACK_ROOT/engineering/adapters/claude
 
   if [ ! -d "$source_root/agents" ]; then
     printf '✗ missing Claude adapter: %s\n' "$source_root/agents" >&2
@@ -657,12 +685,12 @@ install_claude_adapter() {
   fi
 
   if [ "$APPLY" -eq 0 ]; then
-    detail "replace Claude rules, agents, and the Cockpit core in $BACKPACK_CLAUDE_DIR"
+    detail "replace Claude rules, agents, and the Backpack Engineering core in $BACKPACK_CLAUDE_DIR"
     return
   fi
 
   mkdir -p "$BACKPACK_CLAUDE_DIR/rules"
-  link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_CLAUDE_DIR/rules/backpack.md"
+  link_entry "$BACKPACK_ROOT/engineering/portable/AGENTS.md" "$BACKPACK_CLAUDE_DIR/rules/backpack.md"
 
   install_core_skills "$BACKPACK_CLAUDE_DIR/skills"
 
@@ -671,20 +699,167 @@ install_claude_adapter() {
 }
 
 install_codex_adapter() {
-  source_root=$BACKPACK_ROOT/cockpit/adapters/codex
+  source_root=$BACKPACK_ROOT/engineering/adapters/codex
 
   if [ ! -d "$source_root/agents" ]; then
     printf '✗ missing Codex adapter agents: %s\n' "$source_root/agents" >&2
     exit 1
   fi
 
-  link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$BACKPACK_CODEX_DIR/AGENTS.md"
+  link_entry "$BACKPACK_ROOT/engineering/portable/AGENTS.md" "$BACKPACK_CODEX_DIR/AGENTS.md"
   install_core_skills "$BACKPACK_AGENTS_DIR/skills"
+
+  for legacy_agent in cockpit-code-review.toml cockpit-product-qa.toml; do
+    legacy_path="$BACKPACK_CODEX_DIR/agents/$legacy_agent"
+    [ -e "$legacy_path" ] || [ -L "$legacy_path" ] || continue
+    if [ "$APPLY" -eq 1 ]; then
+      backup_existing "$legacy_path"
+    else
+      detail "migrate legacy Backpack Engineering agent $legacy_path"
+    fi
+  done
 
   for agent_file in "$source_root"/agents/*.toml; do
     [ -f "$agent_file" ] || continue
     link_entry "$agent_file" "$BACKPACK_CODEX_DIR/agents/$(basename "$agent_file")"
   done
+}
+
+merge_json_config() {
+  source_path=$1
+  target_path=$2
+
+  if [ ! -f "$source_path" ]; then
+    printf '✗ missing Super adapter config: %s\n' "$source_path" >&2
+    exit 1
+  fi
+
+  if [ "$APPLY" -eq 0 ]; then
+    detail "merge portable Super settings into $target_path"
+    return
+  fi
+
+  command -v jq >/dev/null 2>&1 || {
+    printf '✗ jq is required to merge Super settings safely; install it with: brew install jq\n' >&2
+    exit 1
+  }
+
+  mkdir -p "$(dirname "$target_path")"
+  if [ ! -e "$target_path" ]; then
+    cp "$source_path" "$target_path"
+    detail_success "created $target_path"
+    return
+  fi
+
+  jq -e . "$target_path" >/dev/null 2>&1 || {
+    printf '✗ existing Super config is not valid JSON: %s\n' "$target_path" >&2
+    exit 1
+  }
+
+  merged_path=$(mktemp "${target_path}.backpack.XXXXXX")
+  if ! jq -s '.[0] * .[1]' "$target_path" "$source_path" > "$merged_path"; then
+    rm -f "$merged_path"
+    printf '✗ could not merge Super config: %s\n' "$target_path" >&2
+    exit 1
+  fi
+
+  backup_existing "$target_path"
+  mv "$merged_path" "$target_path"
+  detail_success "merged portable settings into $target_path"
+}
+
+install_super_adapter() {
+  ensure_super_storage
+  source_root=$BACKPACK_ROOT/engineering/adapters/super
+  validate_json_merge "$source_root/settings.json" "$BACKPACK_SUPER_DIR/settings.json"
+  validate_json_merge "$source_root/chat-defaults.json" "$BACKPACK_SUPER_DIR/chat-defaults.json"
+  merge_json_config "$source_root/settings.json" "$BACKPACK_SUPER_DIR/settings.json"
+  merge_json_config "$source_root/chat-defaults.json" "$BACKPACK_SUPER_DIR/chat-defaults.json"
+}
+
+validate_json_merge() {
+  source_path=$1
+  target_path=$2
+
+  command -v jq >/dev/null 2>&1 || {
+    printf '✗ jq is required to merge Super settings safely; install it with: brew install jq\n' >&2
+    exit 1
+  }
+  jq -e . "$source_path" >/dev/null 2>&1 || {
+    printf '✗ Backpack Super config is not valid JSON: %s\n' "$source_path" >&2
+    exit 1
+  }
+  if [ -e "$target_path" ] && ! jq -e . "$target_path" >/dev/null 2>&1; then
+    printf '✗ existing Super config is not valid JSON: %s\n' "$target_path" >&2
+    exit 1
+  fi
+}
+
+ensure_super_storage() {
+  [ "$SUPER_CONFIG_EXPLICIT" -eq 0 ] || return 0
+
+  old_super_dir=$HOME/.superconductor
+  new_super_dir=$HOME/.super.engineering
+
+  if [ "$APPLY" -eq 0 ]; then
+    detail "preserve Super storage and use $new_super_dir"
+    return
+  fi
+
+  if [ -e "$old_super_dir" ] && [ ! -e "$new_super_dir" ] && [ ! -L "$new_super_dir" ]; then
+    command -v sc >/dev/null 2>&1 || {
+      printf '✗ Super data migration requires the bundled `sc migrate-data` command\n' >&2
+      exit 1
+    }
+    sc migrate-data
+    if [ ! -L "$new_super_dir" ] || [ ! -e "$new_super_dir" ]; then
+      printf '✗ `sc migrate-data` did not create a valid %s alias; no Super settings were changed\n' "$new_super_dir" >&2
+      exit 1
+    fi
+  fi
+
+  if [ -L "$new_super_dir" ]; then
+    alias_target=$(readlink "$new_super_dir")
+    if [ ! -e "$new_super_dir" ]; then
+      printf '✗ invalid Super data alias: %s -> %s\n' "$new_super_dir" "$alias_target" >&2
+      exit 1
+    fi
+    old_super_real=$(CDPATH= cd "$old_super_dir" && pwd -P)
+    new_super_real=$(CDPATH= cd "$new_super_dir" && pwd -P)
+    if [ "$new_super_real" != "$old_super_real" ]; then
+      printf '✗ invalid Super data alias: %s -> %s\n' "$new_super_dir" "$alias_target" >&2
+      exit 1
+    fi
+  elif [ -e "$old_super_dir" ] && [ -e "$new_super_dir" ]; then
+    printf '✗ both Super data folders are independent; keep both and resolve with `sc migrate-data`\n' >&2
+    exit 1
+  fi
+
+  BACKPACK_SUPER_DIR=$new_super_dir
+}
+
+record_installation() {
+  recorded_target=$1
+  mkdir -p "$(dirname "$BACKPACK_STATE_FILE")"
+  state_temp=$(mktemp "${BACKPACK_STATE_FILE}.XXXXXX")
+  if [ -f "$BACKPACK_STATE_FILE" ]; then
+    awk 'NF' "$BACKPACK_STATE_FILE" > "$state_temp"
+  fi
+  if [ -e "$CONFIG_DIR/opencode/AGENTS.md" ] || [ -L "$CONFIG_DIR/opencode/AGENTS.md" ]; then printf 'opencode\n' >> "$state_temp"; fi
+  if [ -e "$BACKPACK_CODEX_DIR/AGENTS.md" ] || [ -L "$BACKPACK_CODEX_DIR/AGENTS.md" ]; then printf 'codex\n' >> "$state_temp"; fi
+  if [ -e "$BACKPACK_CLAUDE_DIR/rules/backpack.md" ] || [ -L "$BACKPACK_CLAUDE_DIR/rules/backpack.md" ]; then printf 'claude\n' >> "$state_temp"; fi
+  if [ -e "$BACKPACK_SUPER_DIR/settings.json" ]; then printf 'super\n' >> "$state_temp"; fi
+  if [ -e "$CONFIG_DIR/fish" ] || [ -L "$CONFIG_DIR/fish" ]; then printf 'shell\n' >> "$state_temp"; fi
+  if [ -e "$CONFIG_DIR/nvim" ] || [ -L "$CONFIG_DIR/nvim" ]; then printf 'editor\n' >> "$state_temp"; fi
+  if [ -e "$CONFIG_DIR/ghostty" ] || [ -L "$CONFIG_DIR/ghostty" ]; then printf 'terminal\n' >> "$state_temp"; fi
+  printf '%s\n' "$recorded_target" >> "$state_temp"
+  sort -u "$state_temp" -o "$state_temp"
+  mv "$state_temp" "$BACKPACK_STATE_FILE"
+}
+
+verify_installation() {
+  "$SCRIPT_DIR/check.sh" "$INSTALL_TARGET"
+  success 'Installed state verified'
 }
 
 configure_rtk_claude() {
@@ -804,10 +979,11 @@ run_doctor() {
 
 target_description() {
   case "$INSTALL_TARGET" in
-    opencode) printf 'Cockpit for OpenCode' ;;
-    codex) printf 'Cockpit for Codex' ;;
-    claude) printf 'Cockpit for Claude Code' ;;
-    ai) printf 'Cockpit for all supported tools' ;;
+    opencode) printf 'Backpack Engineering for OpenCode' ;;
+    codex) printf 'Backpack Engineering for Codex' ;;
+    claude) printf 'Backpack Engineering for Claude Code' ;;
+    super) printf 'Backpack Engineering preferences for Super' ;;
+    ai) printf 'Backpack Engineering for all supported tools' ;;
     shell) printf 'Shell configuration' ;;
     editor) printf 'Editor configuration' ;;
     terminal) printf 'Terminal configuration' ;;
@@ -821,23 +997,24 @@ target_surface() {
     opencode) printf 'Terminal · Desktop app · GitHub Action' ;;
     codex) printf 'Terminal · Desktop app' ;;
     claude) printf 'Terminal · Desktop app (Code tab)' ;;
+    super) printf 'Super desktop app' ;;
     ai) printf 'All supported terminal and desktop surfaces' ;;
     shell) printf 'Fish · Starship' ;;
     editor) printf 'Neovim' ;;
     terminal) printf 'Ghostty · Karabiner' ;;
     machine) printf 'Shell · Editor · Terminal' ;;
-    all) printf 'Cockpit · Shell · Editor · Terminal' ;;
+    all) printf 'Backpack Engineering · Shell · Editor · Terminal' ;;
   esac
 }
 
 print_completion() {
   case "$INSTALL_TARGET" in
-    opencode|codex|claude)
+    opencode|codex|claude|super)
       success "$(target_description) installed"
       printf 'Restart the app to activate it.\n'
       ;;
     ai)
-      success 'Cockpit installed for all supported tools'
+      success 'Backpack Engineering installed for all supported tools'
       printf 'Restart the apps to activate it.\n'
       ;;
     *) success "$(target_description) installed" ;;
@@ -889,13 +1066,19 @@ EOF
 
   case "$INSTALL_TARGET" in
     ai|opencode|all)
-      copy_dir_once "$BACKPACK_ROOT/cockpit/adapters/opencode" "$CONFIG_DIR/opencode"
+      copy_dir_once "$BACKPACK_ROOT/engineering/adapters/opencode" "$CONFIG_DIR/opencode"
+      ;;
+  esac
+
+  case "$INSTALL_TARGET" in
+    ai|super|all)
+      install_super_adapter
       ;;
   esac
 
   case "$INSTALL_TARGET" in
     opencode)
-      link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$CONFIG_DIR/opencode/AGENTS.md"
+      link_entry "$BACKPACK_ROOT/engineering/portable/AGENTS.md" "$CONFIG_DIR/opencode/AGENTS.md"
       install_core_skills "$BACKPACK_AGENTS_DIR/skills"
       ;;
     codex)
@@ -906,7 +1089,7 @@ EOF
       install_claude_adapter
       ;;
     ai|all)
-      link_entry "$BACKPACK_ROOT/cockpit/portable/AGENTS.md" "$CONFIG_DIR/opencode/AGENTS.md"
+      link_entry "$BACKPACK_ROOT/engineering/portable/AGENTS.md" "$CONFIG_DIR/opencode/AGENTS.md"
       install_codex_adapter
       install_claude_adapter
       ;;
@@ -938,6 +1121,10 @@ EOF
   print_client_reminder
 }
 
+if [ "$LEGACY_COMPONENT" -eq 1 ]; then
+  warn '`backpack install cockpit` is deprecated; use `backpack install engineering`.'
+fi
+
 if [ "$DIRECT_APPLY" -eq 0 ]; then
   if [ "$TARGET_SET" -eq 0 ]; then
     offer_gum_install
@@ -957,6 +1144,8 @@ run_doctor
 if [ "$DIRECT_APPLY" -eq 1 ]; then
   section 'Applying changes'
   run_plan
+  verify_installation
+  record_installation "$INSTALL_TARGET"
   printf '\n'
   print_completion
   if [ -d "$backup_dir" ]; then
@@ -983,6 +1172,8 @@ if confirm_apply; then
     APPLY=1
     section 'Applying changes'
     run_plan
+    verify_installation
+    record_installation "$INSTALL_TARGET"
 else
     printf '\n'
     warn 'Install cancelled. No changes were made.'

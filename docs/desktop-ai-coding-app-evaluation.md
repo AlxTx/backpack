@@ -34,7 +34,7 @@ de fonctionnalités.
 
 ## Besoins importants
 
-### Cockpit et personnalisation
+### Backpack Engineering et personnalisation
 
 - instructions personnelles et projet fiables ;
 - skills ou capacités portables ;
@@ -57,7 +57,7 @@ de fonctionnalités.
 - possibilité d'utiliser le budget ou le siège professionnel ;
 - coût personnel incrémental ;
 - limites mesurables sur une journée et une semaine réelles ;
-- repli possible sans perdre le cadre Cockpit.
+- repli possible sans perdre le cadre Backpack Engineering.
 
 ### Product QA desktop
 
@@ -75,7 +75,7 @@ de fonctionnalités.
 
 Points forts observés :
 
-- cockpit très personnalisable ;
+- engineering très personnalisable ;
 - commandes host-only pour les actions sans skill portable équivalent ;
 - agents et configuration explicites ;
 - Backpack y expose aujourd'hui son workflow le plus visible ;
@@ -109,9 +109,9 @@ Limite actuelle :
   l'interface produit pendant la QA ;
 - [opencode-quota](https://github.com/slkiser/opencode-quota) peut rendre visibles
   le provider, le quota et les tokens. C'est un observateur optionnel utile pour
-  le benchmark, pas un correctif de routage ni une dépendance Cockpit ;
+  le benchmark, pas un correctif de routage ni une dépendance Backpack Engineering ;
 - les frameworks multi-agents et workflows complets de la liste recouvrent la
-  responsabilité de Cockpit. Les empiler augmenterait le bruit, les conflits de
+  responsabilité de Backpack Engineering. Les empiler augmenterait le bruit, les conflits de
   doctrine et la maintenance sans résoudre le déficit d'UX desktop.
 
 ### Codex Desktop
@@ -125,7 +125,7 @@ Points forts observés :
 
 Points à évaluer :
 
-- fiabilité réelle des skills Cockpit comme surface d'entrée quotidienne ;
+- fiabilité réelle des skills Backpack Engineering comme surface d'entrée quotidienne ;
 - visibilité et indépendance de Code Review et Product QA dans les subagents ;
 - maintien du cadre sur une tâche longue sans rappels manuels.
 
@@ -152,7 +152,7 @@ Points forts établis :
 - intégration native des issues, pull requests et checks GitHub ;
 - navigateur intégré configurable pour ouvrir l'application locale ;
 - consommation possible sur le canal GitHub Copilot professionnel ;
-- Cockpit expose Validate, Learn et Start Work comme skills portables, sans
+- Backpack Engineering expose Validate, Learn et Start Work comme skills portables, sans
   dépendre d'une commande custom propre à OpenCode.
 
 Ces capacités sont documentées dans la
@@ -201,7 +201,7 @@ Pour chaque tranche, noter de 0 à 3 :
 - `2` — correct ;
 - `3` — fluide et clairement différenciant.
 
-| Date | Projet / tranche | App | Cockpit | Build | QA visuelle | Stabilité | Changements d'app | Temps perdu | Conso / limite | Notes |
+| Date | Projet / tranche | App | Backpack Engineering | Build | QA visuelle | Stabilité | Changements d'app | Temps perdu | Conso / limite | Notes |
 |---|---|---|---:|---:|---:|---:|---:|---:|---|---|
 |  |  |  |  |  |  |  |  |  |  |  |
 
@@ -213,7 +213,7 @@ cas réel.
 
 Choisir GitHub Copilot App si :
 
-- le cadre Cockpit reste aussi fiable et lisible que dans Codex ;
+- le cadre Backpack Engineering reste aussi fiable et lisible que dans Codex ;
 - la QA visuelle suffit malgré l'écart éventuel sur les annotations ;
 - le siège professionnel absorbe l'usage sans blocages fréquents ;
 - le gain économique ne crée pas de coût cognitif ou de maintenance supérieur.

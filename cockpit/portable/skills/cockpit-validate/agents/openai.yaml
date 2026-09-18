@@ -1,7 +1,0 @@
-interface:
-  display_name: "Cockpit Validate"
-  short_description: "Independent review and product QA gate"
-  default_prompt: "Use $cockpit-validate to validate the completed delivery slice and report its Ready-to-Ship status."
-
-policy:
-  allow_implicit_invocation: true

@@ -1,15 +1,15 @@
 # Backpack
 
-Portable macOS personal working environment: cockpit, dotfiles, and durable
-learning memory.
+Portable macOS engineering environment: Backpack Engineering, machine setup,
+project skills, and durable learning memory.
 
 ## Structure
 
 ```txt
-bootstrap/           setup and validation scripts
-cockpit/portable/    host-agnostic workflow, core skills, and curated skill catalogue
-cockpit/adapters/    thin Codex, Claude, and OpenCode adapters
-memory/              durable personal learning: craft, AI, concepts, books, playbooks
+bootstrap/               setup and validation scripts
+engineering/portable/   host-agnostic workflow, core skills, and curated skill catalogue
+engineering/adapters/   thin Super, Codex, Claude, and OpenCode adapters
+memory/                  durable personal learning: craft, AI, concepts, books, playbooks
 ```
 
 ## Boundaries
@@ -41,7 +41,7 @@ session afterward, then use it from anywhere.
 The menu validates the repository, previews interactive plans, and asks before
 changing local configuration.
 
-The menu clearly separates **Cockpit** — the portable workflow used inside AI
+The menu clearly separates **Backpack Engineering** — the portable workflow used inside AI
 tools — from this Mac's shell, editor, and terminal configuration. The installer
 uses arrow-key menus when `gum` is available and falls back to a numbered menu.
 
@@ -52,8 +52,9 @@ uses arrow-key menus when `gum` is available and falls back to a numbered menu.
 | Open the main menu | `backpack` |
 | Open the project-skill menu | `backpack skills` |
 | Choose what to install | `backpack install` |
-| Validate the repository only | `backpack doctor` |
-| Show installed components | `backpack status` |
+| Validate repository sources only | `backpack doctor` |
+| Verify the installed state and detect drift | `backpack check` |
+| Show installed state with integrity checks | `backpack status` |
 | List curated skills with project status | `backpack list` |
 | Find a curated skill by need | `backpack find design` |
 | Inspect a skill | `backpack info impeccable` |
@@ -61,22 +62,23 @@ uses arrow-key menus when `gum` is available and falls back to a numbered menu.
 | Remove a skill from this project | `backpack remove impeccable` |
 | Install everything on a personal Mac | `backpack install everything --personal` |
 | Install everything on a client Mac | `backpack install everything --client` |
-| Install Cockpit for every supported personal host | `backpack install cockpit --all-hosts` |
-| Install Cockpit for Codex | `backpack install cockpit --codex` |
-| Install Cockpit for Claude Code | `backpack install cockpit --claude` |
-| Replace Cockpit for OpenCode from Backpack | `backpack install cockpit --opencode` |
+| Install Backpack Engineering for every supported personal host | `backpack install engineering --all-hosts` |
+| Install Backpack Engineering for Codex | `backpack install engineering --codex` |
+| Install Backpack Engineering for Claude Code | `backpack install engineering --claude` |
+| Install portable Super preferences | `backpack install engineering --super` |
+| Replace Backpack Engineering for OpenCode from Backpack | `backpack install engineering --opencode` |
 
 A direct target applies immediately; use `--dry-run` for a read-only preview.
-Applicable Cockpit targets install [`rtk`](https://github.com/rtk-ai/rtk)
+Applicable Backpack Engineering targets install [`rtk`](https://github.com/rtk-ai/rtk)
 through Homebrew when needed; use `--without-rtk` to opt out.
 
 ## Shared AI workflow
 
-The canonical rules and skills live in `cockpit/portable/`. Host-specific files
-live under `cockpit/adapters/<host>/`. The installer combines the selected
+The canonical rules and skills live in `engineering/portable/`. Host-specific files
+live under `engineering/adapters/<host>/`. The installer combines the selected
 adapter with the portable core.
 
-Cockpit installs only the small workflow core required everywhere. Specialized
+Backpack Engineering installs only the small workflow core required everywhere. Specialized
 skills are chosen per project instead of being injected globally. Use the
 interactive `backpack skills` menu, or `backpack find`
 to search Backpack's curated catalogue, `backpack info` to inspect scope and limits,
@@ -93,6 +95,7 @@ authoritative.
 | Codex | `~/.codex/AGENTS.md` | Uses the same instruction source |
 | Claude Code | `~/.claude/rules/backpack.md`, agents, and skills | Code tab shares the same local configuration |
 | OpenCode | `~/.config/opencode/` | Uses the same configuration as CLI and TUI |
+| Super | `~/.super.engineering/settings.json`, `chat-defaults.json` | Portable preferences merged without runtime state; upgraded installs retain `.superconductor` as aliased storage |
 GitHub Copilot is deliberately excluded from Backpack installation. Its workflow,
 instructions, plugins, hooks, and skills remain client-owned. Backpack skills
 that are visible through the shared agent-skills standard declare Copilot as an
@@ -101,33 +104,33 @@ unsupported host and must not run there.
 Repository-level instructions remain project truth and can add client-specific
 constraints. Backpack never creates or commits them automatically.
 
-## Daily Cockpit flow
+## Daily Backpack Engineering flow
 
-Cockpit follows **Plan → Build → Validate → Learn**. Before substantive work, it
+Backpack Engineering follows **Plan → Build → Validate → Learn**. Before substantive work, it
 compares the active model with the task when the host exposes that information:
 Terra covers everyday and settled work, Sol covers uncertainty and risky review,
-and Astra is reserved for the hardest consequential work. Cockpit asks `yes/no`
+and Astra is reserved for the hardest consequential work. Backpack Engineering asks `yes/no`
 before recommending either a safer upgrade or a risk-free cheaper downgrade; it
-never switches models silently. When the host requires a manual change, Cockpit
+never switches models silently. When the host requires a manual change, Backpack Engineering
 says so before asking: switch in the model selector, then answer `yes` once the
 recommended model is active, or `no` to keep the current model.
 
 In OpenCode, use `Tab` for the `build` and read-only `plan` primary agents. Its
-host-specific commands are `/cockpit-brainstorm`, `/cockpit-design`,
-`/cockpit-review`, and `/cockpit-qa`. Shared lifecycle capabilities remain
-portable skills, notably `cockpit-validate`, `cockpit-learn`, and
-`cockpit-start-work`, rather than duplicate slash commands.
+host-specific commands are `/backpack-brainstorm`, `/backpack-design`,
+`/backpack-review`, and `/backpack-qa`. Shared lifecycle capabilities remain
+portable skills, notably `backpack-validate`, `backpack-learn`, and
+`backpack-start-work`, rather than duplicate slash commands.
 
-See [Cockpit routing and command flow](docs/cockpit-routing.md) for the complete
+See [Backpack Engineering routing and command flow](docs/backpack-routing.md) for the complete
 usage map.
 
-## Visible Cockpit activity
+## Visible Backpack Engineering activity
 
-For a non-trivial task, Cockpit-compatible hosts expose the active Cockpit phase,
+For a non-trivial task, hosts using Backpack Engineering expose the active phase,
 then any skill, agent, plugin, or integration actually activated. Native host
 events are preferred; otherwise Backpack emits a compact one-line fallback such
-as `[Cockpit - Build] · [Skill] impeccable`. The status marker stays
-visible on every line: Cockpit, then the active phase; the bracketed label makes
+as `[Backpack - build] · [Skill] impeccable`. The status marker stays
+visible on every line: Backpack, then the active phase; the bracketed label makes
 the capability type immediately scannable. It never duplicates an activation
 the host already displays. This makes the workflow visible without exposing
 private model reasoning or producing a log for every shell command. After

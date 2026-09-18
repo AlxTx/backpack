@@ -4,7 +4,7 @@ set -eu
 SCRIPT_DIR=$(CDPATH= cd "$(dirname "$0")" && pwd -P)
 DEFAULT_BACKPACK_ROOT=$(CDPATH= cd "$SCRIPT_DIR/.." && pwd -P)
 BACKPACK_ROOT=${BACKPACK_ROOT:-"$DEFAULT_BACKPACK_ROOT"}
-CATALOG="$BACKPACK_ROOT/cockpit/portable/skills.tsv"
+CATALOG="$BACKPACK_ROOT/engineering/portable/skills.tsv"
 
 usage() {
   cat <<'EOF'
@@ -173,7 +173,7 @@ add_skill() {
   root=$(project_root)
 
   case "$SKILL_SOURCE" in
-    local:*) package="$BACKPACK_ROOT/cockpit/portable/skills/${SKILL_SOURCE#local:}" ;;
+    local:*) package="$BACKPACK_ROOT/engineering/portable/skills/${SKILL_SOURCE#local:}" ;;
     github:*) package=${SKILL_SOURCE#github:} ;;
     *) fail "unsupported source for $SKILL_ID: $SKILL_SOURCE" ;;
   esac

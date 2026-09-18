@@ -1,0 +1,12 @@
+{
+  "claude": {
+    "effort": "medium"
+  },
+  "opencode": {
+    "effort": "high"
+  },
+  "codex": {
+    "effort": "medium",
+    "fast_mode": false
+  }
+}

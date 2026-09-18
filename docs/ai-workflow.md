@@ -6,16 +6,16 @@ limited to capabilities the common standards cannot express.
 
 ## Canonical sources
 
-See `cockpit/portable/AGENTS.md`, `cockpit/portable/MODELS.md`,
-`cockpit/portable/skills.core`, `cockpit/portable/skills.tsv`, and
-`cockpit/adapters/`.
+See `engineering/portable/AGENTS.md`, `engineering/portable/MODELS.md`,
+`engineering/portable/skills.core`, `engineering/portable/skills.tsv`, and
+`engineering/adapters/`.
 
 `AGENTS.md` defines classification, request routing, scope control, validation,
 review priorities, pattern learning, and communication style. `MODELS.md` maps
 the workflow to semantic Maximum, Frontier, and Balanced tiers. Codex, OpenCode,
 and Claude Code consume this same core.
 
-Skills follow the open agent-skills directory format. The machine-level Cockpit
+Skills follow the open agent-skills directory format. The machine-level Backpack Engineering
 install links only `skills.core` into `~/.agents/skills` and
 `~/.claude/skills`. Specialized skills are selected per project from
 `skills.tsv` with `backpack find`, `backpack info`, `backpack add`, `backpack remove`, and `backpack list`.
@@ -29,11 +29,11 @@ task matches its description.
 
 ## Host adapters
 
-All host-specific payloads live under `cockpit/adapters/<host>/`. An adapter may
+All host-specific payloads live under `engineering/adapters/<host>/`. An adapter may
 contain a full local configuration template, a small set of subagents, or only
 the installation mapping when the host directly consumes the portable files.
 
-| Host | CLI/Desktop coverage | Shared guidance | Cockpit core | Adapter-only concerns |
+| Host | CLI/Desktop coverage | Shared guidance | Backpack Engineering core | Adapter-only concerns |
 |---|---|---|---|---|
 | Codex | Same portable files in CLI and desktop app | `~/.codex/AGENTS.md` | `~/.agents/skills` | read-only Review/QA agents; personal models, plugins, MCP |
 | OpenCode | Same configuration in CLI, TUI, desktop app, and GitHub Action | `~/.config/opencode/AGENTS.md` | `~/.agents/skills` | agents, commands, permissions, provider/model |
@@ -52,8 +52,8 @@ source of doctrine.
 
 All compatible hosts expose portable skills as the single public surface for
 shared capabilities. They do not add aliases such as `/validate` or duplicate
-wrapper agents around `cockpit-validate`, `cockpit-learn`,
-`cockpit-start-work`, `cockpit-pattern-scan`, `cockpit-pattern-capture`, or `cockpit-enhance-prompt`.
+wrapper agents around `backpack-validate`, `backpack-learn`,
+`backpack-start-work`, `backpack-pattern-scan`, `backpack-pattern-capture`, or `backpack-enhance-prompt`.
 The Codex adapter adds only the two read-only agents that
 make Code Review and Product QA independently inspectable in the native subagent
 UI. Plan and Build continue to use Codex's native mode and conversation instead
@@ -73,18 +73,19 @@ of duplicating host controls.
   filter, not a second instruction corpus: Claude Code and OpenCode rewrite
   compatible commands automatically, while Codex inherits the portable shell
   rule. Backpack does not configure Copilot hooks.
-- Use `backpack install cockpit --all-hosts` to activate the shared workflow for
-  Codex, OpenCode, and Claude Code. Copilot remains untouched.
+- Use `backpack install engineering --all-hosts` to activate the shared workflow for
+  Codex, OpenCode, and Claude Code, and merge portable Super preferences. Copilot
+  remains untouched.
 
 ## Prompt enhancement
 
-`cockpit-enhance-prompt` is a hybrid automatic preflight for long, ambiguous,
+`backpack-enhance-prompt` is a hybrid automatic preflight for long, ambiguous,
 conflicting, or repetitive prompts. Clear actionable prompts bypass it.
 Meaning-preserving cleanup can flow directly into execution without adding a
 conversation turn. If a rewrite could change intent, scope, requirements,
-acceptance criteria, or permissions, Cockpit preserves the original, shows the
+acceptance criteria, or permissions, Backpack Engineering preserves the original, shows the
 proposal and changes, then waits for explicit validation. An explicit
-`cockpit-enhance-prompt` invocation always uses this review path. Safe mode preserves detail by default;
+`backpack-enhance-prompt` invocation always uses this review path. Safe mode preserves detail by default;
 compact mode is opt-in.
 
 The agent-level preflight does not guarantee token savings because the original
@@ -95,17 +96,17 @@ prevents short clear prompts from paying this overhead.
 
 This is not measured prompt optimization. Calling a prompt “optimized” requires
 representative cases, explicit success criteria, and comparative evaluation.
-Every host uses the shared `cockpit-enhance-prompt` skill directly; no adapter adds a
+Every host uses the shared `backpack-enhance-prompt` skill directly; no adapter adds a
 second shortcut for it.
 
 ## Visible execution context
 
-Cockpit does not expose private model reasoning. For non-trivial work it emits
+Backpack Engineering does not expose private model reasoning. For non-trivial work it emits
 a short public status before acting, then announces any selected skill, subagent,
 plugin, or integration when it is actually activated. This is a portable
 semantic event: use the host's native rendering when available, otherwise fall
-back to a compact line: `[Cockpit - <phase>] · <action>` for phase status, then
-`[Cockpit - <phase>] · [<capability>] <name>` for an activation. The
+back to a compact line: `[Backpack - <phase>] · <action>` for phase status, then
+`[Backpack - <phase>] · [<capability>] <name>` for an activation. The
 repeated phase keeps each capability attached to the work that caused it, while
 the bracketed label stays easy to scan. Never show both native and fallback
 rendering for the same activation. This is an audit trail of the workflow, not a
@@ -144,7 +145,7 @@ slice. Impeccable's audit or polish pass complements, but never replaces,
 browser evidence, Code Review, or Product QA.
 
 Validate reports `READY TO SHIP` only when Code Review approves and Product QA
-passes. RTS is not permission to commit or push: Cockpit stops with the evidence,
+passes. RTS is not permission to commit or push: Backpack Engineering stops with the evidence,
 risk, and Git state until the user explicitly authorizes the exact Git action.
 
 Learn is optional at RTS and may run before or after Git delivery. It reflects,
@@ -157,12 +158,13 @@ copying doctrine into every host adapter.
 
 ```sh
 # shared workflow
-backpack install cockpit --all-hosts
+backpack install engineering --all-hosts
 
 # one adapter only
-backpack install cockpit --codex
-backpack install cockpit --claude
-backpack install cockpit --opencode
+backpack install engineering --codex
+backpack install engineering --claude
+backpack install engineering --opencode
+backpack install engineering --super
 ```
 
 The installer replaces every selected Backpack-managed path from its canonical

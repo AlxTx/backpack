@@ -1,0 +1,7 @@
+interface:
+  display_name: "Backpack Start Work"
+  short_description: "Create a branch from a verified remote base"
+  default_prompt: "Use $backpack-start-work to create my work branch from the exact remote base I provide."
+
+policy:
+  allow_implicit_invocation: true

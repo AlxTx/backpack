@@ -1,0 +1,7 @@
+interface:
+  display_name: "Backpack Learn"
+  short_description: "Retain evidenced lessons from finished work"
+  default_prompt: "Use $backpack-learn to reflect on this completed slice and route any reusable lessons."
+
+policy:
+  allow_implicit_invocation: true
