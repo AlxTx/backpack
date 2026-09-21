@@ -19,6 +19,25 @@ Portable configuration includes:
 - reasoning defaults without pinned model IDs;
 - agent orchestration enabled.
 
+## App-managed orchestration
+
+`agent_orchestration` only makes Super's app-managed orchestration available.
+It does not launch agents or grant standing permission. In a Super Chat UI,
+explicitly ask to "orchestrate" a task, name providers or models, or request
+visible tabs, panes, or sessions. Super then injects the current `sc` contract
+into the active provider and that provider selects the appropriate workflow.
+
+For independent parallel roles, the provider may use `sc team run`; for a
+strict handoff such as design → implementation → review, it uses labeled
+sessions and waits between phases. A Team workflow is provider-neutral: the
+lead can launch locally enabled providers such as Codex and OpenCode, including
+a mixed-provider team. Provider profiles, model routing, worktrees, and layout
+remain local Super state and are not managed by Backpack.
+
+Use the installed `sc instructions orchestration` and `sc help team` as the
+source of truth for the current app version. Backpack does not install legacy `superset-*`
+orchestration skills or `superset` CLI wrappers.
+
 Backpack intentionally excludes provider profiles, tokens, enabled-provider
 lists, model routing, workspaces, projects, worktrees, layouts, sessions,
 history, databases, caches, sockets, window state, and every Copilot-owned

@@ -85,17 +85,19 @@ to search Backpack's curated catalogue, `backpack info` to inspect scope and lim
 and `backpack add` or `backpack remove` to change the current project. `backpack list` shows the
 whole curated catalogue with an `available` or `installed` status for the current project.
 
-Backpack orchestrates; installed skills provide specialized guidance. Skill metadata
-activates them automatically when the request matches. Impeccable is the single
-curated UX/UI skill; project requirements and design-system conventions remain
-authoritative.
+Backpack coordinates the delivery workflow; installed skills provide specialized
+guidance. Host-native orchestration remains owned by the host: in Super, an
+explicit orchestration request uses the current `sc` workflow and may coordinate
+any locally enabled provider. Skill metadata activates installed skills
+automatically when the request matches. Impeccable is the single curated UX/UI
+skill; project requirements and design-system conventions remain authoritative.
 
 | Host | CLI | Desktop app |
 |---|---|---|
 | Codex | `~/.codex/AGENTS.md` | Uses the same instruction source |
 | Claude Code | `~/.claude/rules/backpack.md`, agents, and skills | Code tab shares the same local configuration |
 | OpenCode | `~/.config/opencode/` | Uses the same configuration as CLI and TUI |
-| Super | `~/.super.engineering/settings.json`, `chat-defaults.json` | Portable preferences merged without runtime state; upgraded installs retain `.superconductor` as aliased storage |
+| Super | `~/.super.engineering/settings.json`, `chat-defaults.json` | Portable preferences merged without runtime state; current app-managed orchestration is injected by Super and uses `sc`; upgraded installs retain `.superconductor` as aliased storage |
 GitHub Copilot is deliberately excluded from Backpack installation. Its workflow,
 instructions, plugins, hooks, and skills remain client-owned. Backpack skills
 that are visible through the shared agent-skills standard declare Copilot as an

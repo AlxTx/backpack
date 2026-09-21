@@ -94,6 +94,10 @@ grep -q '"default_tool": "codex"' "$BACKPACK_ROOT/engineering/adapters/super/set
   fail "Super must use Codex as the portable default engine"
 grep -A 2 '"experimental"' "$BACKPACK_ROOT/engineering/adapters/super/settings.json" | grep -q '"agent_orchestration": true' ||
   fail "Super adapter must enable agent orchestration"
+grep -q 'sc team run' "$BACKPACK_ROOT/engineering/adapters/super/README.md" ||
+  fail "Super adapter documentation must describe the current sc team workflow"
+grep -q 'does not install.*superset-' "$BACKPACK_ROOT/engineering/adapters/super/README.md" ||
+  fail "Super adapter documentation must exclude legacy Superset skill wrappers"
 if grep -Eq '"(provider_profiles|enabled_providers|ai_routing|projects|workspaces|window_bounds|active_project_id|active_workspace_id|tools)"' \
   "$BACKPACK_ROOT/engineering/adapters/super/settings.json"; then
   fail "Super adapter contains machine-, provider-, or runtime-owned state"

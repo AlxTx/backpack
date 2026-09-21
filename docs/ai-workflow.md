@@ -22,10 +22,12 @@ install links only `skills.core` into `~/.agents/skills` and
 Hosts advertise installed project skill metadata and load a body only when the
 request matches.
 
-This split is intentional: Backpack owns orchestration and a minimal universal
-core; installed skills provide specialized execution guidance. A skill is not activated because it
-exists in the catalogue, only because it is installed in the project and the
-task matches its description.
+This split is intentional: Backpack owns the delivery workflow and a minimal
+universal core; installed skills provide specialized execution guidance.
+Host-native orchestration remains host-owned: Super injects its current `sc`
+contract when app-managed orchestration is explicitly requested. A skill is not
+activated because it exists in the catalogue, only because it is installed in
+the project and the task matches its description.
 
 ## Host adapters
 
