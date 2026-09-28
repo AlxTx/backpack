@@ -47,7 +47,7 @@ and preserve the user's explicit choice.
 Example on a host with manual model selection:
 
 ```txt
-[Backpack - build] · Terra/medium is sufficient instead of Sol/high for this bounded
+[Backpack - Build] · Terra/medium is sufficient instead of Sol/high for this bounded
 documentation change. Switch manually in the model selector, then reply yes once
 it is active; reply no to continue with Sol/high.
 ```

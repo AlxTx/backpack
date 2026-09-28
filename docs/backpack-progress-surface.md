@@ -35,13 +35,15 @@ their obvious roles in prose.
 When the host has no native activation event, use the fallback:
 
 ```txt
-[Backpack - validate] · [Agent] Code Review
-[Backpack - validate] · [Agent] Product QA
+[Backpack - Validate] · [Agent] Code Review
+[Backpack - Validate] · [Agent] Product QA
 ```
 
 ## Usage rules
 
 - Keep `[Backpack - <phase>]` as the stable workflow marker.
+- Keep phase names in English and Title Case, even when the conversation uses
+  another language. Keep Backpack command names in English as well.
 - Describe one concrete action or material result in plain language.
 - Render a capability name manually only when it is genuinely active and not
   already visible in the host UI.
@@ -61,7 +63,7 @@ When the host has no native activation event, use the fallback:
 A completed phase may use a check mark when the status is unambiguous:
 
 ```txt
-[Backpack - validate] ✓ · aucun défaut bloquant trouvé
+[Backpack - Validate] ✓ · aucun défaut bloquant trouvé
 ```
 
 The check mark reports workflow state only. It does not imply permission to

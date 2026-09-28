@@ -118,6 +118,10 @@ the bracketed label stays easy to scan. Never show both native and fallback
 rendering for the same activation. This is an audit trail of the workflow, not a
 transcript of every command or internal thought.
 
+Keep command names and status labels in English across hosts. Use English,
+Title Case phase names inside `[Backpack - ...]`; the action or result after `·`
+may follow the user's language.
+
 Hosts with a dedicated progress surface show it there; other hosts send the same
 status in the conversation.
 

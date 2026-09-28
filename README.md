@@ -122,6 +122,7 @@ is unclear, Backpack asks whether you are starting from scratch (**greenfield**)
 or evolving an existing product or codebase (**brownfield**). It then guides the
 relevant discovery, requirements, UX, technical, and planning decisions one at a
 time. You do not need to select each activity or produce a fixed set of documents.
+Backpack command names and status phase labels remain in English across hosts.
 
 In OpenCode, use `Tab` for the `build` and read-only `plan` primary agents. Its
 host-specific commands are `/backpack-brainstorm`, `/backpack-design`,
@@ -137,7 +138,7 @@ usage map.
 For a non-trivial task, hosts using Backpack Engineering expose the active phase,
 then any skill, agent, plugin, or integration actually activated. Native host
 events are preferred; otherwise Backpack emits a compact one-line fallback such
-as `[Backpack - build] · [Skill] impeccable`. The status marker stays
+as `[Backpack - Build] · [Skill] impeccable`. The status marker stays
 visible on every line: Backpack, then the active phase; the bracketed label makes
 the capability type immediately scannable. It never duplicates an activation
 the host already displays. This makes the workflow visible without exposing

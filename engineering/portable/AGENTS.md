@@ -508,8 +508,10 @@ action:
   current action or capability event. Put capability types in square brackets so
   they remain scannable without adding another hierarchy level.
 - Keep the stable `Backpack` prefix, capability labels, and canonical capability
-  name across hosts; localize the phase and short action description to the
-  user's language.
+  names across hosts. Write phase labels in English and Title Case, including
+  Discovery, Product Definition, Plan, Build, Validate, Learn, and Delivery.
+  Do not translate Backpack command names or the text inside status brackets;
+  the short action or result after `·` may use the user's language.
 - Name only capabilities that are truly in use; do not claim an adapter, skill,
   or plugin is active merely because it is installed.
 - Keep updates concise and event-based: at task start, when a specialized
