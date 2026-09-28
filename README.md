@@ -117,6 +117,12 @@ never switches models silently. When the host requires a manual change, Backpack
 says so before asking: switch in the model selector, then answer `yes` once the
 recommended model is active, or `no` to keep the current model.
 
+For a new initiative, describe what you want to create or change. If the context
+is unclear, Backpack asks whether you are starting from scratch (**greenfield**)
+or evolving an existing product or codebase (**brownfield**). It then guides the
+relevant discovery, requirements, UX, technical, and planning decisions one at a
+time. You do not need to select each activity or produce a fixed set of documents.
+
 In OpenCode, use `Tab` for the `build` and read-only `plan` primary agents. Its
 host-specific commands are `/backpack-brainstorm`, `/backpack-design`,
 `/backpack-review`, and `/backpack-qa`. Shared lifecycle capabilities remain

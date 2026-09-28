@@ -136,6 +136,18 @@ inspection, one safe change, targeted validation, and a short handoff. Planning
 and validation depth scale with uncertainty, evidence count, blast radius, and
 risk.
 
+For a broad new initiative, the agent first establishes whether it is greenfield
+or brownfield. It asks the user interactively when the context does not make the
+answer clear, with short explanations of both paths. Greenfield planning can
+move through Discovery, Product Definition / Requirements, UX / Information
+Architecture, Technical Design, and Planning. Brownfield planning starts with
+the existing product and defines the requested change before examining affected
+UX and technical decisions. These are conditional activities inside Plan, not
+additional host modes or mandatory artifacts. The agent presents the next useful
+question or decision instead of asking the user to manage the whole sequence.
+Build produces the slice; Validate evaluates it against the expected proof, and
+later product evidence can change the next slice.
+
 For ambiguous, multi-source, integration-heavy, or high-risk features, Plan
 creates a task-local delivery ledger before edits: requirements and their
 sources, explicit versus assumed status, frontend/backend/external ownership,

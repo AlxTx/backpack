@@ -2,6 +2,20 @@
 
 ## Daily flow
 
+For a new initiative, describe the goal naturally. When it is unclear whether
+the work starts from scratch, Backpack asks:
+
+> Are we starting a new project from scratch (greenfield: no established product
+> behavior to preserve), or evolving something that exists (brownfield: a
+> product, site, API, or codebase already in use)?
+
+Answer in your own words. Backpack skips this question when the context already
+answers it. Greenfield work may need discovery, product requirements, journeys,
+technical design, and a first delivery slice. Brownfield work starts by
+inspecting the existing product and defining the change. Backpack raises only
+the next useful question or decision; these activities do not need separate
+commands or a fixed set of documents.
+
 1. **Model preflight** — Backpack Engineering classifies the task before substantive work. If
    the active model is known and another tier is materially safer or safely
    cheaper, it explains why and states who must perform the switch. On a manual

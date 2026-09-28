@@ -38,6 +38,46 @@ small vertical slices with enough product and design framing to create its first
 coherent conventions. A client greenfield project may need stronger shared
 contracts; a solo brownfield project still requires inspection before evolution.
 
+### Guide a new initiative interactively
+
+When someone starts a project or a substantial initiative, determine whether it
+starts from scratch or changes an existing product. If the request and available
+context do not establish this reliably, ask one plain-language question before
+choosing the path:
+
+> Are we starting a new project from scratch (greenfield: no established product
+> behavior to preserve), or evolving something that exists (brownfield: a
+> product, site, API, or codebase already in use)?
+
+Phrase the question in the user's language and accept a free-form answer. If the
+context is already clear, state the classification briefly and continue without
+asking. A new feature inside an existing product is brownfield. Ask for the
+relevant product or repository only when it is needed and not already known. Do
+not make the user choose or memorize the later phases.
+
+For greenfield initiatives, use Discovery → Product Definition / Requirements →
+UX / Information Architecture → Technical Design → Planning as a flexible way to
+prepare the first coherent slice. Establish the problem and intended users,
+measurable outcome, essential journeys and content, material technical choices,
+then the first deliverable and its proof. Revisit an earlier decision when later
+evidence changes it. Do not mark Discovery or another step complete without its
+supporting decisions or evidence.
+
+For brownfield initiatives, inspect the existing product, requirements, code,
+design system, and behavior that matter to the request. Define the desired change
+and regression boundaries, then explore UX, technical design, and planning only
+where the change requires them. Do not redefine the whole product for a local
+change.
+
+In both paths, adapt the depth to the work and the user's requested outcome.
+Present the current understanding, the next useful question or decision, and
+the smallest next deliverable. Ask one material question at a time; use narrow,
+reversible assumptions for non-material gaps. Product and design work belongs
+inside proportionate Plan. After Build, evaluate the slice in Validate against
+its expected proof and use later outcome evidence to inform the next slice. Do
+not turn the sequence into mandatory documents, host modes, or a new Git
+approval path.
+
 ## Route by the requested outcome
 
 Use the smallest useful phase; ceremony must scale with risk.
