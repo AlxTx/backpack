@@ -286,6 +286,38 @@ Do not force a skill when ordinary inspection is enough. Prefer primary and
 official sources for technical claims. Verify current or unstable facts rather
 than relying on memory.
 
+### Language and framework routing
+
+During brownfield inspection, identify the languages, frameworks, exact versions,
+and file types touched by the task. During greenfield planning, identify the
+chosen stack once that choice is established. Use that evidence to select an
+installed language- or framework-specific skill when both its stack and its
+problem domain match the work. The presence of a language in the repository is
+not sufficient by itself, and a polyglot project does not require loading every
+related skill.
+
+Apply the same routing in Build and Code Review:
+
+- before implementation, load the relevant skill guidance for the code surface
+  and risks that will be changed;
+- during Code Review, use the relevant skill to inspect the changed surface for
+  stack-specific correctness, regressions, performance, security, and
+  maintainability concerns;
+- keep Product QA focused on requirements and user-visible behavior unless the
+  stack changes the expected product proof.
+
+For example, React rendering or data-fetching work may activate a React
+performance skill, while a reusable component API may activate a composition
+skill. TypeScript work should activate a TypeScript-specific skill only when one
+is installed and its scope matches the task, such as public type design or a
+type-system migration; routine `.ts` edits do not justify activation alone.
+
+Project instructions, compiler configuration, dependency versions, existing
+tests, and official documentation remain the primary evidence. If a useful
+specialized skill is unavailable, continue from those sources when safe and
+mention the focused `backpack find <language-or-framework>` or
+`backpack add <skill>` setup path instead of inventing guidance.
+
 ### Skills and product/UI routing
 
 Backpack orchestrates the work; installed skills provide specialized guidance. Skills
