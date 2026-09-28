@@ -16,6 +16,10 @@ inspecting the existing product and defining the change. Backpack raises only
 the next useful question or decision; these activities do not need separate
 commands or a fixed set of documents.
 
+Invoke `backpack-kickoff` to start this guided conversation explicitly: choose
+the skill in Codex, type `/backpack-kickoff` in Claude Code or OpenCode, or use
+`Backpack · Project kickoff` in Super.
+
 1. **Model preflight** — Backpack Engineering classifies the task before substantive work. If
    the active model is known and another tier is materially safer or safely
    cheaper, it explains why and states who must perform the switch. On a manual
@@ -31,6 +35,28 @@ commands or a fixed set of documents.
 5. **Learn** — invoke `backpack-learn` when a completed slice has reusable lessons.
 6. **Git** — wait for an exact `commit`, `push`, or `commit and push` instruction.
    `READY TO SHIP` alone never authorizes delivery.
+
+### Start a new project in Super
+
+Open the new project's folder in Super and start a provider chat. If a brief
+already exists, attach or reference it in a message first. Then choose
+`Backpack · Project kickoff` from the worktree action card or Command Palette.
+For example:
+
+```text
+New project from scratch: TheTokenSide. Use TheTokenSide.md as the brief.
+```
+
+Backpack reads the available context, asks only the next useful question, and
+waits for your answer in that same chat. Continue until it identifies the first
+coherent delivery slice and how to prove it works. Ask for Build separately;
+kickoff itself stays read-only. For a feature in an existing product, use the
+same command: Backpack follows the brownfield path.
+
+Without Super, select `backpack-kickoff` in Codex's skill picker, type
+`/backpack-kickoff` in Claude Code or OpenCode, or describe the initiative in
+ordinary language. Refresh the provider adapter after updating Backpack so
+the new entrypoint appears in a new chat.
 
 The OpenAI mapping is intentionally limited to three choices:
 
@@ -57,7 +83,7 @@ it is active; reply no to continue with Sol/high.
 Mental model:
 
 - `Tab` changes the current primary agent: build or plan.
-- `/command` runs a host-only prepared action; shared capabilities remain skills.
+- `/command` runs a named OpenCode action. Shared workflows load portable skills.
 - A pinned command uses its declared agent and does not depend on the current mode.
 - A subagent is an isolated specialist used for one task.
 - OpenCode `auto` changes permission approval only; it is not an agent or phase.
@@ -80,7 +106,7 @@ workflows:
 Plan     -> explicit primary posture, or /backpack-brainstorm for divergent exploration
 Build    -> default agent with automatic skill/subagent routing
 Validate -> backpack-validate -> independent Code Review + Product QA -> RTS status
-Learn    -> backpack-learn; backpack-pattern-capture remains the persistence primitive
+Learn    -> backpack-learn proposes durable knowledge for a separate change
 ```
 
 On OpenCode, `/backpack-review` and `/backpack-qa` also deny shell so their

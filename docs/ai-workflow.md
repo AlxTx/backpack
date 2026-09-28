@@ -56,10 +56,15 @@ OpenCode keeps richer phase switching because its primary-agent model makes it
 useful. Those modes are an interface over the common workflow, not a second
 source of doctrine.
 
-All compatible hosts expose portable skills as the single public surface for
-shared capabilities. They do not add aliases such as `/validate` or duplicate
-wrapper agents around `backpack-validate`, `backpack-learn`,
-`backpack-start-work`, `backpack-pattern-scan`, `backpack-pattern-capture`, or `backpack-enhance-prompt`.
+Backpack names user-initiated workflows as actions: `backpack-kickoff`,
+`backpack-validate`, `backpack-learn`, and `backpack-pattern-scan`. Their
+canonical instructions remain portable skills. Codex exposes installed skills
+in its skill picker, Claude Code invokes them as `/backpack-*`, and OpenCode
+provides thin `/backpack-*` commands that load the same skill. Super custom
+commands are outer launchers that can use any configured provider. No adapter
+copies the skill body or creates unnamespaced aliases such as `/validate`.
+`backpack-enhance-prompt` remains an automatic preflight with an explicit skill
+entrypoint when prompt refinement is requested.
 The Codex adapter adds only the two read-only agents that
 make Code Review and Product QA independently inspectable in the native subagent
 UI. Plan and Build continue to use Codex's native mode and conversation instead

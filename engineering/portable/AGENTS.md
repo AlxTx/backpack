@@ -302,7 +302,8 @@ It reflects on both result and process, extracts only evidenced lessons, and
 routes them deliberately:
 
 - project-specific truth goes to the project's conventional documentation;
-- a reusable personal pattern may use the portable `backpack-pattern-capture` skill;
+- a reusable personal pattern may be proposed for a separate, authorized
+  documentation change;
 - a measured cross-project workflow lesson may improve Backpack at the smallest
   effective enforcement point: canonical rule, phase contract, skill, check, or
   template;

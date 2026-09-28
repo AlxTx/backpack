@@ -13,17 +13,20 @@ and terminal instead of reproducing OpenCode's primary-agent and `/command` UI.
 
 | Need | Default interaction | Explicit entrypoint |
 |---|---|---|
+| Kick off a new project or substantial product change | Describe the idea and let Backpack ask the next useful question | Select `backpack-kickoff` in the Codex skill picker |
 | Discuss, decide, or diagnose | Ask normally; Backpack Engineering stays read-only | none needed |
 | Produce an execution-ready plan | Select Codex Plan mode and ask for the plan | native Plan mode |
 | Implement an approved change | Ask to build, fix, align, migrate, or remove | normal Codex thread |
 | Clarify or compact a prompt explicitly | Ask to improve the prompt | `@backpack-enhance-prompt` in the app or `$backpack-enhance-prompt` in CLI/IDE |
 | Validate the completed slice | Ask to validate delivery readiness | `@backpack-validate` in the app or `$backpack-validate` in CLI/IDE |
 | Learn from finished work | Ask to learn from or retrospect on the slice | `@backpack-learn` or `$backpack-learn` |
-| Prepare a safe work branch | Provide the work branch and remote base | `@backpack-start-work` or `$backpack-start-work` |
 | Scan an unfamiliar codebase | Ask for a pattern scan and give the scope | `@backpack-pattern-scan` or `$backpack-pattern-scan` |
 
 Natural language remains the default. Explicit skill invocation is useful when
 the workflow boundary itself matters or when testing Backpack Engineering behavior.
+Installed skills can appear in Codex's `/` picker under Skills; they are distinct
+from built-in slash commands. In Super, use the outer `Backpack · Project kickoff`
+custom command or select the skill in the provider chat.
 
 ## Delivery guarantees
 

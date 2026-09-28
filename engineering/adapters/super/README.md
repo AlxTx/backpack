@@ -45,6 +45,20 @@ setting. Global commands and user layouts are currently left in Super because
 the installed CLI exposes CRUD for commands and capture/apply for layouts, but
 does not expose a stable declarative import format for both.
 
+Personal Backpack actions can be exposed as global custom commands:
+`Backpack · Project kickoff`, `Backpack · Validate delivery`,
+`Backpack · Learn`, and `Backpack · Pattern scan`. They use the session's
+provider by default and launch the corresponding portable workflow. These
+commands live in Super's App Settings; `backpack install engineering --super`
+does not create or synchronize them.
+
+For a new project, open its folder in Super, share the idea or brief in a chat,
+then run `Backpack · Project kickoff` from the worktree action card or the
+Command Palette. Answer the next question in the same chat. A greenfield project
+needs no existing codebase; a change to an existing product follows brownfield
+framing. Continue until Backpack proposes the first deliverable and expected
+proof, then request Build when ready.
+
 Install or refresh it with:
 
 ```sh

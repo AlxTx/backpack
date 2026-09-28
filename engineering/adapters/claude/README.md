@@ -12,7 +12,9 @@ and core-skill paths from their canonical sources. Claude authentication,
 settings, histories, and unrelated host state remain untouched.
 
 The delivery flow uses `plan` → `build` → `backpack-validate` → optional
-`backpack-learn`. Shared capabilities are exposed once as portable skills;
+`backpack-learn`. Invoke the portable action skills directly as
+`/backpack-kickoff`, `/backpack-validate`, `/backpack-learn`, and
+`/backpack-pattern-scan`. Claude exposes skills as slash commands.
 Claude-specific agents exist only for host-native postures or independent Code
 Review and Product QA lenses.
 

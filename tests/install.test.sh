@@ -92,7 +92,7 @@ for claude_readonly_agent in plan review qa design; do
   }
 done
 
-for backpack_skill in backpack-enhance-prompt backpack-pattern-scan backpack-pattern-capture backpack-validate backpack-learn backpack-start-work; do
+for backpack_skill in backpack-enhance-prompt backpack-kickoff backpack-pattern-scan backpack-validate backpack-learn; do
   test -L "$TEST_HOME/.agents/skills/$backpack_skill" || {
     printf '✗ Backpack Engineering install did not link the %s core skill\n' "$backpack_skill" >&2
     exit 1
@@ -170,15 +170,10 @@ grep -q '^  edit: deny$' "$TEST_HOME/.config/opencode/agents/qa.md" || {
   exit 1
 }
 
-if grep -R 'capture.sh' "$TEST_HOME/.config/opencode/opencode.json" "$TEST_HOME/.config/opencode/prompts/plan.md" "$TEST_HOME/.config/opencode/prompts/review.md" >/dev/null 2>&1; then
-  printf '✗ OpenCode read-only agents retain a backpack-pattern-capture shell exception\n' >&2
-  exit 1
-fi
-
 for command_path in "$TEST_HOME/.config/opencode/commands"/*.md; do
   command_name=$(basename "$command_path")
   case "$command_name" in
-    backpack-brainstorm.md|backpack-design.md|backpack-review.md|backpack-qa.md) ;;
+    backpack-brainstorm.md|backpack-design.md|backpack-review.md|backpack-qa.md|backpack-kickoff.md|backpack-validate.md|backpack-learn.md|backpack-pattern-scan.md) ;;
     *)
       printf '✗ OpenCode installed unexpected or unnamespaced command: %s\n' "$command_name" >&2
       exit 1
@@ -403,7 +398,7 @@ for backup_marker in \
   }
 done
 
-for backpack_skill in backpack-enhance-prompt backpack-pattern-scan backpack-pattern-capture backpack-validate backpack-learn backpack-start-work; do
+for backpack_skill in backpack-enhance-prompt backpack-kickoff backpack-pattern-scan backpack-validate backpack-learn; do
   grep -q 'In GitHub Copilot, do not use this skill' \
     "$BACKPACK_ROOT/engineering/portable/skills/$backpack_skill/SKILL.md" || {
       printf '✗ %s is not disabled in GitHub Copilot\n' "$backpack_skill" >&2

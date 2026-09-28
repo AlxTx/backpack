@@ -19,27 +19,22 @@ enseignements réutilisables.
 
 | Ma situation | J'utilise | Comment |
 |---|---|---|
+| Démarrer un projet ou une évolution importante | **/backpack-kickoff** | donne l'idée ou le brief, puis réponds à une question à la fois |
 | Une idée floue, un arbitrage, choisir une archi (perso ou client), décider quoi faire | **build** ou **/backpack-brainstorm** | demande directement, ou tape `/backpack-brainstorm ...` pour une exploration read-only |
 | Mon prompt est long, ambigu ou répétitif | automatique | Backpack Engineering laisse passer les prompts clairs, normalise sans risque, ou demande validation si le sens peut changer |
 | Je veux voir et contrôler explicitement la reformulation | **backpack-enhance-prompt** | invoque le skill, vérifie la proposition, puis valide-la explicitement |
 | Besoin de contenu, parcours, page, UX/UI ou idée sans maquette | **build** ou **/backpack-design** | demande directement, ou tape `/backpack-design ...` pour isoler le contrat design |
-| Je débarque sur un codebase inconnu, je veux la carte des patterns existants | **backpack-pattern-scan** | invoque le skill avec le scope voulu |
-| Préparer une branche de travail depuis une base distante à jour | **backpack-start-work** | invoque le skill avec la branche et la base |
+| Je débarque sur un codebase inconnu, je veux la carte des patterns existants | **/backpack-pattern-scan** | donne le périmètre à inspecter |
 | Préparer un changement sûr : inspecter, comparer, plan d'exécution | **plan** | `Tab` → plan |
 | Implémenter le changement validé | **build** | `Tab` → build |
-| Vérifier tout le changement avant livraison | **backpack-validate** | invoque le skill portable |
+| Vérifier tout le changement avant livraison | **/backpack-validate** | lance la Code Review et la Product QA indépendantes |
 | Faire uniquement une Code Review | **/backpack-review** | tape `/backpack-review` |
 | Faire uniquement la Product QA fonctionnelle | **/backpack-qa** | tape `/backpack-qa` |
-| Tirer les leçons d'une tranche terminée | **backpack-learn** | invoque le skill portable |
-| Un pattern/anti-pattern croisé m'intéresse, je veux le garder pour l'étudier plus tard | **backpack-pattern-capture** | invoque le skill portable |
+| Tirer les leçons d'une tranche terminée | **/backpack-learn** | lance le bilan en lecture seule |
 | On me propose plein de texte, je veux juste choisir | les agents proposent A/B/C | réponds par la lettre |
 
-**Le doute le plus fréquent — `backpack-pattern-scan` ou `backpack-pattern-capture` ?**
-- **`backpack-pattern-scan`** = *LIRE* un codebase entier pour en sortir la carte des
-  patterns. Au **début** d'un projet. Ça produit de l'info.
-- **`backpack-pattern-capture`** = *SAUVEGARDER* un pattern déjà mentionné dans la conversation,
-  dans mon journal perso. **Pendant** le travail. Ça archive une note.
-- Moyen mnémo : **scan = découvrir / capture = garder.**
+`/backpack-pattern-scan` lit le codebase et décrit uniquement les patterns
+établis. `/backpack-learn` propose séparément les connaissances à conserver.
 
 ---
 
@@ -48,8 +43,8 @@ enseignements réutilisables.
 | Type | Ce que c'est | Comment j'y accède | Contexte |
 |---|---|---|---|
 | **Agent primaire** | une posture durable et son enveloppe de permissions | `Tab` pour switcher | partagé (ma conversation) |
-| **Command** | une recette nommée et répétable | `/nom` | courant ou agent déclaré |
-| **Skill** | un savoir-faire chargé à la demande | automatique | ajouté à l'agent actif |
+| **Command** | un déclencheur visible pour une action nommée | `/nom` | courant ou agent déclaré |
+| **Skill** | la procédure portable chargée à la demande | automatique ou via une commande | ajouté à l'agent actif |
 | **Subagent** | un spécialiste auquel le primaire délègue un contrat borné | automatique ou `@nom` | enfant isolé |
 | **Auto** | l'approbation automatique des permissions `ask` | palette/CLI OpenCode | ne change ni agent ni workflow |
 
@@ -101,9 +96,10 @@ un check ou de conclure sans fondement.
 | **/backpack-design** → `product-design` | Isole un contrat content/UX/UI : classe la demande en content-led, UI-led ou mixed. | Profil local | ❌ read-only |
 | **/backpack-review** | Code Review stricte. Verdicts APPROVE / REQUEST CHANGES / ESCALATE. | Profil local | ❌ read-only |
 | **/backpack-qa** | Product QA contextuelle contre les exigences, parcours, états et comportements visibles. | Profil local | ❌ read-only |
-| **backpack-validate** | Conserve le contrat courant, délègue Code Review et Product QA, puis produit le statut RTS consolidé. | Profil local | ❌ read-only |
-| **backpack-learn** | Conserve le contexte de la tranche, puis réfléchit, extrait et route les connaissances réutilisables. | Profil local | ❌ produit read-only |
-| **backpack-pattern-scan** | Cartographie les patterns établis d'un codebase inconnu. | Profil local | ❌ read-only |
+| **/backpack-kickoff** → `backpack-kickoff` | Guide un nouveau projet ou une évolution, une question à la fois. | Profil local | ❌ read-only |
+| **/backpack-validate** → `backpack-validate` | Délègue Code Review et Product QA, puis produit le statut RTS consolidé. | Profil local | ❌ read-only |
+| **/backpack-learn** → `backpack-learn` | Réfléchit à la tranche terminée et propose les connaissances réutilisables. | Profil local | ❌ produit read-only |
+| **/backpack-pattern-scan** → `backpack-pattern-scan` | Cartographie les patterns établis d'un codebase inconnu. | Profil local | ❌ read-only |
 
 ### Modèle et provider
 
@@ -131,10 +127,11 @@ choisi.
 
 ## ⌨️ Les surfaces utilisateur
 
-Les capacités partagées sont exposées directement par leur skill canonique :
-`backpack-validate`, `backpack-learn`, `backpack-start-work`, `backpack-pattern-scan`,
-`backpack-pattern-capture` et `backpack-enhance-prompt`. OpenCode ne maintient aucun alias
-supplémentaire pour ces capacités.
+Les actions partagées possèdent un raccourci `/backpack-kickoff`,
+`/backpack-validate`, `/backpack-learn` ou `/backpack-pattern-scan`. Chaque
+commande charge son skill portable sans recopier sa procédure.
+`backpack-enhance-prompt` reste un préflight automatique et un skill invocable
+explicitement pour reformuler un prompt.
 
 Les commandes restantes sont strictement propres à l'hôte :
 
@@ -150,29 +147,16 @@ les preuves, les risques et l'état Git, puis attend une instruction exacte :
 `commit`, `push`, ou `commit and push`. Un simple « OK » n'est pas une
 autorisation Git. `backpack-learn` reste optionnel avant ou après cette instruction.
 
-### Le journal de capture
-- Emplacement : **`~/dev/ai/pattern-captures/<projet>.md`** — **un fichier par
-  projet** (nom auto-détecté via git), créé automatiquement. Le script **append**
-  (jamais d'écrasement) — chaque fichier est le journal cumulatif d'un projet.
-- Chaque entrée : en-tête de date + les patterns.
-- Usage : je relis en fin de journée, je note ce que je veux creuser, j'étudie de
-  mon côté. (Branchement Obsidian plus tard = changer le script portable
-   `backpack-pattern-capture`.)
-
----
-
 ## 🎯 Patterns / anti-patterns (objectif apprentissage)
 
-Deux niveaux, séparés exprès :
+Deux niveaux :
 
 1. **Lentille (gratuite, automatique)** — `plan` et `/backpack-review` appliquent la règle
    portable sur les patterns établis. Le skill `backpack-pattern-scan` possède le contrat
    de cartographie explicite. Chaque lentille **nomme** les patterns
    avec leur nom canonique et préfère « rien de notable » à une invention.
-2. **Learn (volontaire)** — `backpack-learn` fait la rétrospective et décide si une
-   connaissance mérite d'être codifiée.
-3. **Capture (primitive)** — `backpack-pattern-capture` enregistre un pattern déjà établi lorsque
-   `backpack-learn` ou l'utilisateur décide de le conserver.
+2. **Learn (volontaire)** — `/backpack-learn` fait la rétrospective et propose
+   séparément toute connaissance qui mérite d'être codifiée.
 
 ---
 
@@ -182,7 +166,7 @@ Deux niveaux, séparés exprès :
 |---|---|
 | `brand-messaging`, `website-content-architecture`, `website-copywriting` | **content design** : audience, promesse, navigation, section narrative, CTA, copy et readiness |
 | `impeccable` | **skill UX/UI unique** : shape, critique, direction visuelle, audit, polish, hardening et itération live |
-| `backpack-pattern-scan`, `backpack-pattern-capture` | **apprentissage portable** : cartographier puis conserver les patterns établis |
+| `backpack-pattern-scan` | **inspection portable** : cartographier les patterns établis |
 | `backpack-enhance-prompt` | **préparer automatiquement** un prompt : bypass s'il est clair, flow-through éditorial, validation si le sens peut changer |
 
 Ordre d'autorité : **conventions du projet → comportement officiel du framework →
@@ -210,6 +194,10 @@ prompts/
 commands/
   backpack-brainstorm.md  # /backpack-brainstorm → plan read-only divergent
   backpack-design.md      # /backpack-design → subagent product-design isolé
+  backpack-kickoff.md     # /backpack-kickoff → skill portable
+  backpack-validate.md    # /backpack-validate → skill portable
+  backpack-learn.md       # /backpack-learn → skill portable
+  backpack-pattern-scan.md # /backpack-pattern-scan → skill portable
   backpack-qa.md          # /backpack-qa → Product QA
   backpack-review.md      # /backpack-review → subagent review
 plugins/

@@ -123,12 +123,30 @@ or evolving an existing product or codebase (**brownfield**). It then guides the
 relevant discovery, requirements, UX, technical, and planning decisions one at a
 time. You do not need to select each activity or produce a fixed set of documents.
 Backpack command names and status phase labels remain in English across hosts.
+Select `backpack-kickoff` from the Codex skill picker when you want to launch
+this guided conversation explicitly. In Claude Code, invoke `/backpack-kickoff`.
+In Super, use the `Backpack · Project kickoff` custom command.
+
+For a new project in Super:
+
+1. Open the project folder and start a chat with your chosen provider.
+2. Send your idea or attach the brief: “New project from scratch:
+   TheTokenSide. Use TheTokenSide.md as the project brief.”
+3. Choose **Backpack · Project kickoff** from the worktree action card or
+   Command Palette. Answer its questions in the same chat, one at a time.
+4. Once the first slice and its proof are clear, ask Backpack to build it.
+
+After updating Backpack Engineering, refresh the provider you use, for example
+`backpack install engineering --codex`, then start a new chat so it discovers
+the updated skills and commands. Super custom commands are stored in Super and
+are not installed by this command.
 
 In OpenCode, use `Tab` for the `build` and read-only `plan` primary agents. Its
-host-specific commands are `/backpack-brainstorm`, `/backpack-design`,
-`/backpack-review`, and `/backpack-qa`. Shared lifecycle capabilities remain
-portable skills, notably `backpack-validate`, `backpack-learn`, and
-`backpack-start-work`, rather than duplicate slash commands.
+`/backpack-kickoff`, `/backpack-validate`, `/backpack-learn`, and
+`/backpack-pattern-scan` commands load the corresponding portable skills.
+`/backpack-brainstorm`, `/backpack-design`, `/backpack-review`, and
+`/backpack-qa` use OpenCode-specific agents. Skill bodies remain the single
+source for shared workflows.
 
 See [Backpack Engineering routing and command flow](docs/backpack-routing.md) for the complete
 usage map.

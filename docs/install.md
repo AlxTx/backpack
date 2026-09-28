@@ -56,6 +56,16 @@ The host menu describes the affected surfaces:
 - Codex — Terminal · Desktop app
 - Claude Code — Terminal · Desktop app (Code tab)
 
+After an update, reinstall the adapter for each host you use and start a new
+provider chat so it discovers the current skills and commands. The core includes
+`backpack-enhance-prompt`, `backpack-kickoff`, `backpack-validate`,
+`backpack-learn`, and `backpack-pattern-scan`; the retired `backpack-start-work` and
+`backpack-pattern-capture` links are removed during installation.
+
+Super custom commands live in personal App Settings and are not provisioned by
+`backpack install engineering --super`. See the [new-project walkthrough](backpack-routing.md#start-a-new-project-in-super)
+for the action card and the equivalent Codex, Claude Code, and OpenCode entrypoints.
+
 Select machine configuration directly with `--shell`, `--editor`, `--terminal`,
 or `--all-machine`. A direct target applies immediately; add `--dry-run` for a
 read-only preview. RTK is included for applicable Backpack Engineering hosts unless

@@ -180,9 +180,6 @@ grep -q '^  bash: deny$' "$BACKPACK_ROOT/engineering/adapters/opencode/agents/qa
   fail "OpenCode Product QA must hard-deny shell in strict read-only mode"
 grep -q '^  edit: deny$' "$BACKPACK_ROOT/engineering/adapters/opencode/agents/qa.md" ||
   fail "OpenCode Product QA must hard-deny edits in strict read-only mode"
-if grep -R 'capture.sh' "$BACKPACK_ROOT/engineering/adapters/opencode/opencode.json" "$BACKPACK_ROOT/engineering/adapters/opencode/prompts/plan.md" "$BACKPACK_ROOT/engineering/adapters/opencode/prompts/review.md" >/dev/null 2>&1; then
-  fail "OpenCode read-only agents must not retain a backpack-pattern-capture shell exception"
-fi
 if grep -q '"interactive": {' "$BACKPACK_ROOT/engineering/adapters/opencode/opencode.json" ||
    grep -q '"design": {' "$BACKPACK_ROOT/engineering/adapters/opencode/opencode.json"; then
   fail "OpenCode must expose only build and plan as custom primary agents"
@@ -200,18 +197,18 @@ grep -A 6 '"explore": {' "$BACKPACK_ROOT/engineering/adapters/opencode/opencode.
 ok "OpenCode prompts stay thin around portable doctrine"
 
 test -f "$BACKPACK_ROOT/engineering/adapters/opencode/agents/qa.md" || fail "missing OpenCode qa agent"
-for command in backpack-brainstorm backpack-design backpack-review backpack-qa; do
+for command in backpack-brainstorm backpack-design backpack-review backpack-qa backpack-kickoff backpack-validate backpack-learn backpack-pattern-scan; do
   test -f "$BACKPACK_ROOT/engineering/adapters/opencode/commands/$command.md" ||
     fail "missing OpenCode /$command command"
 done
 for command_path in "$BACKPACK_ROOT/engineering/adapters/opencode/commands"/*.md; do
   command_name=$(basename "$command_path")
   case "$command_name" in
-    backpack-brainstorm.md|backpack-design.md|backpack-review.md|backpack-qa.md) ;;
+    backpack-brainstorm.md|backpack-design.md|backpack-review.md|backpack-qa.md|backpack-kickoff.md|backpack-validate.md|backpack-learn.md|backpack-pattern-scan.md) ;;
     *) fail "unexpected or unnamespaced OpenCode command: $command_name" ;;
   esac
 done
-for duplicate in brainstorm design review qa validate learn start-work backpack-pattern-scan backpack-enhance-prompt backpack-pattern-capture; do
+for duplicate in brainstorm design review qa validate learn start-work backpack-start-work backpack-pattern-capture backpack-enhance-prompt; do
   test ! -e "$BACKPACK_ROOT/engineering/adapters/opencode/commands/$duplicate.md" ||
     fail "OpenCode retained retired or unnamespaced command /$duplicate"
 done
@@ -219,7 +216,7 @@ for duplicate in validate learn; do
   test ! -e "$BACKPACK_ROOT/engineering/adapters/opencode/agents/$duplicate.md" ||
     fail "OpenCode $duplicate agent duplicates a portable skill"
 done
-ok "OpenCode commands are namespaced and expose one surface per Backpack Engineering capability"
+ok "OpenCode commands are namespaced and route shared actions to portable skills"
 
 for skill in brand-messaging website-content-architecture website-copywriting; do
   test -f "$BACKPACK_ROOT/engineering/portable/skills/$skill/SKILL.md" || fail "missing portable $skill skill"
@@ -231,12 +228,15 @@ for retired_skill in code-first-product-design frontend-design design-quality-st
 done
 ok "Impeccable has no competing Backpack UX/UI skills"
 
-for skill in backpack-enhance-prompt backpack-pattern-scan backpack-pattern-capture backpack-validate backpack-learn backpack-start-work; do
+for skill in backpack-enhance-prompt backpack-kickoff backpack-pattern-scan backpack-validate backpack-learn; do
   test -f "$BACKPACK_ROOT/engineering/portable/skills/$skill/SKILL.md" || fail "missing portable $skill skill"
   grep -q 'In GitHub Copilot, do not use this skill' "$BACKPACK_ROOT/engineering/portable/skills/$skill/SKILL.md" ||
     fail "$skill must remain disabled in GitHub Copilot"
 done
-test -x "$BACKPACK_ROOT/engineering/portable/skills/backpack-pattern-capture/scripts/capture.sh" || fail "portable pattern capture script is not executable"
+for retired_skill in backpack-pattern-capture backpack-start-work; do
+  test ! -e "$BACKPACK_ROOT/engineering/portable/skills/$retired_skill" ||
+    fail "retired workflow skill still exists: $retired_skill"
+done
 ok "portable workflow and pattern skills are the canonical user surfaces"
 
 for skill in vercel-react-best-practices vercel-composition-patterns; do

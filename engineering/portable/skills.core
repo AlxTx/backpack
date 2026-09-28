@@ -3,8 +3,7 @@
 # `backpack add <skill>`.
 
 backpack-enhance-prompt
+backpack-kickoff
 backpack-pattern-scan
-backpack-pattern-capture
 backpack-validate
 backpack-learn
-backpack-start-work
