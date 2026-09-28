@@ -33,6 +33,31 @@ skills when the stack and the problem domain both apply. A repository merely
 containing that language is not enough to activate the skill, and polyglot
 projects do not load every related skill.
 
+`ai-engineering` is an optional project skill for architecture and evaluation
+choices in LLM, RAG, tool-using, multimodal, and MCP applications. It does not
+duplicate the delivery loop, host commands, or SDK-specific guidance. The
+personal [IBM learning note](../memory/ai/ibm-rag-agentic-ai.md) preserves the
+course's durable mental models; current project dependencies and official API
+documentation control implementation details.
+
+## Improving the harness
+
+[Hashimoto's harness engineering practice](https://mitchellh.com/writing/my-ai-adoption-journey)
+suggests using observed agent mistakes to improve instructions or tools that
+help the next run. Backpack routes that feedback through the existing
+`backpack-learn` skill. For a repeated or consequential failure, Learn records
+the triggering task, observed and expected behavior, evidence, existing control,
+one proposed correction, and how the same case would show improvement. A
+separate Build slice applies the correction; later use checks whether it worked.
+
+Put project truth in the project, a cross-host rule or skill in the portable
+core, and host-specific behavior in its adapter. Prefer an executable check for
+an objective failure and a concise instruction for a judgment or context gap.
+`backpack doctor` checks repository structure, including that optional project
+skills do not duplicate core workflow skills; `backpack check` detects installed
+state drift. Neither command measures agent task quality. Keep observed outcomes
+and proposed improvements distinct until the case is replayed.
+
 ## Host adapters
 
 All host-specific payloads live under `engineering/adapters/<host>/`. An adapter may

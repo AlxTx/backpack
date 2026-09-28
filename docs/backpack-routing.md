@@ -36,6 +36,11 @@ the skill in Codex, type `/backpack-kickoff` in Claude Code or OpenCode, or use
 6. **Git** — wait for an exact `commit`, `push`, or `commit and push` instruction.
    `READY TO SHIP` alone never authorizes delivery.
 
+For AI application architecture in a project, inspect
+`backpack info ai-engineering` and install the optional guidance there with
+`backpack add ai-engineering`. It covers LLM, retrieval, tool, agent,
+multimodal, and MCP decisions without adding a new global Backpack command.
+
 ### Start a new project in Super
 
 Open the new project's folder in Super and start a provider chat. If a brief

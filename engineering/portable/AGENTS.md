@@ -309,6 +309,10 @@ routes them deliberately:
   template;
 - a one-off observation is not retained.
 
+Route repeated or consequential agent mistakes through Learn as replayable
+cases. Do not claim that a proposed control prevents recurrence before observing
+the same scenario after the change.
+
 Learn is read-only toward the product by default. Any proposed project or
 Backpack Engineering edit starts a separate delivery slice and requires normal Build and
 Validate treatment. Do not duplicate doctrine across adapters.

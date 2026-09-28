@@ -92,6 +92,13 @@ any locally enabled provider. Skill metadata activates installed skills
 automatically when the request matches. Impeccable is the single curated UX/UI
 skill; project requirements and design-system conventions remain authoritative.
 
+For a project that builds an LLM, RAG, agent, multimodal, or MCP application,
+inspect `backpack info ai-engineering`, then run `backpack add ai-engineering`
+from that project's folder if the architecture guidance is useful. It is an
+optional project skill, not part of the global Backpack Engineering core. The
+condensed [IBM learning note](memory/ai/ibm-rag-agentic-ai.md) remains personal
+reference material and is not loaded into every agent session.
+
 | Host | CLI | Desktop app |
 |---|---|---|
 | Codex | `~/.codex/AGENTS.md` | Uses the same instruction source |
@@ -150,6 +157,13 @@ source for shared workflows.
 
 See [Backpack Engineering routing and command flow](docs/backpack-routing.md) for the complete
 usage map.
+
+When an agent repeats a mistake or makes a consequential one, use
+`backpack-learn` to capture the observed
+case, check whether an existing control already covers it, and propose one
+small correction with a way to observe improvement. See the
+[harness feedback loop](docs/ai-workflow.md#improving-the-harness) for where that
+correction belongs. This reuses Learn rather than adding another global command.
 
 ## Visible Backpack Engineering activity
 

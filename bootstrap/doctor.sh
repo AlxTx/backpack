@@ -261,7 +261,13 @@ test -f "$skill_catalog" || fail "missing engineering/portable/skills.tsv"
 awk -F '|' '
   $0 !~ /^#/ && NF != 7 { exit 1 }
   $0 !~ /^#/ && seen[$1]++ { exit 1 }
-' "$skill_catalog" || fail "skill catalog must contain unique seven-field entries"
+  $0 !~ /^#/ && seen_name[$4]++ { exit 1 }
+' "$skill_catalog" || fail "skill catalog must contain unique IDs and skill names in seven-field entries"
+awk -F '|' '
+  FNR == NR { if ($1 != "" && $1 !~ /^#/) core[$1] = 1; next }
+  $0 !~ /^#/ && (core[$1] || core[$4] || ($3 ~ /^local:/ && core[substr($3, 7)])) { exit 1 }
+' "$core_manifest" "$skill_catalog" ||
+  fail "core workflow skills must not be duplicated in the project skill catalog"
 grep -q '^impeccable|ux-ui|github:pbakaus/impeccable|impeccable|' "$skill_catalog" || fail "Impeccable must be the curated UX/UI skill"
 while IFS='|' read -r skill_id skill_category skill_source skill_name skill_summary skill_when skill_boundary; do
   case "$skill_id" in ''|\#*) continue ;; esac
