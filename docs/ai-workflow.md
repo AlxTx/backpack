@@ -27,7 +27,11 @@ universal core; installed skills provide specialized execution guidance.
 Host-native orchestration remains host-owned: Super injects its current `sc`
 contract when app-managed orchestration is explicitly requested. A skill is not
 activated because it exists in the catalogue, only because it is installed in
-the project and the task matches its description.
+the project and the task matches its description. Build and Code Review inspect
+the files being changed and route to matching language- or framework-specific
+skills when the stack and the problem domain both apply. A repository merely
+containing that language is not enough to activate the skill, and polyglot
+projects do not load every related skill.
 
 ## Host adapters
 
@@ -145,6 +149,13 @@ discriminating mocks, and favors narrow tests during
 iteration. A proportionate broad suite runs once at the end of the delivery
 slice. Impeccable's audit or polish pass complements, but never replaces,
 browser evidence, Code Review, or Product QA.
+
+For implementation and technical review, Backpack also identifies the touched
+language, framework, and exact dependency versions, then loads only installed
+skills whose scope matches the concrete risk. React performance and reusable
+component composition are current examples. Routine TypeScript syntax alone
+does not trigger a skill; public type design, migrations, or other specialized
+work may do so when a matching skill is installed.
 
 Validate reports `READY TO SHIP` only when Code Review approves and Product QA
 passes. RTS is not permission to commit or push: Backpack Engineering stops with the evidence,

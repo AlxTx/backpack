@@ -141,6 +141,11 @@ backpack remove react-best-practices # remove it from the current project
 Skills CLI while Backpack owns the curated names and boundaries. The default is
 always the current Git project; the commands never modify Backpack's global core.
 Installed skills activate through their descriptions when the request matches.
+For language and framework skills, matching requires both the touched stack and
+the skill's problem domain. Backpack applies that routing during implementation
+and Code Review; it does not load a skill solely because the repository contains
+files in that language. If a useful stack-specific skill is missing, use
+`backpack find <language-or-framework>` to locate a focused option.
 Adding Impeccable installs its portable skill but does not silently enable its
 project hooks; hook activation remains a separate, explicit Impeccable action.
 
