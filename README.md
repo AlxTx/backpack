@@ -33,10 +33,12 @@ cd backpack
 ./backpack
 ```
 
-`./backpack` means “run the `backpack` file from this folder”. The first
-installation links `backpack` into `~/.local/bin`. Selecting **Shell** or
-**Everything** configures Fish to include that directory; start a new Fish
-session afterward, then use it from anywhere.
+`./` means “from this folder”, so `./backpack` works in zsh, Bash, and Fish
+without changing your `PATH`. The installer also links the command into
+`~/.local/bin`. To type `backpack` from any folder, that directory must be on
+your `PATH`: Backpack configures Fish when you select **Shell** or
+**Everything**; [zsh setup](docs/install.md#zsh-and-other-shells) is one manual
+step.
 
 The menu validates the repository, previews interactive plans, and asks before
 changing local configuration.
@@ -45,6 +47,23 @@ The main menu has one **Install or refresh** entry. The installer then lets you
 choose Backpack Engineering, this Mac's configuration, or everything. Direct
 target commands use the same installer. Menus use arrow keys when `gum` is
 available and fall back to numbered choices.
+
+## How to use Backpack Engineering
+
+1. Open your project's folder in Super, Codex, Claude Code, or OpenCode and
+   start a new chat.
+2. For a new or substantial project, share the idea or brief and run **Kickoff**.
+   For work already underway, share the existing decisions and ask Kickoff to
+   resume. For a small, clear task, just describe it in the chat.
+3. If you ran Kickoff, answer its next question. When the next deliverable is
+   clear, say **“Build the next slice we just defined.”**
+4. For a completed slice, run **Validate**. Review its Code Review and Product QA
+   findings.
+5. If you want Git delivery, say **“commit and push”** after reviewing the result.
+
+See the [step-by-step guide](docs/backpack-routing.md) for the exact Kickoff and
+Validate entrypoints in each tool, example messages, progress checklist, and
+update steps.
 
 ## Common commands
 
@@ -117,74 +136,10 @@ unsupported host and must not run there.
 Repository-level instructions remain project truth and can add client-specific
 constraints. Backpack never creates or commits them automatically.
 
-## Daily Backpack Engineering flow
-
-Backpack Engineering shows **💭 Explore → 📋 Plan → 🛠️ Build → ⚖️ Validate → 📚 Learn**.
-These are flexible steps, not required modes or documents. Explore includes
-discussion and diagnosis; Kickoff guides a substantial initiative into Explore
-or Plan, Team build is a Build variant, and Review is one Validate lens.
-Before substantive work, Backpack compares the active model with the task when
-the host exposes that information:
-Terra covers everyday and settled work, Sol covers uncertainty and risky review,
-and Astra is reserved for the hardest consequential work. Backpack Engineering asks `yes/no`
-before recommending either a safer upgrade or a risk-free cheaper downgrade; it
-never switches models silently. When the host requires a manual change, Backpack Engineering
-says so before asking: switch in the model selector, then answer `yes` once the
-recommended model is active, or `no` to keep the current model.
-
-For a new or ongoing initiative, describe what you want to create or change and
-share its existing brief, decisions, or work. If the context is unclear, Backpack
-asks whether you are starting from scratch (**greenfield**) or evolving an
-existing product or codebase (**brownfield**). It guides the relevant discovery,
-requirements, UX, technical, and planning decisions one at a time, resuming from
-what is already established. Ask for a visual checklist when you want to track
-the current slice; a project-owned Markdown tracker is optional. You do not need
-to select each activity or produce a fixed set of documents.
-That view separates Discovery, Definition, Engineering, and Delivery so you can
-see when the current slice moves from product direction into technical choices.
-Backpack command names and status phase labels remain in English across hosts.
-Select `backpack-kickoff` from the Codex skill picker when you want to launch
-this guided conversation explicitly. In Claude Code, invoke `/backpack-kickoff`.
-In Super, use the `🧭 Kickoff` custom command.
-For a substantial approved Build, the optional `👥 Team build`
-custom command asks Super to coordinate visible agents when work can be split
-cleanly. Backpack still owns scope, integration, Code Review, Product QA, and
-the Git delivery gate. `backpack install engineering --super` installs or updates
-all five global Backpack commands. See the [Super adapter](engineering/adapters/super/README.md)
-for their behavior.
-
-For a new or ongoing project in Super:
-
-1. Open the project folder and start a chat with your chosen provider.
-2. Send your idea or attach the brief. For ongoing work, ask Backpack to resume
-   from the brief, decisions, and delivered work and show a progress checklist.
-3. Choose **🧭 Kickoff** from the worktree action card or
-   Command Palette. Answer its questions in the same chat, one at a time.
-4. Once the next slice and its proof are clear, ask Backpack to build it. Ask
-   separately to create or update a project-owned Markdown tracker if you want
-   the checklist to persist across chats.
-
-After updating Backpack Engineering, refresh the provider you use, for example
-`backpack install engineering --codex`, then start a new chat so it discovers
-the updated skills and commands. Super custom commands are stored in Super and
-are synchronized when you reinstall the Super adapter.
-
-In OpenCode, use `Tab` for the `build` and read-only `plan` primary agents. Its
-`/backpack-kickoff`, `/backpack-validate`, `/backpack-learn`, and
-`/backpack-pattern-scan` commands load the corresponding portable skills.
-`/backpack-brainstorm`, `/backpack-design`, `/backpack-review`, and
-`/backpack-qa` use OpenCode-specific agents. Skill bodies remain the single
-source for shared workflows.
-
-See [Backpack Engineering routing and command flow](docs/backpack-routing.md) for the complete
-usage map.
-
-When an agent repeats a mistake or makes a consequential one, use
-`backpack-learn` to capture the observed
-case, check whether an existing control already covers it, and propose one
-small correction with a way to observe improvement. See the
-[harness feedback loop](docs/ai-workflow.md#improving-the-harness) for where that
-correction belongs. This reuses Learn rather than adding another global command.
+Backpack displays **💭 Explore → 📋 Plan → 🛠️ Build → ⚖️ Validate → 📚 Learn** as
+its flexible workflow. Kickoff guides the start of a substantial project; you do
+not need to select every step. The [AI workflow reference](docs/ai-workflow.md)
+explains the rules, models, host controls, and optional actions in detail.
 
 ## Visible Backpack Engineering activity
 

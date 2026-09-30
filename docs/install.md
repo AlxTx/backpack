@@ -13,10 +13,22 @@ cd backpack
 ./backpack
 ```
 
-The first installation adds `backpack` to `~/.local/bin`. Selecting **Shell** or
-**Everything** also configures Fish to include that directory on `PATH`; start a
-new Fish session after installation, then run `backpack` from anywhere. A
-Backpack Engineering-only install leaves shell configuration untouched.
+`./backpack` runs the file in the current folder. It works the same in zsh,
+Bash, and Fish, without any `PATH` setup. The first installation links
+`backpack` into `~/.local/bin` so it can also be called from any folder once
+that directory is on your `PATH`.
+
+### zsh and other shells
+
+Backpack configures Fish's `PATH` when you install **Shell** or **Everything**.
+It does not edit zsh or Bash configuration. In zsh, if `backpack` is not found
+after installation, run this once and open a new terminal:
+
+```sh
+printf '\nexport PATH="$HOME/.local/bin:$PATH"\n' >> ~/.zshrc
+```
+
+You can always run `./backpack` from the cloned repository without this step.
 
 `backpack` opens the main menu. Its **Install or refresh** entry and
 `backpack install` lead to the same installation menu. Choose Backpack
@@ -77,8 +89,8 @@ update the repository separately, then reinstall the affected host.
 the five global Backpack commands through the running Super app, starting it if
 needed. Their visible names are `🧭 Kickoff`, `👥 Team build`, `⚖️ Validate`,
 `📚 Learn`, and `🔎 Pattern scan`. Existing `Backpack · ...` commands are renamed
-by ID without duplicates; other commands
-and local provider/model choices are preserved. The [project walkthrough](backpack-routing.md#start-or-resume-a-project)
+by ID without duplicates; other commands and local provider/model choices are
+preserved. The [step-by-step guide](backpack-routing.md)
 shows where to find them and the equivalent Codex, Claude Code, and OpenCode
 entrypoints.
 

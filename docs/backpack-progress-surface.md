@@ -6,7 +6,7 @@ conversation with repetitive status messages.
 This surface shows current agent activity. The separate project checklist shows
 Discovery, Definition, Engineering, and Delivery for the current slice. Its
 individual decisions and evidence are described in
-[`backpack-routing.md`](backpack-routing.md#start-or-resume-a-project).
+[`backpack-routing.md`](backpack-routing.md).
 The checklist tracks evidenced project progress across conversations; it does
 not turn framing milestones into extra agent workflow steps.
 
