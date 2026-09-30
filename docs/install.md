@@ -18,10 +18,12 @@ The first installation adds `backpack` to `~/.local/bin`. Selecting **Shell** or
 new Fish session after installation, then run `backpack` from anywhere. A
 Backpack Engineering-only install leaves shell configuration untouched.
 
-`backpack` opens the main menu. `backpack install` opens the installation menu.
-Both use selectable prompts when `gum` is available and fall back to numbered
-menus otherwise. Interactive installation previews the plan and asks for
-confirmation before changing local configuration.
+`backpack` opens the main menu. Its **Install or refresh** entry and
+`backpack install` lead to the same installation menu. Choose Backpack
+Engineering, this Mac's configuration, or everything there. Direct target
+commands skip the menus and use the same installer. Menus use selectable prompts
+when `gum` is available and numbered choices otherwise. Interactive installation
+previews the plan and asks for confirmation before changing local configuration.
 
 ## Commands
 
@@ -33,7 +35,7 @@ backpack install machine        # choose machine configuration
 backpack install everything --personal
 backpack doctor                  # validate repository sources
 backpack check                   # verify the installed state and detect drift
-backpack status                  # show what is installed
+backpack status                  # compatibility alias for backpack check
 backpack skills                  # manage project skills interactively
 backpack find design             # find a curated project skill
 backpack add impeccable          # add the UX/UI skill to this project
@@ -62,9 +64,23 @@ provider chat so it discovers the current skills and commands. The core includes
 `backpack-learn`, and `backpack-pattern-scan`; the retired `backpack-start-work` and
 `backpack-pattern-capture` links are removed during installation.
 
-Super custom commands live in personal App Settings and are not provisioned by
-`backpack install engineering --super`. See the [new-project walkthrough](backpack-routing.md#start-a-new-project-in-super)
-for the action card and the equivalent Codex, Claude Code, and OpenCode entrypoints.
+The completion screen shows the installed surfaces and a short "what's new"
+summary from commits relevant to the selected target. Backpack remembers the
+last successfully installed Git revision per target in
+`~/.config/backpack/installed-revisions`. On the first tracked install, it shows
+recent commits as context and says that the previous revision is unknown. If
+the checkout has uncommitted changes, it says so because commit summaries cannot
+describe them. The installer reads local history and does not fetch updates;
+update the repository separately, then reinstall the affected host.
+
+`backpack install engineering --super` merges Super preferences and synchronizes
+the five global Backpack commands through the running Super app, starting it if
+needed. Their visible names are `🧭 Kickoff`, `👥 Team build`, `⚖️ Validate`,
+`📚 Learn`, and `🔎 Pattern scan`. Existing `Backpack · ...` commands are renamed
+by ID without duplicates; other commands
+and local provider/model choices are preserved. The [project walkthrough](backpack-routing.md#start-or-resume-a-project)
+shows where to find them and the equivalent Codex, Claude Code, and OpenCode
+entrypoints.
 
 Select machine configuration directly with `--shell`, `--editor`, `--terminal`,
 or `--all-machine`. A direct target applies immediately; add `--dry-run` for a

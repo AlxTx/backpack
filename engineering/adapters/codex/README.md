@@ -5,7 +5,8 @@ Codex CLI and the Codex desktop app consume the portable workflow through
 `~/.agents/skills`, and discover project skills installed with `backpack add`
 from the project's `.agents/skills` directory.
 
-The system remains **Plan → Build → Validate → Learn**. Codex uses its native
+The visible workflow is **💭 Explore → 📋 Plan → 🛠️ Build → ⚖️ Validate → 📚 Learn**.
+Codex uses its native
 conversation, Plan mode, skill UI, subagent surface, browser, annotations, diff,
 and terminal instead of reproducing OpenCode's primary-agent and `/command` UI.
 
@@ -13,7 +14,7 @@ and terminal instead of reproducing OpenCode's primary-agent and `/command` UI.
 
 | Need | Default interaction | Explicit entrypoint |
 |---|---|---|
-| Kick off a new project or substantial product change | Describe the idea and let Backpack ask the next useful question | Select `backpack-kickoff` in the Codex skill picker |
+| Start or resume a project or substantial product change | Share the idea or existing evidence and let Backpack ask the next useful question | Select `backpack-kickoff` in the Codex skill picker |
 | Discuss, decide, or diagnose | Ask normally; Backpack Engineering stays read-only | none needed |
 | Produce an execution-ready plan | Select Codex Plan mode and ask for the plan | native Plan mode |
 | Implement an approved change | Ask to build, fix, align, migrate, or remove | normal Codex thread |
@@ -25,7 +26,7 @@ and terminal instead of reproducing OpenCode's primary-agent and `/command` UI.
 Natural language remains the default. Explicit skill invocation is useful when
 the workflow boundary itself matters or when testing Backpack Engineering behavior.
 Installed skills can appear in Codex's `/` picker under Skills; they are distinct
-from built-in slash commands. In Super, use the outer `Backpack · Project kickoff`
+from built-in slash commands. In Super, use the outer `🧭 Kickoff`
 custom command or select the skill in the provider chat.
 
 ## Delivery guarantees
@@ -39,7 +40,8 @@ custom command or select the skill in the provider chat.
   inspection;
 - the Git delivery gate remains separate: Ready to Ship never authorizes a
   commit, push, merge, pull request, or deployment;
-- Backpack Engineering activity is announced through the portable `[Backpack - phase]` event,
+- Backpack Engineering activity is announced through the portable emoji and
+  English step event, such as `🛠️ Build - <short activity>`, on its own line,
   while Codex renders skills, subagents, and tools through its native UI. The
   conversation does not duplicate those native chips with `[Skill]`, `[Agent]`,
   or explanatory status lines.

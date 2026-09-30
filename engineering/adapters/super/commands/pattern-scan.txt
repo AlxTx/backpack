@@ -1,0 +1,1 @@
+Map the established architecture, patterns, and anti-patterns in the project or scope described in this chat. Load the backpack-pattern-scan skill when available. Inspect evidence in read-only mode, name only established patterns, and report concise file references. Do not modify the project.

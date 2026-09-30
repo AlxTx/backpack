@@ -1,7 +1,7 @@
 interface:
   display_name: "Backpack Kickoff"
-  short_description: "Frame a project one question at a time"
-  default_prompt: "Use $backpack-kickoff to guide this new project or product change one question at a time."
+  short_description: "Start or resume project framing one question at a time"
+  default_prompt: "Use $backpack-kickoff to start or resume this project or product change one question at a time."
 
 policy:
   allow_implicit_invocation: true

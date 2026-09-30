@@ -9,7 +9,9 @@ remplace l'adaptateur local complet après l'avoir déplacé dans une sauvegarde
 horodatée. Les changements durables se font donc dans ce dossier canonique avant
 réinstallation.
 
-Le système : **Plan → Build → Validate → Learn**. Validate combine une Code
+Le parcours visible : **💭 Explore → 📋 Plan → 🛠️ Build → ⚖️ Validate → 📚 Learn**.
+Explore regroupe discussion et diagnostic en lecture seule ; `plan` et `build`
+restent les postures natives d'OpenCode. Validate combine une Code
 Review et une Product QA indépendantes ; Learn capitalise uniquement les
 enseignements réutilisables.
 
@@ -19,7 +21,7 @@ enseignements réutilisables.
 
 | Ma situation | J'utilise | Comment |
 |---|---|---|
-| Démarrer un projet ou une évolution importante | **/backpack-kickoff** | donne l'idée ou le brief, puis réponds à une question à la fois |
+| Démarrer ou reprendre un projet ou une évolution importante | **/backpack-kickoff** | donne l'idée ou les décisions existantes, puis réponds à une question à la fois |
 | Une idée floue, un arbitrage, choisir une archi (perso ou client), décider quoi faire | **build** ou **/backpack-brainstorm** | demande directement, ou tape `/backpack-brainstorm ...` pour une exploration read-only |
 | Mon prompt est long, ambigu ou répétitif | automatique | Backpack Engineering laisse passer les prompts clairs, normalise sans risque, ou demande validation si le sens peut changer |
 | Je veux voir et contrôler explicitement la reformulation | **backpack-enhance-prompt** | invoque le skill, vérifie la proposition, puis valide-la explicitement |

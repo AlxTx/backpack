@@ -1,0 +1,1 @@
+Run Backpack Engineering validation for the completed work in this chat. Load the backpack-validate skill when available. Keep the existing requirements and diff scope, run independent Code Review and Product QA, and report the delivery verdict with evidence. Stay read-only; do not commit, push, merge, deploy, or create a pull request.

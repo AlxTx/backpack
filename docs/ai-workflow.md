@@ -110,8 +110,8 @@ of duplicating host controls.
   compatible commands automatically, while Codex inherits the portable shell
   rule. Backpack does not configure Copilot hooks.
 - Use `backpack install engineering --all-hosts` to activate the shared workflow for
-  Codex, OpenCode, and Claude Code, and merge portable Super preferences. Copilot
-  remains untouched.
+  Codex, OpenCode, and Claude Code, and install portable Super preferences and
+  Backpack commands. Copilot remains untouched.
 
 ## Prompt enhancement
 
@@ -141,16 +141,21 @@ Backpack Engineering does not expose private model reasoning. For non-trivial wo
 a short public status before acting, then announces any selected skill, subagent,
 plugin, or integration when it is actually activated. This is a portable
 semantic event: use the host's native rendering when available, otherwise fall
-back to a compact line: `[Backpack - <phase>] · <action>` for phase status, then
-`[Backpack - <phase>] · [<capability>] <name>` for an activation. The
-repeated phase keeps each capability attached to the work that caused it, while
+back to a standalone compact line: `💭 Explore - <short activity>` for a step status, then
+`⚖️ Validate - [Agent] Code Review` for an activation. The
+repeated step keeps each capability attached to the work that caused it, while
 the bracketed label stays easy to scan. Never show both native and fallback
 rendering for the same activation. This is an audit trail of the workflow, not a
 transcript of every command or internal thought.
+Keep explanations and answers in separate prose; a status must never be the
+introductory clause of a long update.
 
-Keep command names and status labels in English across hosts. Use English,
-Title Case phase names inside `[Backpack - ...]`; the action or result after `·`
-may follow the user's language.
+Keep command names and status labels in English across hosts. The five visible
+steps are `💭 Explore`, `📋 Plan`, `🛠️ Build`, `⚖️ Validate`, and `📚 Learn`.
+`🧭 Kickoff` is an optional guided entry into Explore or Plan. Diagnose and
+Pattern scan belong to Explore, Team build to Build, and Code Review and Product
+QA to Validate. When emoji rendering is unreliable, use the English step name
+alone. The action or result after ` - ` may follow the user's language.
 
 Hosts with a dedicated progress surface show it there; other hosts send the same
 status in the conversation.
@@ -158,13 +163,14 @@ status in the conversation.
 ## Delivery loop
 
 ```txt
-Plan -> Build -> Validate -> Learn
-                  /      \
-        Code Review      Product QA
+Explore -> Plan -> Build -> Validate -> Learn
+                           /      \
+                 Code Review      Product QA
 ```
 
-This lifecycle sits above host modes: discussion and design can contribute to
-Plan, implementation happens in Build, Code Review and Product QA supply
+This lifecycle sits above host modes: discussion, diagnosis, and brainstorming
+belong to Explore; design can contribute to Explore or Plan; implementation
+happens in Build; Code Review and Product QA supply
 Validate, and knowledge codification supplies Learn. Small explicit changes can compress the loop into
 inspection, one safe change, targeted validation, and a short handoff. Planning
 and validation depth scale with uncertainty, evidence count, blast radius, and
@@ -179,6 +185,10 @@ the existing product and defines the requested change before examining affected
 UX and technical decisions. These are conditional activities inside Plan, not
 additional host modes or mandatory artifacts. The agent presents the next useful
 question or decision instead of asking the user to manage the whole sequence.
+When a progress view helps, group the current slice as Discovery → Definition
+(requirements and UX) → Engineering (technical design and plan) → Delivery.
+This makes the entry into Engineering visible without claiming that the entire
+product is specified or adding another workflow command.
 Build produces the slice; Validate evaluates it against the expected proof, and
 later product evidence can change the next slice.
 

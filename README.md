@@ -41,9 +41,10 @@ session afterward, then use it from anywhere.
 The menu validates the repository, previews interactive plans, and asks before
 changing local configuration.
 
-The menu clearly separates **Backpack Engineering** — the portable workflow used inside AI
-tools — from this Mac's shell, editor, and terminal configuration. The installer
-uses arrow-key menus when `gum` is available and falls back to a numbered menu.
+The main menu has one **Install or refresh** entry. The installer then lets you
+choose Backpack Engineering, this Mac's configuration, or everything. Direct
+target commands use the same installer. Menus use arrow keys when `gum` is
+available and fall back to numbered choices.
 
 ## Common commands
 
@@ -51,10 +52,9 @@ uses arrow-key menus when `gum` is available and falls back to a numbered menu.
 |---|---|
 | Open the main menu | `backpack` |
 | Open the project-skill menu | `backpack skills` |
-| Choose what to install | `backpack install` |
+| Install or refresh from this checkout | `backpack` → **Install or refresh**, or `backpack install` |
 | Validate repository sources only | `backpack doctor` |
 | Verify the installed state and detect drift | `backpack check` |
-| Show installed state with integrity checks | `backpack status` |
 | List curated skills with project status | `backpack list` |
 | Find a curated skill by need | `backpack find design` |
 | Inspect a skill | `backpack info impeccable` |
@@ -65,12 +65,16 @@ uses arrow-key menus when `gum` is available and falls back to a numbered menu.
 | Install Backpack Engineering for every supported personal host | `backpack install engineering --all-hosts` |
 | Install Backpack Engineering for Codex | `backpack install engineering --codex` |
 | Install Backpack Engineering for Claude Code | `backpack install engineering --claude` |
-| Install portable Super preferences | `backpack install engineering --super` |
+| Install portable Super preferences and commands | `backpack install engineering --super` |
 | Replace Backpack Engineering for OpenCode from Backpack | `backpack install engineering --opencode` |
 
 A direct target applies immediately; use `--dry-run` for a read-only preview.
+`backpack status` remains an alias for `backpack check`.
 Applicable Backpack Engineering targets install [`rtk`](https://github.com/rtk-ai/rtk)
 through Homebrew when needed; use `--without-rtk` to opt out.
+After a successful install or reinstall, Backpack shows what was installed and
+up to four relevant commits since that target's last install. It compares the
+local checkout; update the repository separately before reinstalling.
 
 ## Shared AI workflow
 
@@ -115,8 +119,12 @@ constraints. Backpack never creates or commits them automatically.
 
 ## Daily Backpack Engineering flow
 
-Backpack Engineering follows **Plan → Build → Validate → Learn**. Before substantive work, it
-compares the active model with the task when the host exposes that information:
+Backpack Engineering shows **💭 Explore → 📋 Plan → 🛠️ Build → ⚖️ Validate → 📚 Learn**.
+These are flexible steps, not required modes or documents. Explore includes
+discussion and diagnosis; Kickoff guides a substantial initiative into Explore
+or Plan, Team build is a Build variant, and Review is one Validate lens.
+Before substantive work, Backpack compares the active model with the task when
+the host exposes that information:
 Terra covers everyday and settled work, Sol covers uncertainty and risky review,
 and Astra is reserved for the hardest consequential work. Backpack Engineering asks `yes/no`
 before recommending either a safer upgrade or a risk-free cheaper downgrade; it
@@ -124,29 +132,42 @@ never switches models silently. When the host requires a manual change, Backpack
 says so before asking: switch in the model selector, then answer `yes` once the
 recommended model is active, or `no` to keep the current model.
 
-For a new initiative, describe what you want to create or change. If the context
-is unclear, Backpack asks whether you are starting from scratch (**greenfield**)
-or evolving an existing product or codebase (**brownfield**). It then guides the
-relevant discovery, requirements, UX, technical, and planning decisions one at a
-time. You do not need to select each activity or produce a fixed set of documents.
+For a new or ongoing initiative, describe what you want to create or change and
+share its existing brief, decisions, or work. If the context is unclear, Backpack
+asks whether you are starting from scratch (**greenfield**) or evolving an
+existing product or codebase (**brownfield**). It guides the relevant discovery,
+requirements, UX, technical, and planning decisions one at a time, resuming from
+what is already established. Ask for a visual checklist when you want to track
+the current slice; a project-owned Markdown tracker is optional. You do not need
+to select each activity or produce a fixed set of documents.
+That view separates Discovery, Definition, Engineering, and Delivery so you can
+see when the current slice moves from product direction into technical choices.
 Backpack command names and status phase labels remain in English across hosts.
 Select `backpack-kickoff` from the Codex skill picker when you want to launch
 this guided conversation explicitly. In Claude Code, invoke `/backpack-kickoff`.
-In Super, use the `Backpack · Project kickoff` custom command.
+In Super, use the `🧭 Kickoff` custom command.
+For a substantial approved Build, the optional `👥 Team build`
+custom command asks Super to coordinate visible agents when work can be split
+cleanly. Backpack still owns scope, integration, Code Review, Product QA, and
+the Git delivery gate. `backpack install engineering --super` installs or updates
+all five global Backpack commands. See the [Super adapter](engineering/adapters/super/README.md)
+for their behavior.
 
-For a new project in Super:
+For a new or ongoing project in Super:
 
 1. Open the project folder and start a chat with your chosen provider.
-2. Send your idea or attach the brief: “New project from scratch:
-   TheTokenSide. Use TheTokenSide.md as the project brief.”
-3. Choose **Backpack · Project kickoff** from the worktree action card or
+2. Send your idea or attach the brief. For ongoing work, ask Backpack to resume
+   from the brief, decisions, and delivered work and show a progress checklist.
+3. Choose **🧭 Kickoff** from the worktree action card or
    Command Palette. Answer its questions in the same chat, one at a time.
-4. Once the first slice and its proof are clear, ask Backpack to build it.
+4. Once the next slice and its proof are clear, ask Backpack to build it. Ask
+   separately to create or update a project-owned Markdown tracker if you want
+   the checklist to persist across chats.
 
 After updating Backpack Engineering, refresh the provider you use, for example
 `backpack install engineering --codex`, then start a new chat so it discovers
 the updated skills and commands. Super custom commands are stored in Super and
-are not installed by this command.
+are synchronized when you reinstall the Super adapter.
 
 In OpenCode, use `Tab` for the `build` and read-only `plan` primary agents. Its
 `/backpack-kickoff`, `/backpack-validate`, `/backpack-learn`, and
@@ -170,12 +191,11 @@ correction belongs. This reuses Learn rather than adding another global command.
 For a non-trivial task, hosts using Backpack Engineering expose the active phase,
 then any skill, agent, plugin, or integration actually activated. Native host
 events are preferred; otherwise Backpack emits a compact one-line fallback such
-as `[Backpack - Build] · [Skill] impeccable`. The status marker stays
-visible on every line: Backpack, then the active phase; the bracketed label makes
-the capability type immediately scannable. It never duplicates an activation
-the host already displays. This makes the workflow visible without exposing
-private model reasoning or producing a log for every shell command. After
-updating Backpack, restart the host.
+as `🛠️ Build - [Skill] impeccable`. Status lines contain only a short activity
+or capability label. Explanations and answers appear separately, without the
+emoji marker. Backpack never duplicates an activation the host already displays.
+This makes the workflow visible without exposing private model reasoning or
+producing a log for every shell command. After updating Backpack, restart the host.
 
 Every installer target is canonical: Backpack replaces each selected path from
 the repository instead of retaining a divergent local copy. OpenCode is copied

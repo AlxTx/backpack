@@ -11,10 +11,14 @@ Installation replaces the Backpack rule, the complete Backpack agent directory,
 and core-skill paths from their canonical sources. Claude authentication,
 settings, histories, and unrelated host state remain untouched.
 
-The delivery flow uses `plan` → `build` → `backpack-validate` → optional
-`backpack-learn`. Invoke the portable action skills directly as
+The visible workflow is **💭 Explore → 📋 Plan → 🛠️ Build → ⚖️ Validate → 📚 Learn**.
+Explore is read-only conversation or diagnosis; Claude's native plan posture
+remains available for a sustained read-only plan. Invoke the portable action
+skills directly as
 `/backpack-kickoff`, `/backpack-validate`, `/backpack-learn`, and
 `/backpack-pattern-scan`. Claude exposes skills as slash commands.
+Use `/backpack-kickoff` for an initiative already underway too: provide its
+brief, decisions, and delivered work, then ask for a progress checklist.
 Claude-specific agents exist only for host-native postures or independent Code
 Review and Product QA lenses.
 

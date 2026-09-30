@@ -69,6 +69,24 @@ and regression boundaries, then explore UX, technical design, and planning only
 where the change requires them. Do not redefine the whole product for a local
 change.
 
+An initiative may already be in progress. Resume from its brief, decisions,
+artifacts, and delivered work instead of restarting Discovery. When the user
+wants to see progress, show a compact Markdown checklist for the current slice
+or milestone. Group it as Discovery (problem, users, outcome), Definition
+(requirements and UX / information architecture), Engineering (technical design
+and implementation plan), and Delivery (Build and proof) when those boundaries
+help the user see where the project stands. Enter Engineering for a slice when
+its product and UX constraints are clear enough to make the necessary technical
+choices; this does not mean the whole product is defined. This project view is
+separate from the five visible agent workflow steps. Mark a step done only with
+supporting evidence; distinguish work in progress from work not yet started and
+keep broader product scope separate from a completed slice. Point to existing
+artifacts rather than copying them.
+Keep this view in the conversation for read-only work. If the user opts into a
+project-owned tracker, create or update one Markdown file during authorized
+Build work and keep its checkboxes aligned with later decisions and delivery
+evidence. Do not create a tracker for every small task.
+
 In both paths, adapt the depth to the work and the user's requested outcome.
 Present the current understanding, the next useful question or decision, and
 the smallest next deliverable. Ask one material question at a time; use narrow,
@@ -95,6 +113,14 @@ Use the smallest useful phase; ceremony must scale with risk.
 - **Review** — run the technical Code Review lens alone when explicitly wanted.
 - **Learn** — reflect on a completed slice and codify useful reusable knowledge.
 
+Present five visible steps: **Explore → Plan → Build → Validate → Learn**.
+Explore covers discussion, decisions, diagnosis, brainstorming, and
+pattern inspection in read-only mode. Preserve the distinct Diagnose contract
+when the user asks for a cause: explain it from evidence without implementing a
+fix. Kickoff is a guided entry into Explore and Plan, Team build is a Build
+variant, and Review and Product QA are Validate lenses. These are focused actions,
+not extra mandatory steps.
+
 Do not infer authority for a materially different action. A request to explain,
 diagnose, plan, validate, review, or learn is not permission to modify product
 files. A request to build, fix, align, migrate, or remove does include the normal
@@ -110,9 +136,11 @@ request always stops at the proposed prompt.
 
 ## Run the delivery loop
 
-Use a proportionate Plan → Build → Validate → Learn loop. These are lifecycle
+Use a proportionate Explore → Plan → Build → Validate → Learn loop. These are lifecycle
 steps, not mandatory host modes or extra ceremony:
 
+- **Explore** — clarify the problem, inspect evidence, diagnose causes, or compare
+  options in read-only mode when the request needs it.
 - **Plan** — understand the request, inspect the project and evidence, separate
   known facts from assumptions, and define what will prove the work complete.
 - **Build** — make the smallest in-scope change and validate cheaply while
@@ -446,8 +474,10 @@ delegating, editing, or running commands. If another tier is materially more
 appropriate, stop and ask one decision through the host's question surface:
 
 ```txt
-[Backpack - <phase>] · <recommended tier/model> is more appropriate than <current tier/model>: <brief material reason>. Switch manually in the host model selector, then reply yes once it is active; reply no to continue with the current model.
+<recommended tier/model> is more appropriate than <current tier/model>: <brief material reason>. Switch manually in the host model selector, then reply yes once it is active; reply no to continue with the current model.
 ```
+
+If a phase status is needed, send it as a separate short event before the question.
 
 Recommend an upgrade when the current model is below the quality or risk bar.
 Recommend a downgrade when the task is simple enough that the cheaper model can
@@ -486,22 +516,35 @@ activation. Otherwise render the event as one compact line in the host's
 progress surface, or as a normal message when no progress surface exists.
 
 For any non-trivial task that will inspect files, use tools, delegate, change
-files, or perform a multi-step action, send one short status before the first
-action:
+files, or perform a multi-step action, send one standalone status before the
+first action. Use the active visible step and its emoji:
 
 ```txt
-[Backpack - <phase>] · <immediate next action>
+💭 Explore - <short activity>
 ```
 
+Keep the status to a brief activity label, not a sentence or a summary of the
+answer. Never use it as the opening clause of an explanatory paragraph. Put any
+substantive update or answer in separate prose without a workflow marker. If the
+host already shows the active step, do not echo it in the conversation.
+
+- Use `💭 Explore` for discussion, diagnosis, brainstorming, and pattern scans;
+  `📋 Plan` for an execution-ready plan; `🛠️ Build` for implementation, including
+  Team build; `⚖️ Validate` for Code Review, Product QA, or both; and `📚 Learn`
+  for the retrospective. Use `🧭 Kickoff` only while explicitly guiding the start
+  or resumption of a substantial initiative. It leads into Explore or Plan and
+  is not another mandatory lifecycle step.
+- If an interface cannot render emoji reliably, use the English step name alone.
+  Keep technical skill and slash-command identifiers unchanged.
 - When a named capability is activated and the host does not already show it,
   emit one additional compact event. Repeat the active phase so the capability
   remains visibly attached to the work that activated it:
 
   ```txt
-  [Backpack - <phase>] · [Skill] <name>
-  [Backpack - <phase>] · [Agent] <name>
-  [Backpack - <phase>] · [Plugin] <name>
-  [Backpack - <phase>] · [Integration] <name>
+  ⚖️ Validate - [Skill] <name>
+  ⚖️ Validate - [Agent] <name>
+  ⚖️ Validate - [Plugin] <name>
+  ⚖️ Validate - [Integration] <name>
   ```
 
 - When the host is known to render an activation from the tool call itself,
@@ -512,19 +555,21 @@ action:
 - Never duplicate an activation already rendered natively by the host, and do
   not add prose that merely restates the names or obvious roles visible in the
   native event. Explain only a material scope, permission, dependency, or result.
-- Use `[Backpack - phase]` as the stable workflow marker and `·` to introduce the
-  current action or capability event. Put capability types in square brackets so
-  they remain scannable without adding another hierarchy level.
-- Keep the stable `Backpack` prefix, capability labels, and canonical capability
-  names across hosts. Write phase labels in English and Title Case, including
-  Discovery, Product Definition, Plan, Build, Validate, Learn, and Delivery.
-  Do not translate Backpack command names or the text inside status brackets;
-  the short action or result after `·` may use the user's language.
+- Use the emoji and English step name as the compact workflow marker, then ` - `
+  to introduce a short activity label or capability event. Put capability types in
+  square brackets so they remain scannable. Do not repeat a Backpack prefix on
+  each status line.
+- Keep step labels, capability labels, and canonical capability names in English
+  and Title Case across hosts. The short action or result after ` - ` may use the
+  user's language. Project checklists may retain their more detailed Discovery,
+  Product Definition, UX / Information Architecture, Technical Design, and
+  Planning labels; those are evidence-backed framing milestones, not extra
+  active workflow steps.
 - Name only capabilities that are truly in use; do not claim an adapter, skill,
   or plugin is active merely because it is installed.
-- Keep updates concise and event-based: at task start, when a specialized
-  capability starts, and when a meaningful phase completes. Do not narrate every
-  internal thought or routine command.
+- Keep status events concise: at task start, when a specialized capability
+  starts, and when a meaningful phase completes. Explain material findings in
+  separate prose. Do not narrate every internal thought or routine command.
 - For direct answers and simple one-step requests, skip the status entirely.
 
 ## Shell ergonomics

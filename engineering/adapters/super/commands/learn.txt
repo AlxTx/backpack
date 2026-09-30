@@ -1,0 +1,1 @@
+Run the Backpack Engineering Learn workflow for the completed slice in this chat. Load the backpack-learn skill when available. Use only evidenced lessons; propose durable changes separately. Keep this action read-only toward the product and Backpack configuration.

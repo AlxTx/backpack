@@ -1,0 +1,1 @@
+Start Backpack Engineering Project Kickoff in this chat. Load the backpack-kickoff skill when available; otherwise follow the shared AGENTS.md guidance for a new initiative. Use the existing conversation and brief, ask one material question at a time, and wait for each answer. Keep kickoff read-only and do not start Build or Git delivery.

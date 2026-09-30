@@ -21,6 +21,7 @@ else
 fi
 BACKPACK_BIN_DIR=${BACKPACK_BIN_DIR:-"$HOME/.local/bin"}
 BACKPACK_STATE_FILE=${BACKPACK_STATE_FILE:-"$CONFIG_DIR/backpack/installed-components"}
+BACKPACK_REVISION_FILE=${BACKPACK_REVISION_FILE:-"$CONFIG_DIR/backpack/installed-revisions"}
 APPLY=0
 DIRECT_APPLY=0
 PROFILE_MODE=personal
@@ -275,14 +276,14 @@ gum_header() {
     --border rounded \
     --padding '1 2' \
     --margin '1 0' \
-    '◆ Backpack' 'Portable setup for a fresh machine.'
+    '◆ Backpack' 'Install or refresh from this checkout.'
 }
 
 gum_choose_component() {
   gum_header
 
   selection=$(gum choose \
-    --header 'What do you want to install?' \
+    --header 'What do you want to install or refresh?' \
     --cursor '→ ' \
     --selected-prefix '✓ ' \
     --unselected-prefix '  ' \
@@ -311,7 +312,7 @@ gum_choose_component() {
 
 gum_choose_backpack_target() {
   selection=$(gum choose \
-    --header 'Where do you want to use Backpack Engineering?' \
+    --header 'Which tool should Backpack Engineering configure?' \
     --cursor '→ ' \
     --selected-prefix '✓ ' \
     --unselected-prefix '  ' \
@@ -368,7 +369,7 @@ gum_choose_machine_target() {
 }
 
 confirm_apply() {
-  confirmation="Install/update $(target_description) now?"
+  confirmation="Apply $(target_description) from this checkout now?"
   if use_gum; then
     gum confirm "$confirmation" && return 0
     return 1
@@ -385,9 +386,9 @@ confirm_apply() {
 ask_component() {
   cat <<EOF
 $(title)
-Portable setup for a fresh machine.
+Install or refresh from this checkout.
 
-What do you want to install?
+What do you want to install or refresh?
 
   1  Backpack Engineering      AI workflow for supported assistants
   2  This Mac     Shell, editor, terminal, and personal tools
@@ -422,7 +423,7 @@ EOF
 ask_backpack_target() {
   cat <<EOF
 
-Where do you want to use Backpack Engineering?
+Which tool should Backpack Engineering configure?
 
   1  OpenCode        Terminal · Desktop app · GitHub Action
   2  Codex           Terminal · Desktop app
@@ -773,8 +774,187 @@ install_super_adapter() {
   source_root=$BACKPACK_ROOT/engineering/adapters/super
   validate_json_merge "$source_root/settings.json" "$BACKPACK_SUPER_DIR/settings.json"
   validate_json_merge "$source_root/chat-defaults.json" "$BACKPACK_SUPER_DIR/chat-defaults.json"
+  prepare_super_commands
   merge_json_config "$source_root/settings.json" "$BACKPACK_SUPER_DIR/settings.json"
   merge_json_config "$source_root/chat-defaults.json" "$BACKPACK_SUPER_DIR/chat-defaults.json"
+  sync_super_commands
+}
+
+super_command_descriptor() {
+  SUPER_COMMAND_FILE=$BACKPACK_ROOT/engineering/adapters/super/commands/$1.txt
+  SUPER_COMMAND_AUTO=true
+  case "$1" in
+    project-kickoff)
+      SUPER_COMMAND_NAME='🧭 Kickoff'
+      SUPER_COMMAND_LEGACY_NAME='Backpack · Project kickoff'
+      SUPER_COMMAND_OWNERSHIP_TOKEN='backpack-kickoff'
+      ;;
+    validate-delivery)
+      SUPER_COMMAND_NAME='⚖️ Validate'
+      SUPER_COMMAND_LEGACY_NAME='Backpack · Validate delivery'
+      SUPER_COMMAND_OWNERSHIP_TOKEN='backpack-validate'
+      ;;
+    learn)
+      SUPER_COMMAND_NAME='📚 Learn'
+      SUPER_COMMAND_LEGACY_NAME='Backpack · Learn'
+      SUPER_COMMAND_OWNERSHIP_TOKEN='backpack-learn'
+      ;;
+    pattern-scan)
+      SUPER_COMMAND_NAME='🔎 Pattern scan'
+      SUPER_COMMAND_LEGACY_NAME='Backpack · Pattern scan'
+      SUPER_COMMAND_OWNERSHIP_TOKEN='backpack-pattern-scan'
+      ;;
+    orchestrated-build)
+      SUPER_COMMAND_NAME='👥 Team build'
+      SUPER_COMMAND_LEGACY_NAME='Backpack · Orchestrated build'
+      SUPER_COMMAND_OWNERSHIP_TOKEN="Backpack Engineering's Build"
+      SUPER_COMMAND_AUTO=false
+      ;;
+  esac
+}
+
+prepare_super_commands() {
+  if [ "$APPLY" -eq 0 ]; then
+    detail 'sync five global Backpack commands through the Super CLI'
+    return
+  fi
+  if [ "$SUPER_CONFIG_EXPLICIT" -eq 1 ]; then
+    warn 'Super commands were not synced: SUPER_CONFIG_DIR redirects settings files only'
+    return
+  fi
+
+  command -v jq >/dev/null 2>&1 || {
+    printf '✗ jq is required to sync Super commands safely; install it with: brew install jq\n' >&2
+    exit 1
+  }
+  BACKPACK_SC_BIN=
+  if command -v sc >/dev/null 2>&1; then
+    BACKPACK_SC_BIN=$(command -v sc)
+  elif [ -x "$BACKPACK_SUPER_DIR/bin/sc" ]; then
+    BACKPACK_SC_BIN=$BACKPACK_SUPER_DIR/bin/sc
+  fi
+  if [ -z "$BACKPACK_SC_BIN" ] && command -v open >/dev/null 2>&1 &&
+     open -a super.engineering >/dev/null 2>&1; then
+    super_wait=0
+    while [ "$super_wait" -lt 10 ]; do
+      sleep 1
+      if [ -x "$BACKPACK_SUPER_DIR/bin/sc" ]; then
+        BACKPACK_SC_BIN=$BACKPACK_SUPER_DIR/bin/sc
+        break
+      fi
+      super_wait=$((super_wait + 1))
+    done
+  fi
+  if [ -z "$BACKPACK_SC_BIN" ]; then
+    printf '✗ Super CLI not found; install super.engineering before installing its Backpack adapter\n' >&2
+    exit 1
+  fi
+
+  if ! SUPER_COMMANDS_JSON=$("$BACKPACK_SC_BIN" commands list --scope global --json 2>&1); then
+    if command -v open >/dev/null 2>&1 && open -a super.engineering >/dev/null 2>&1; then
+      super_wait=0
+      while [ "$super_wait" -lt 10 ]; do
+        sleep 1
+        if SUPER_COMMANDS_JSON=$("$BACKPACK_SC_BIN" commands list --scope global --json 2>&1); then
+          break
+        fi
+        super_wait=$((super_wait + 1))
+      done
+    fi
+  fi
+  if ! printf '%s' "$SUPER_COMMANDS_JSON" |
+    jq -e '.kind == "custom_commands" and (.response.commands | type == "array")' >/dev/null 2>&1; then
+    printf '✗ cannot read global Super commands; open Super and retry the installation\n' >&2
+    printf '%s\n' "$SUPER_COMMANDS_JSON" >&2
+    exit 1
+  fi
+
+  for super_command_key in project-kickoff validate-delivery learn pattern-scan orchestrated-build; do
+    super_command_descriptor "$super_command_key"
+    if [ ! -s "$SUPER_COMMAND_FILE" ]; then
+      printf '✗ missing Backpack Super command: %s\n' "$SUPER_COMMAND_FILE" >&2
+      exit 1
+    fi
+    super_command_count=$(printf '%s' "$SUPER_COMMANDS_JSON" |
+      jq -r --arg name "$SUPER_COMMAND_NAME" --arg legacy "$SUPER_COMMAND_LEGACY_NAME" \
+        '[.response.commands[] | select(.scope == "global" and (.name == $name or .name == $legacy))] | length')
+    if [ "$super_command_count" -gt 1 ]; then
+      printf '✗ duplicate global Super command for %s; resolve it in Super before reinstalling\n' "$SUPER_COMMAND_NAME" >&2
+      exit 1
+    fi
+    super_command_owned_count=$(printf '%s' "$SUPER_COMMANDS_JSON" |
+      jq -r --arg name "$SUPER_COMMAND_NAME" --arg legacy "$SUPER_COMMAND_LEGACY_NAME" \
+        --arg token "$SUPER_COMMAND_OWNERSHIP_TOKEN" \
+        '[.response.commands[] | select(.scope == "global" and (.name == $name or .name == $legacy)) | select((.command // "") | contains($token))] | length')
+    if [ "$super_command_count" -ne "$super_command_owned_count" ]; then
+      printf '✗ Super command name collision: %s; a matching name does not contain the Backpack prompt\n' "$SUPER_COMMAND_NAME" >&2
+      exit 1
+    fi
+  done
+}
+
+super_command_matches() {
+  printf '%s' "$SUPER_COMMANDS_JSON" | jq -e \
+    --arg name "$SUPER_COMMAND_NAME" \
+    --arg prompt "$SUPER_COMMAND_PROMPT" \
+    --argjson auto "$SUPER_COMMAND_AUTO" \
+    '([.response.commands[] | select(.scope == "global" and .name == $name)]) as $matches |
+      ($matches | length) == 1 and
+      $matches[0].command == $prompt and
+      $matches[0].dispatch == "current_chat" and
+      $matches[0].view == "chat" and
+      $matches[0].auto_submit == $auto' >/dev/null
+}
+
+sync_super_commands() {
+  [ "$APPLY" -eq 1 ] && [ "$SUPER_CONFIG_EXPLICIT" -eq 0 ] || return 0
+
+  for super_command_key in project-kickoff validate-delivery learn pattern-scan orchestrated-build; do
+    super_command_descriptor "$super_command_key"
+    SUPER_COMMAND_PROMPT=$(cat "$SUPER_COMMAND_FILE")
+    if super_command_matches; then
+      detail "kept Super command $SUPER_COMMAND_NAME"
+      continue
+    fi
+
+    super_command_id=$(printf '%s' "$SUPER_COMMANDS_JSON" |
+      jq -r --arg name "$SUPER_COMMAND_NAME" --arg legacy "$SUPER_COMMAND_LEGACY_NAME" \
+        '[.response.commands[] | select(.scope == "global" and (.name == $name or .name == $legacy))] | .[0].id // empty')
+    if [ -n "$super_command_id" ]; then
+      if [ "$SUPER_COMMAND_AUTO" = true ]; then
+        "$BACKPACK_SC_BIN" commands update "$super_command_id" --scope global \
+          --name "$SUPER_COMMAND_NAME" --command "$SUPER_COMMAND_PROMPT" --dispatch current-chat --view chat \
+          --auto-submit --json >/dev/null
+      else
+        "$BACKPACK_SC_BIN" commands update "$super_command_id" --scope global \
+          --name "$SUPER_COMMAND_NAME" --command "$SUPER_COMMAND_PROMPT" --dispatch current-chat --view chat \
+          --no-auto-submit --json >/dev/null
+      fi
+      detail_success "updated Super command $SUPER_COMMAND_NAME"
+    else
+      if [ "$SUPER_COMMAND_AUTO" = true ]; then
+        "$BACKPACK_SC_BIN" commands create "$SUPER_COMMAND_NAME" \
+          --command "$SUPER_COMMAND_PROMPT" --scope global \
+          --dispatch current-chat --view chat --json >/dev/null
+      else
+        "$BACKPACK_SC_BIN" commands create "$SUPER_COMMAND_NAME" \
+          --command "$SUPER_COMMAND_PROMPT" --scope global \
+          --dispatch current-chat --view chat --no-auto-submit --json >/dev/null
+      fi
+      detail_success "created Super command $SUPER_COMMAND_NAME"
+    fi
+  done
+
+  SUPER_COMMANDS_JSON=$("$BACKPACK_SC_BIN" commands list --scope global --json)
+  for super_command_key in project-kickoff validate-delivery learn pattern-scan orchestrated-build; do
+    super_command_descriptor "$super_command_key"
+    SUPER_COMMAND_PROMPT=$(cat "$SUPER_COMMAND_FILE")
+    if ! super_command_matches; then
+      printf '✗ Super command sync could not verify %s\n' "$SUPER_COMMAND_NAME" >&2
+      exit 1
+    fi
+  done
+  detail_success 'verified five global Super commands'
 }
 
 validate_json_merge() {
@@ -855,6 +1035,39 @@ record_installation() {
   printf '%s\n' "$recorded_target" >> "$state_temp"
   sort -u "$state_temp" -o "$state_temp"
   mv "$state_temp" "$BACKPACK_STATE_FILE"
+}
+
+read_installed_revision() {
+  [ -f "$BACKPACK_REVISION_FILE" ] || return 0
+  awk -v target="$1" '$1 == target { print $2; exit }' "$BACKPACK_REVISION_FILE"
+}
+
+checkout_revision() {
+  command -v git >/dev/null 2>&1 || return 0
+  [ -e "$BACKPACK_ROOT/.git" ] || return 0
+  git -C "$BACKPACK_ROOT" rev-parse --verify HEAD 2>/dev/null || true
+}
+
+record_installation_revision() {
+  [ -n "$CURRENT_REVISION" ] || return 0
+
+  case "$INSTALL_TARGET" in
+    ai) revision_targets='ai opencode codex claude super' ;;
+    machine) revision_targets='machine shell editor terminal' ;;
+    all) revision_targets='all ai opencode codex claude super machine shell editor terminal' ;;
+    *) revision_targets=$INSTALL_TARGET ;;
+  esac
+
+  mkdir -p "$(dirname "$BACKPACK_REVISION_FILE")"
+  revision_temp=$(mktemp "${BACKPACK_REVISION_FILE}.XXXXXX")
+  if [ -f "$BACKPACK_REVISION_FILE" ]; then
+    awk -v targets=" $revision_targets " 'index(targets, " " $1 " ") == 0' \
+      "$BACKPACK_REVISION_FILE" > "$revision_temp"
+  fi
+  for revision_target in $revision_targets; do
+    printf '%s %s\n' "$revision_target" "$CURRENT_REVISION" >> "$revision_temp"
+  done
+  mv "$revision_temp" "$BACKPACK_REVISION_FILE"
 }
 
 verify_installation() {
@@ -1007,6 +1220,114 @@ target_surface() {
   esac
 }
 
+change_paths() {
+  set -- backpack bootstrap
+  case "$INSTALL_TARGET" in
+    opencode|codex|claude)
+      set -- "$@" engineering/portable "engineering/adapters/$INSTALL_TARGET"
+      ;;
+    super) set -- "$@" engineering/adapters/super ;;
+    ai) set -- "$@" engineering ;;
+    all) set -- "$@" engineering dotfiles ;;
+    shell) set -- "$@" dotfiles/fish dotfiles/starship ;;
+    editor) set -- "$@" dotfiles/nvim ;;
+    terminal) set -- "$@" dotfiles/ghostty dotfiles/karabiner ;;
+    machine) set -- "$@" dotfiles ;;
+  esac
+  CHANGE_PATHS="$*"
+}
+
+installed_contents() {
+  case "$INSTALL_TARGET" in
+    opencode) printf 'portable rules, %s core skills, OpenCode commands and agents' "$(count_core_skills)" ;;
+    codex) printf 'portable rules, %s core skills, Codex review agents' "$(count_core_skills)" ;;
+    claude) printf 'portable rules, %s core skills, Claude agents' "$(count_core_skills)" ;;
+    super)
+      if [ "$SUPER_CONFIG_EXPLICIT" -eq 1 ]; then
+        printf 'portable Super settings and chat defaults (commands skipped for redirected profile)'
+      else
+        printf 'portable Super settings, chat defaults, and five Backpack commands'
+      fi
+      ;;
+    ai)
+      if [ "$SUPER_CONFIG_EXPLICIT" -eq 1 ]; then
+        printf 'portable rules, %s core skills, host adapters, Super preferences' "$(count_core_skills)"
+      else
+        printf 'portable rules, %s core skills, host adapters, Super preferences and commands' "$(count_core_skills)"
+      fi
+      ;;
+    all)
+      if [ "$SUPER_CONFIG_EXPLICIT" -eq 1 ]; then
+        printf 'portable rules, %s core skills, host adapters, Super preferences, machine configuration' "$(count_core_skills)"
+      else
+        printf 'portable rules, %s core skills, host adapters, Super preferences and commands, machine configuration' "$(count_core_skills)"
+      fi
+      ;;
+    shell) printf 'Fish and Starship configuration' ;;
+    editor) printf 'Neovim configuration' ;;
+    terminal) printf 'Ghostty and Karabiner configuration' ;;
+    machine) printf 'shell, editor, and terminal configuration' ;;
+  esac
+}
+
+print_install_changes() {
+  section 'Installed in this run'
+  info "$(installed_contents)"
+  case "$INSTALL_TARGET" in
+    super)
+      muted 'Workflow skills use the provider adapter; refresh that provider separately.'
+      ;;
+  esac
+  case "$INSTALL_TARGET" in
+    super|ai|all)
+      if [ "$SUPER_CONFIG_EXPLICIT" -eq 0 ]; then
+        muted 'Super commands: 🧭 Kickoff, 👥 Team build, ⚖️ Validate, 📚 Learn, 🔎 Pattern scan'
+      fi
+      ;;
+  esac
+
+  if [ -z "$CURRENT_REVISION" ]; then
+    muted 'Change history unavailable outside a Git checkout.'
+    return
+  fi
+
+  change_paths
+  # Paths are repository-owned names selected above; whitespace is not valid in them.
+  set -- $CHANGE_PATHS
+
+  if [ -n "$PREVIOUS_REVISION" ] &&
+     git -C "$BACKPACK_ROOT" cat-file -e "$PREVIOUS_REVISION^{commit}" 2>/dev/null &&
+     git -C "$BACKPACK_ROOT" merge-base --is-ancestor "$PREVIOUS_REVISION" "$CURRENT_REVISION" 2>/dev/null; then
+    if [ "$PREVIOUS_REVISION" = "$CURRENT_REVISION" ]; then
+      muted 'No new committed changes since the last install of this target.'
+    else
+      change_range="$PREVIOUS_REVISION..$CURRENT_REVISION"
+      change_count=$(git -C "$BACKPACK_ROOT" rev-list --count --no-merges "$change_range" -- "$@")
+      if [ "$change_count" -eq 0 ]; then
+        muted 'No new committed changes for this target.'
+      else
+        section "New since the last $(target_description) install"
+        git -C "$BACKPACK_ROOT" log --no-merges --max-count=4 --format='  • %s' "$change_range" -- "$@"
+        if [ "$change_count" -gt 4 ]; then
+          muted "  + $((change_count - 4)) more commit(s)"
+        fi
+      fi
+    fi
+  else
+    section 'Recent changes in this checkout'
+    if [ -z "$PREVIOUS_REVISION" ]; then
+      muted 'First tracked install for this target; these may already be installed.'
+    else
+      muted 'Previous revision is outside this Git history; these may already be installed.'
+    fi
+    git -C "$BACKPACK_ROOT" log --no-merges --max-count=4 --format='  • %s' "$CURRENT_REVISION" -- "$@"
+  fi
+
+  if [ -n "$(git -C "$BACKPACK_ROOT" status --porcelain --untracked-files=normal -- "$@")" ]; then
+    warn 'Local uncommitted changes are present; commit notes do not describe them.'
+  fi
+}
+
 print_completion() {
   case "$INSTALL_TARGET" in
     opencode|codex|claude|super)
@@ -1019,6 +1340,8 @@ print_completion() {
       ;;
     *) success "$(target_description) installed" ;;
   esac
+
+  print_install_changes
 
   case ":$PATH:" in
     *":$BACKPACK_BIN_DIR:"*) ;;
@@ -1037,6 +1360,14 @@ $(section 'Installation summary')
   Mode      $(if [ "$APPLY" -eq 1 ]; then printf 'applying'; elif [ "$DRY_RUN" -eq 1 ]; then printf 'dry run'; else printf 'awaiting confirmation'; fi)
 
 EOF
+
+  if [ "$APPLY" -eq 0 ] && [ -n "$CURRENT_REVISION" ]; then
+    change_paths
+    set -- $CHANGE_PATHS
+    if [ -n "$(git -C "$BACKPACK_ROOT" status --porcelain --untracked-files=normal -- "$@")" ]; then
+      warn 'This checkout has uncommitted changes that will be applied.'
+    fi
+  fi
 
   link_entry "$BACKPACK_ROOT/backpack" "$BACKPACK_BIN_DIR/backpack"
   remove_legacy_bp_alias
@@ -1133,6 +1464,9 @@ if [ "$DIRECT_APPLY" -eq 0 ]; then
   fi
 fi
 
+CURRENT_REVISION=$(checkout_revision)
+PREVIOUS_REVISION=$(read_installed_revision "$INSTALL_TARGET")
+
 if [ "$DIRECT_APPLY" -eq 1 ]; then
   title
   section 'Checking Backpack'
@@ -1146,6 +1480,7 @@ if [ "$DIRECT_APPLY" -eq 1 ]; then
   run_plan
   verify_installation
   record_installation "$INSTALL_TARGET"
+  record_installation_revision
   printf '\n'
   print_completion
   if [ -d "$backup_dir" ]; then
@@ -1157,7 +1492,7 @@ fi
 if [ "$DRY_RUN" -eq 1 ]; then
   section 'Preview'
 else
-  section 'Ready to install/update'
+  section 'Ready to install or refresh'
 fi
 APPLY=0
 run_plan
@@ -1174,6 +1509,7 @@ if confirm_apply; then
     run_plan
     verify_installation
     record_installation "$INSTALL_TARGET"
+    record_installation_revision
 else
     printf '\n'
     warn 'Install cancelled. No changes were made.'
