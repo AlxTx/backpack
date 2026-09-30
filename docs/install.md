@@ -76,6 +76,24 @@ provider chat so it discovers the current skills and commands. The core includes
 `backpack-learn`, and `backpack-pattern-scan`; the retired `backpack-start-work` and
 `backpack-pattern-capture` links are removed during installation.
 
+Every install reads the files in the current Backpack checkout. You can launch
+the installer from another folder; that folder does not become an installation
+target. **Everything** applies each selected part to its usual location on this
+Mac:
+
+| Part | Installed location | How it is applied |
+|---|---|---|
+| Backpack command | `~/.local/bin/backpack` | Link to this checkout |
+| OpenCode | `~/.config/opencode/` | Replace the managed adapter, then link the shared rules |
+| Codex | `~/.codex/`, `~/.agents/skills/` | Link Backpack rules, agents, and core skills |
+| Claude Code | `~/.claude/` | Link Backpack rules, agents, and core skills |
+| Super | `~/.super.engineering/` and global App Settings | Merge portable preferences and sync five commands |
+| Shell, editor, terminal | `~/.config/fish/`, Starship files, `~/.config/nvim/`, `~/.config/ghostty/`, `~/.config/karabiner/` | Link to this checkout |
+
+An explicit destination override such as `CONFIG_DIR` changes the relevant
+locations. Links keep using the checked-out files, so keep this checkout on the
+Mac. Reinstalling does not fetch newer commits; update the checkout first.
+
 The completion screen shows the installed surfaces and a short "what's new"
 summary from commits relevant to the selected target. Backpack remembers the
 last successfully installed Git revision per target in
@@ -87,7 +105,11 @@ update the repository separately, then reinstall the affected host.
 
 `backpack install engineering --super` merges Super preferences and synchronizes
 the five global Backpack commands through the running Super app, starting it if
-needed. Their visible names are `🧭 Kickoff`, `👥 Team build`, `⚖️ Validate`,
+needed. The preferences go to `~/.super.engineering/`; the commands go to
+Super's global App Settings. The installer uses a live Super workspace only as
+the CLI context for that global sync, regardless of the folder from which you
+launch Backpack. It does not add or change a project workspace. Their visible
+names are `🧭 Kickoff`, `👥 Team build`, `⚖️ Validate`,
 `📚 Learn`, and `🔎 Pattern scan`. Existing `Backpack · ...` commands are renamed
 by ID without duplicates; other commands and local provider/model choices are
 preserved. The [step-by-step guide](backpack-routing.md)

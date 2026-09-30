@@ -54,7 +54,10 @@ preserves each command's local provider, model, reasoning, and icon overrides.
 The emoji lives in the visible command name, so an icon override cannot hide
 the action cue.
 Other Super commands are untouched. Super must be installed; Backpack starts it
-if needed so the CLI can synchronize global App Settings. An explicit
+if needed so the CLI can synchronize global App Settings. The installer runs
+those CLI calls from the Backpack checkout or an existing live Super worktree;
+the directory where the installer was launched does not choose a target
+workspace. It does not create or modify a Super workspace. An explicit
 `SUPER_CONFIG_DIR` override redirects settings files only, so it skips command
 synchronization rather than writing to the wrong Super profile.
 

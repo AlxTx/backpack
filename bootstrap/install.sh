@@ -813,6 +813,29 @@ super_command_descriptor() {
   esac
 }
 
+super_commands_cli() {
+  (CDPATH= cd "$SUPER_COMMAND_CWD" && "$BACKPACK_SC_BIN" commands "$@")
+}
+
+read_super_commands() {
+  SUPER_COMMANDS_JSON=$(super_commands_cli list --scope global --json 2>&1) || return 1
+  printf '%s' "$SUPER_COMMANDS_JSON" |
+    jq -e '.kind == "custom_commands" and (.response.commands | type == "array")' >/dev/null 2>&1
+}
+
+select_super_command_context() {
+  super_workspaces_json=$("$BACKPACK_SC_BIN" workspace list --json 2>/dev/null) || return 1
+  super_worktree=$(printf '%s' "$super_workspaces_json" | jq -r '
+    select(.kind == "workspace_list") |
+    [.response.workspaces[]?.sections[]?.projects[]?.items[]? |
+      select(.path | type == "string")] as $items |
+    ([$items[] | select(.selected == true) | .path][0] //
+     [$items[] | .path][0] // empty)
+  ' 2>/dev/null) || return 1
+  [ -n "$super_worktree" ] && [ -d "$super_worktree" ] || return 1
+  SUPER_COMMAND_CWD=$super_worktree
+}
+
 prepare_super_commands() {
   if [ "$APPLY" -eq 0 ]; then
     detail 'sync five global Backpack commands through the Super CLI'
@@ -850,21 +873,31 @@ prepare_super_commands() {
     exit 1
   fi
 
-  if ! SUPER_COMMANDS_JSON=$("$BACKPACK_SC_BIN" commands list --scope global --json 2>&1); then
-    if command -v open >/dev/null 2>&1 && open -a super.engineering >/dev/null 2>&1; then
-      super_wait=0
-      while [ "$super_wait" -lt 10 ]; do
-        sleep 1
-        if SUPER_COMMANDS_JSON=$("$BACKPACK_SC_BIN" commands list --scope global --json 2>&1); then
-          break
-        fi
-        super_wait=$((super_wait + 1))
-      done
+  SUPER_COMMAND_CWD=$BACKPACK_ROOT
+  super_commands_ready=0
+  if read_super_commands; then
+    super_commands_ready=1
+  fi
+  if [ "$super_commands_ready" -eq 0 ] && select_super_command_context; then
+    if read_super_commands; then
+      super_commands_ready=1
     fi
   fi
-  if ! printf '%s' "$SUPER_COMMANDS_JSON" |
-    jq -e '.kind == "custom_commands" and (.response.commands | type == "array")' >/dev/null 2>&1; then
-    printf '✗ cannot read global Super commands; open Super and retry the installation\n' >&2
+  if [ "$super_commands_ready" -eq 0 ] &&
+     command -v open >/dev/null 2>&1 && open -a super.engineering >/dev/null 2>&1; then
+    super_wait=0
+    while [ "$super_wait" -lt 10 ]; do
+      sleep 1
+      select_super_command_context || true
+      if read_super_commands; then
+        super_commands_ready=1
+        break
+      fi
+      super_wait=$((super_wait + 1))
+    done
+  fi
+  if [ "$super_commands_ready" -eq 0 ]; then
+    printf '✗ cannot read global Super commands; Super needs a live workspace to sync them\n' >&2
     printf '%s\n' "$SUPER_COMMANDS_JSON" >&2
     exit 1
   fi
@@ -922,22 +955,22 @@ sync_super_commands() {
         '[.response.commands[] | select(.scope == "global" and (.name == $name or .name == $legacy))] | .[0].id // empty')
     if [ -n "$super_command_id" ]; then
       if [ "$SUPER_COMMAND_AUTO" = true ]; then
-        "$BACKPACK_SC_BIN" commands update "$super_command_id" --scope global \
+        super_commands_cli update "$super_command_id" --scope global \
           --name "$SUPER_COMMAND_NAME" --command "$SUPER_COMMAND_PROMPT" --dispatch current-chat --view chat \
           --auto-submit --json >/dev/null
       else
-        "$BACKPACK_SC_BIN" commands update "$super_command_id" --scope global \
+        super_commands_cli update "$super_command_id" --scope global \
           --name "$SUPER_COMMAND_NAME" --command "$SUPER_COMMAND_PROMPT" --dispatch current-chat --view chat \
           --no-auto-submit --json >/dev/null
       fi
       detail_success "updated Super command $SUPER_COMMAND_NAME"
     else
       if [ "$SUPER_COMMAND_AUTO" = true ]; then
-        "$BACKPACK_SC_BIN" commands create "$SUPER_COMMAND_NAME" \
+        super_commands_cli create "$SUPER_COMMAND_NAME" \
           --command "$SUPER_COMMAND_PROMPT" --scope global \
           --dispatch current-chat --view chat --json >/dev/null
       else
-        "$BACKPACK_SC_BIN" commands create "$SUPER_COMMAND_NAME" \
+        super_commands_cli create "$SUPER_COMMAND_NAME" \
           --command "$SUPER_COMMAND_PROMPT" --scope global \
           --dispatch current-chat --view chat --no-auto-submit --json >/dev/null
       fi
@@ -945,7 +978,11 @@ sync_super_commands() {
     fi
   done
 
-  SUPER_COMMANDS_JSON=$("$BACKPACK_SC_BIN" commands list --scope global --json)
+  if ! read_super_commands; then
+    printf '✗ cannot verify global Super commands after synchronization\n' >&2
+    printf '%s\n' "$SUPER_COMMANDS_JSON" >&2
+    exit 1
+  fi
   for super_command_key in project-kickoff validate-delivery learn pattern-scan orchestrated-build; do
     super_command_descriptor "$super_command_key"
     SUPER_COMMAND_PROMPT=$(cat "$SUPER_COMMAND_FILE")
@@ -1354,6 +1391,7 @@ run_plan() {
 $(section 'Installation summary')
 
   Target    $(target_description)
+  Source    $BACKPACK_ROOT
   Surfaces  $(target_surface)
   Action    Refresh links and replace selected adapters from this Backpack version
   Core      $(if target_uses_skills; then core_install_description; else printf 'not applicable'; fi)
