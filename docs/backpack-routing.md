@@ -116,9 +116,17 @@ Learn    -> backpack-learn proposes durable knowledge for a separate change
 
 On OpenCode, `/backpack-review` and `/backpack-qa` also deny shell so their
 read-only boundary is technically enforceable. They review the supplied delivery
-context and report missing executable or rendered proof as `DEPENDENCY PENDING`.
+context. Missing executable or rendered proof is `DEPENDENCY PENDING` when a
+material criterion needs it and no trustworthy alternative is available.
 Other hosts may allow non-mutating inspection commands within their native
 read-only sandbox or permission mode.
+
+Validate can still run when the application cannot be launched locally. Product
+QA checks each criterion against available contracts, diffs, CI results,
+previews, screenshots, and logs, then names the exact behavior that remains
+unverified. A static change can pass on sufficient static proof; an untested
+material interaction stays pending with a focused manual-acceptance or preview
+step. Lack of local access by itself is not a Product QA failure.
 
 `/backpack-review` and `/backpack-qa` remain independently callable on hosts that
 expose those host-only lens commands. `backpack-validate` is the default

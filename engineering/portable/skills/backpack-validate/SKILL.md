@@ -8,20 +8,28 @@ description: Run independent Code Review and Product QA on completed work. In Gi
 Preserve the active requirements, decisions, expected proof, and diff scope. Do
 not reinterpret the delivery contract or widen the work.
 
-Run two independent read-only lenses concurrently when the host supports
-subagents: Backpack Engineering Code Review checks whether the solution is correctly built,
-and Backpack Engineering Product QA checks whether the right product was built.
+Obtain independent read-only Code Review and Product QA reports. Code Review
+checks whether the solution is correctly built; Product QA checks whether the
+right product was built. Use the host's dedicated agents when available, or
+separate general-purpose agents with the same bounded contracts. Let the host
+choose session and handoff mechanics; use app-managed orchestration only when
+the user requested it. Keep the two reports and verdicts separate. If
+independent review is unavailable, report `DEPENDENCY PENDING`; a self-audit
+can still provide diagnostic findings, but not `READY TO SHIP`.
 
-Use the host's dedicated Code Review and Product QA agents when available.
-Otherwise delegate the same two bounded contracts to separate general-purpose
-subagents. Wait for both results and keep
-their evidence and verdicts separate. If independent delegation is unavailable,
-report `DEPENDENCY PENDING`. A sequential audit may still provide diagnostic
-evidence, but it cannot satisfy the delivery gate or produce `READY TO SHIP`.
+Product QA audits every scoped criterion using available evidence: requirements,
+the diff, existing behavior, contracts, CI results, a preview or staging build,
+screenshots, logs, or safe browser access when relevant. Record what each source
+actually proves. Lack of a local runtime alone does not make the whole QA fail
+or pending. Do not infer rendered, interactive, or integration behavior from
+source code alone. If a material criterion still lacks trustworthy proof,
+mark that criterion unverified, name the owner and smallest safe way to obtain
+proof, and return Product QA `DEPENDENCY PENDING`. Static criteria may pass on
+sufficient static evidence.
 
 Do not edit files or perform Git delivery actions. Missing requirements,
-credentials, fixtures, browser access, or external evidence produce
-`DEPENDENCY PENDING`, not an inferred pass.
+credentials, fixtures, or external access are dependencies only when they
+prevent proof required for a scoped criterion.
 
 Consolidate the result:
 

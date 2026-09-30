@@ -259,7 +259,10 @@ Validation has two independent lenses:
 
 In brownfield work, Product QA uses existing requirements and behavior as its
 contract. In greenfield work, it uses the request and the product/design contract
-established during Plan. Keep the two verdicts separate, then consolidate them:
+established during Plan. Local execution is one possible source of proof, not a
+prerequisite for every QA criterion. Audit what the available evidence supports,
+and identify any material behavior that still needs runtime or owner evidence.
+Keep the two verdicts separate, then consolidate them:
 
 - **READY TO SHIP** — Code Review approves and Product QA passes.
 - **CHANGES REQUIRED** — either lens finds an in-scope defect.

@@ -182,6 +182,15 @@ question or decision instead of asking the user to manage the whole sequence.
 Build produces the slice; Validate evaluates it against the expected proof, and
 later product evidence can change the next slice.
 
+Validate keeps Code Review and Product QA independent while the active host
+chooses how to run their sessions. Product QA uses the evidence available for
+each criterion; a local app run is useful when required but is not a universal
+gate. If a material user journey cannot be exercised locally or proved through
+CI, preview, staging, or other trustworthy evidence, report the verified
+criteria and the exact remaining dependency. Do not infer runtime behavior from
+the diff or call the entire change defective merely because local access is
+missing.
+
 For ambiguous, multi-source, integration-heavy, or high-risk features, Plan
 creates a task-local delivery ledger before edits: requirements and their
 sources, explicit versus assumed status, frontend/backend/external ownership,
